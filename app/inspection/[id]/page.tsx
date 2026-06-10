@@ -25,6 +25,12 @@ interface Defect {
   inspector_note?: string;
 }
 
+interface SiteObservation {
+  aspect: string;
+  detail: string;
+  project_relevance: string;
+}
+
 interface PhotoEntry {
   url: string;
   preview: string;
@@ -32,8 +38,13 @@ interface PhotoEntry {
   analysis: {
     area_detected: string;
     overall_condition: string;
-    observed_defects: Defect[];
-    priority_level: string;
+    // repair mode
+    observed_defects?: Defect[];
+    priority_level?: string;
+    // new project mode
+    site_observations?: SiteObservation[];
+    estimated_dimensions?: string;
+    access_notes?: string;
     inspector_note?: string;
   } | null;
 }
@@ -187,8 +198,8 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
 
   const removePhoto = (preview: string) => setPhotos(prev => prev.filter(p => p.preview !== preview));
 
-  const allDone     = photos.length > 0 && photos.every(p => p.status === "done" || p.status === "error");
-  const hasAnalysis = photos.some(p => p.analysis !== null);
+  const allDone      = photos.length > 0 && photos.every(p => p.status === "done" || p.status === "error");
+  const hasAnalysis  = photos.some(p => p.analysis !== null);
   const totalDefects = photos.flatMap(p => p.analysis?.observed_defects || []).length;
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -294,7 +305,12 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
       <div style={{ flex: 1, padding: "20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
 
         {photos.length === 0 && (
-          <MacTorBubble text={m.photoPrompt} sub={catDef.photoHint[lang]} />
+          serviceType === "new_project"
+            ? <MacTorBubble
+                text="Share photos of the site or space where the work will be done."
+                sub="I'll describe what I see to help plan and quote the project — no defect analysis needed."
+              />
+            : <MacTorBubble text={m.photoPrompt} sub={catDef.photoHint[lang]} />
         )}
 
         {photos.length < MAX_PHOTOS && (
@@ -371,42 +387,76 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
 
             <div style={{ padding: "14px" }}>
               {photo.status === "done" && photo.analysis ? (
-                <>
-                  {photo.analysis.observed_defects.length > 0 ? (
-                    <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
-                      {photo.analysis.observed_defects.map((d, j) => (
-                        <div key={j} style={{ padding: "10px 12px", borderRadius: "10px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
-                            <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--white)" }}>{d.defect_type}</span>
-                            <span style={{
-                              fontSize: "0.65rem", fontWeight: 700, fontFamily: "'Space Mono',monospace",
-                              padding: "2px 8px", borderRadius: 20,
-                              background: `${SEVERITY_COLORS[d.severity]}22`,
-                              color: SEVERITY_COLORS[d.severity],
-                              border: `1px solid ${SEVERITY_COLORS[d.severity]}44`,
-                            }}>
-                              {SEVERITY_LABELS[d.severity]?.[lang] || d.severity.toUpperCase()}
-                            </span>
+                serviceType === "new_project" ? (
+                  // ── New project: site description ──────────────────────────
+                  <>
+                    {(photo.analysis.site_observations || []).length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {(photo.analysis.site_observations || []).map((obs, j) => (
+                          <div key={j} style={{ padding: "10px 12px", borderRadius: "10px", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                            <p style={{ margin: "0 0 3px", fontSize: "0.82rem", fontWeight: 700, color: "#93c5fd" }}>{obs.aspect}</p>
+                            <p style={{ margin: "0 0 3px", fontSize: "0.78rem", color: "var(--white)" }}>{obs.detail}</p>
+                            {obs.project_relevance && (
+                              <p style={{ margin: 0, fontSize: "0.72rem", color: "var(--muted)", fontStyle: "italic" }}>→ {obs.project_relevance}</p>
+                            )}
                           </div>
-                          {d.danger_if_ignored && (
-                            <p style={{ fontSize: "0.75rem", color: "var(--amber)", margin: 0 }}>
-                              ⚠ {d.danger_if_ignored}
-                            </p>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p style={{ fontSize: "0.8rem", color: "var(--green)", fontFamily: "'Space Mono',monospace", margin: 0 }}>
-                      {m.noDamage}
-                    </p>
-                  )}
-                  {photo.analysis.inspector_note && (
-                    <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "8px 0 0", fontStyle: "italic", borderTop: "1px solid var(--border)", paddingTop: "8px" }}>
-                      🔍 {photo.analysis.inspector_note}
-                    </p>
-                  )}
-                </>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: "0.8rem", color: "var(--muted)", fontFamily: "'Space Mono',monospace", margin: 0 }}>
+                        Site recorded
+                      </p>
+                    )}
+                    {photo.analysis.estimated_dimensions && photo.analysis.estimated_dimensions !== "undetermined" && (
+                      <p style={{ fontSize: "0.75rem", color: "var(--muted)", margin: "8px 0 0" }}>
+                        📐 {photo.analysis.estimated_dimensions}
+                      </p>
+                    )}
+                    {photo.analysis.inspector_note && (
+                      <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "8px 0 0", fontStyle: "italic", borderTop: "1px solid var(--border)", paddingTop: "8px" }}>
+                        🔍 {photo.analysis.inspector_note}
+                      </p>
+                    )}
+                  </>
+                ) : (
+                  // ── Repair: defect analysis ────────────────────────────────
+                  <>
+                    {(photo.analysis.observed_defects || []).length > 0 ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
+                        {(photo.analysis.observed_defects || []).map((d, j) => (
+                          <div key={j} style={{ padding: "10px 12px", borderRadius: "10px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
+                              <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--white)" }}>{d.defect_type}</span>
+                              <span style={{
+                                fontSize: "0.65rem", fontWeight: 700, fontFamily: "'Space Mono',monospace",
+                                padding: "2px 8px", borderRadius: 20,
+                                background: `${SEVERITY_COLORS[d.severity]}22`,
+                                color: SEVERITY_COLORS[d.severity],
+                                border: `1px solid ${SEVERITY_COLORS[d.severity]}44`,
+                              }}>
+                                {SEVERITY_LABELS[d.severity]?.[lang] || d.severity.toUpperCase()}
+                              </span>
+                            </div>
+                            {d.danger_if_ignored && (
+                              <p style={{ fontSize: "0.75rem", color: "var(--amber)", margin: 0 }}>
+                                ⚠ {d.danger_if_ignored}
+                              </p>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p style={{ fontSize: "0.8rem", color: "var(--green)", fontFamily: "'Space Mono',monospace", margin: 0 }}>
+                        {m.noDamage}
+                      </p>
+                    )}
+                    {photo.analysis.inspector_note && (
+                      <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "8px 0 0", fontStyle: "italic", borderTop: "1px solid var(--border)", paddingTop: "8px" }}>
+                        🔍 {photo.analysis.inspector_note}
+                      </p>
+                    )}
+                  </>
+                )
               ) : photo.status === "error" ? (
                 <p style={{ fontSize: "0.8rem", color: "var(--red)", margin: 0 }}>{m.photoError}</p>
               ) : null}
