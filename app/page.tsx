@@ -196,9 +196,9 @@ export default function LandingPage() {
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/mactor.png" alt="" aria-hidden="true"
           style={{
-            position: "absolute", right: "-8px", bottom: 0,
-            height: "148px", width: "auto", objectFit: "contain",
-            objectPosition: "center bottom", pointerEvents: "none",
+            position: "absolute", right: "-4px", top: "-8px",
+            height: "165px", width: "auto", objectFit: "contain",
+            objectPosition: "center top", pointerEvents: "none",
           }} />
         <div style={{ padding: "16px", paddingRight: "110px" }}>
           <p style={{ margin: 0, fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "5px" }}>

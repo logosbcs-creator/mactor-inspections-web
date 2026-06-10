@@ -59,7 +59,7 @@ function MacTorBubble({ text, sub }: { text: string; sub?: string }) {
       }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/mactor.png" alt="Inspector MacTor"
-          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 8%" }} />
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 15%" }} />
       </div>
       <div style={{ flex: 1 }}>
         <p style={{
