@@ -2,7 +2,7 @@
 import { useState, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
-import { M, MACTOR, CATEGORIES, type IssueCategory, sortDefectsBySeverity, hasUrgentIssues } from "../../inspector-mactor/character";
+import { M, CATEGORIES, type IssueCategory, sortDefectsBySeverity, hasUrgentIssues } from "../../inspector-mactor/character";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -32,10 +32,11 @@ function MacTorBubble({ text, sub }: { text: string; sub?: string }) {
     <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", marginBottom: "24px" }}>
       <div style={{
         flexShrink: 0, width: 44, height: 44, borderRadius: "50%",
-        background: "linear-gradient(135deg,rgba(245,158,11,0.2),rgba(59,130,246,0.15))",
-        border: "2px solid var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.3rem",
+        border: "2px solid var(--gold)", overflow: "hidden",
       }}>
-        {MACTOR.avatar}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/mactor.png" alt="Inspector MacTor"
+          style={{ width: "100%", height: "100%", objectFit: "cover", objectPosition: "50% 8%" }} />
       </div>
       <div style={{ flex: 1 }}>
         <p style={{ margin: 0, fontSize: "0.7rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "6px" }}>
