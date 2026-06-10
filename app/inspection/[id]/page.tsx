@@ -306,10 +306,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
 
         {photos.length === 0 && (
           serviceType === "new_project"
-            ? <MacTorBubble
-                text="Share photos of the site or space where the work will be done."
-                sub="I'll describe what I see to help plan and quote the project — no defect analysis needed."
-              />
+            ? <MacTorBubble text={m.newProjectPhotoPrompt} sub={m.newProjectPhotoSub} />
             : <MacTorBubble text={m.photoPrompt} sub={catDef.photoHint[lang]} />
         )}
 
@@ -332,7 +329,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                 }}>
                 <span style={{ fontSize: "2rem" }}>📷</span>
                 <span style={{ color: "var(--gold-light)", fontWeight: 700, fontSize: "0.9rem" }}>
-                  Take photo
+                  {m.takePhoto}
                 </span>
               </button>
 
@@ -345,7 +342,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                 }}>
                 <span style={{ fontSize: "2rem" }}>🖼️</span>
                 <span style={{ color: "#93c5fd", fontWeight: 700, fontSize: "0.9rem" }}>
-                  Upload photo
+                  {m.uploadPhoto}
                 </span>
               </button>
             </div>
@@ -404,7 +401,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                       </div>
                     ) : (
                       <p style={{ fontSize: "0.8rem", color: "var(--muted)", fontFamily: "'Space Mono',monospace", margin: 0 }}>
-                        Site recorded
+                        {m.siteRecorded}
                       </p>
                     )}
                     {photo.analysis.estimated_dimensions && photo.analysis.estimated_dimensions !== "undetermined" && (

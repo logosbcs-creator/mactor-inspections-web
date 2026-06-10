@@ -275,6 +275,27 @@ export interface MacTorScript {
   noDamage:      string;
   photoError:    string;
   progress:      (done: number, total: number) => string;
+  takePhoto:     string;
+  uploadPhoto:   string;
+
+  // New project specific
+  newProjectPhotoPrompt:    string;
+  newProjectPhotoSub:       string;
+  siteRecorded:             string;
+  siteObservations:         string;
+  projectEstimateHeader:    string;
+  sitePhotosLabel:          string;
+  projectRequestLabel:      string;
+  newProjectReportGreeting: string;
+  newProjectReportSub:      string;
+  requestProjectEstimate:   string;
+  projectFollowupIntro:     string;
+  projectFollowupSub:       string;
+  newProjectFollowUpQs:     string[];
+  projectEstimateReady:     string;
+  projectEstimateSub:       string;
+  newProjectLabel:          string;
+  sitePhotoCount:           (n: number) => string;
 
   // CTA to report
   reportCTA:     (n: number) => string;
@@ -347,6 +368,30 @@ const en: MacTorScript = {
   noDamage:     '✓ No damage detected in this photo',
   photoError:   '✗ Could not process this photo',
   progress:     (done, total) => `Reviewing… ${done} of ${total} done`,
+  takePhoto:    'Take photo',
+  uploadPhoto:  'Upload photo',
+
+  newProjectPhotoPrompt:    'Share photos of the site or space where the work will be done.',
+  newProjectPhotoSub:       "I'll use them as context — the main guide is your written description.",
+  siteRecorded:             'Site recorded',
+  siteObservations:         'SITE OBSERVATIONS',
+  projectEstimateHeader:    'PROJECT ESTIMATE',
+  sitePhotosLabel:          'SITE PHOTOS',
+  projectRequestLabel:      'PROJECT REQUEST',
+  newProjectReportGreeting: "I've reviewed your request and the site photos. Here's a summary for planning and quoting.",
+  newProjectReportSub:      "Request an estimate below and I'll get back to you with pricing.",
+  requestProjectEstimate:   'Request a project estimate →',
+  projectFollowupIntro:     'A few quick details will help me give you a more accurate quote.',
+  projectFollowupSub:       "Optional — skip anything that doesn't apply.",
+  newProjectFollowUpQs: [
+    "What's your target timeline for this project?",
+    'Do you have a budget range in mind?',
+    'Any specific materials, finishes, or requirements?',
+  ],
+  projectEstimateReady: 'Ready to send your project request to MacTor?',
+  projectEstimateSub:   "Free — no commitment. You'll get a quote within 24 hours.",
+  newProjectLabel:      'New project',
+  sitePhotoCount:       (n) => `${n} site photo${n !== 1 ? 's' : ''}`,
 
   reportCTA:  (n) => n > 0 ? `See my report → (${n} issue${n > 1 ? 's' : ''} found)` : 'See my report →',
   partialCTA: 'Review findings so far →',
@@ -414,6 +459,30 @@ const es: MacTorScript = {
   noDamage:     '✓ No se detectó daño en esta foto',
   photoError:   '✗ No se pudo procesar esta foto',
   progress:     (done, total) => `Revisando… ${done} de ${total} listas`,
+  takePhoto:    'Tomar foto',
+  uploadPhoto:  'Subir foto',
+
+  newProjectPhotoPrompt:    'Comparte fotos del lugar o espacio donde se realizará el trabajo.',
+  newProjectPhotoSub:       'Las uso como contexto — la guía principal es tu descripción escrita.',
+  siteRecorded:             'Sitio registrado',
+  siteObservations:         'OBSERVACIONES DEL SITIO',
+  projectEstimateHeader:    'ESTIMADO DE PROYECTO',
+  sitePhotosLabel:          'FOTOS DEL SITIO',
+  projectRequestLabel:      'SOLICITUD DE PROYECTO',
+  newProjectReportGreeting: 'Revisé tu solicitud y las fotos del sitio. Aquí hay un resumen para planificación y presupuesto.',
+  newProjectReportSub:      'Solicita un estimado abajo y te respondo con precios.',
+  requestProjectEstimate:   'Solicitar estimado de proyecto →',
+  projectFollowupIntro:     'Algunos detalles me ayudarán a darte un presupuesto más preciso.',
+  projectFollowupSub:       'Opcional — omite lo que no aplique.',
+  newProjectFollowUpQs: [
+    '¿Cuál es tu fecha límite para este proyecto?',
+    '¿Tienes un presupuesto aproximado en mente?',
+    '¿Algún material, acabado o requisito específico?',
+  ],
+  projectEstimateReady: '¿Listo para enviar tu solicitud de proyecto a MacTor?',
+  projectEstimateSub:   'Gratis — sin compromiso. Recibirás un presupuesto en 24 horas.',
+  newProjectLabel:      'Nuevo proyecto',
+  sitePhotoCount:       (n) => `${n} foto${n !== 1 ? 's' : ''} del sitio`,
 
   reportCTA:  (n) => n > 0 ? `Ver mi reporte → (${n} problema${n > 1 ? 's' : ''} encontrado${n > 1 ? 's' : ''})` : 'Ver mi reporte →',
   partialCTA: 'Ver hallazgos hasta ahora →',
@@ -481,6 +550,30 @@ const zh: MacTorScript = {
   noDamage:     '✓ 此照片中未检测到损坏',
   photoError:   '✗ 无法处理此照片',
   progress:     (done, total) => `检查中… ${done}/${total} 已完成`,
+  takePhoto:    '拍照',
+  uploadPhoto:  '上传照片',
+
+  newProjectPhotoPrompt:    '分享施工地点或空间的照片。',
+  newProjectPhotoSub:       '照片作为参考——主要依据是您的文字描述。',
+  siteRecorded:             '场地已记录',
+  siteObservations:         '场地观察',
+  projectEstimateHeader:    '项目估算',
+  sitePhotosLabel:          '场地照片',
+  projectRequestLabel:      '项目申请',
+  newProjectReportGreeting: '我已审阅您的申请和场地照片，以下是规划报价的摘要。',
+  newProjectReportSub:      '在下方申请估算，我会尽快回复报价。',
+  requestProjectEstimate:   '申请项目估算 →',
+  projectFollowupIntro:     '几个简短问题有助于提供更准确的报价。',
+  projectFollowupSub:       '可选——不适用的跳过即可。',
+  newProjectFollowUpQs: [
+    '您的项目目标完工时间是？',
+    '您有预算范围吗？',
+    '有特定材料、工艺或要求吗？',
+  ],
+  projectEstimateReady: '准备好向MacTor发送项目申请了吗？',
+  projectEstimateSub:   '免费——无需承诺。您将在24小时内收到报价。',
+  newProjectLabel:      '新项目',
+  sitePhotoCount:       (n) => `${n}张场地照片`,
 
   reportCTA:  (n) => n > 0 ? `查看报告 → (发现${n}个问题)` : '查看报告 →',
   partialCTA: '查看当前发现 →',
@@ -546,6 +639,30 @@ const hi: MacTorScript = {
   noDamage:     '✓ इस फोटो में कोई नुकसान नहीं मिला',
   photoError:   '✗ इस फोटो को प्रोसेस नहीं किया जा सका',
   progress:     (done, total) => `समीक्षा… ${done}/${total} पूरा`,
+  takePhoto:    'फोटो लें',
+  uploadPhoto:  'फोटो अपलोड करें',
+
+  newProjectPhotoPrompt:    'जहां काम होगा उस जगह की फोटो शेयर करें।',
+  newProjectPhotoSub:       'फोटो संदर्भ के लिए है — मुख्य आधार आपका लिखित विवरण है।',
+  siteRecorded:             'साइट दर्ज की गई',
+  siteObservations:         'साइट अवलोकन',
+  projectEstimateHeader:    'प्रोजेक्ट अनुमान',
+  sitePhotosLabel:          'साइट की फोटो',
+  projectRequestLabel:      'प्रोजेक्ट अनुरोध',
+  newProjectReportGreeting: 'मैंने आपका अनुरोध और साइट की फोटो देखी। यहाँ योजना और कोटेशन के लिए सारांश है।',
+  newProjectReportSub:      'नीचे अनुमान के लिए अनुरोध करें और मैं कीमत के साथ वापस आऊंगा।',
+  requestProjectEstimate:   'प्रोजेक्ट अनुमान का अनुरोध करें →',
+  projectFollowupIntro:     'कुछ त्वरित विवरण मुझे अधिक सटीक कोटेशन देने में मदद करेंगे।',
+  projectFollowupSub:       'वैकल्पिक — जो लागू न हो उसे छोड़ें।',
+  newProjectFollowUpQs: [
+    'इस प्रोजेक्ट के लिए आपकी समय-सीमा क्या है?',
+    'क्या आपके मन में कोई बजट है?',
+    'कोई विशेष सामग्री, फिनिश या आवश्यकताएं?',
+  ],
+  projectEstimateReady: 'MacTor को अपना प्रोजेक्ट अनुरोध भेजने के लिए तैयार हैं?',
+  projectEstimateSub:   'मुफ्त — बिना प्रतिबद्धता। 24 घंटे में कोटेशन मिलेगा।',
+  newProjectLabel:      'नया प्रोजेक्ट',
+  sitePhotoCount:       (n) => `${n} साइट फोटो`,
 
   reportCTA:  (n) => n > 0 ? `मेरी रिपोर्ट देखें → (${n} समस्या मिली)` : 'मेरी रिपोर्ट देखें →',
   partialCTA: 'अब तक के निष्कर्ष देखें →',
@@ -613,6 +730,30 @@ const tl: MacTorScript = {
   noDamage:     '✓ Walang pinsalang natuklasan sa larawang ito',
   photoError:   '✗ Hindi maiproseso ang larawang ito',
   progress:     (done, total) => `Tinitingnan… ${done} sa ${total} tapos na`,
+  takePhoto:    'Kumuha ng larawan',
+  uploadPhoto:  'Mag-upload ng larawan',
+
+  newProjectPhotoPrompt:    'Magbahagi ng mga larawan ng lugar kung saan gagawin ang trabaho.',
+  newProjectPhotoSub:       'Gagamitin ko ito bilang konteksto — ang pangunahing gabay ay ang iyong nakasulat na paglalarawan.',
+  siteRecorded:             'Naitala ang lugar',
+  siteObservations:         'MGA OBSERBASYON SA LUGAR',
+  projectEstimateHeader:    'TANTYA NG PROYEKTO',
+  sitePhotosLabel:          'MGA LARAWAN NG LUGAR',
+  projectRequestLabel:      'KAHILINGAN SA PROYEKTO',
+  newProjectReportGreeting: 'Nasuri ko ang iyong kahilingan at mga larawan ng lugar. Narito ang buod para sa pagpaplano at pagpepresyo.',
+  newProjectReportSub:      'Humiling ng tantya sa ibaba at babalikan kita na may pagpepresyo.',
+  requestProjectEstimate:   'Humiling ng tantya ng proyekto →',
+  projectFollowupIntro:     'Ilang mabilis na detalye ang makakatulong sa akin na magbigay ng mas tumpak na quote.',
+  projectFollowupSub:       'Opsyonal — laktawan ang hindi naaangkop.',
+  newProjectFollowUpQs: [
+    'Ano ang iyong target na timeline para sa proyektong ito?',
+    'Mayroon ka bang budget range sa isip?',
+    'Anumang partikular na materyales, tapusin, o mga kinakailangan?',
+  ],
+  projectEstimateReady: 'Handa ka na bang ipadala ang iyong kahilingan sa proyekto kay MacTor?',
+  projectEstimateSub:   'Libre — walang pangako. Makakatanggap ka ng quote sa loob ng 24 oras.',
+  newProjectLabel:      'Bagong proyekto',
+  sitePhotoCount:       (n) => `${n} larawang panglarawan`,
 
   reportCTA:  (n) => n > 0 ? `Tingnan ang aking ulat → (${n} isyung natagpuan)` : 'Tingnan ang aking ulat →',
   partialCTA: 'Tingnan ang mga natuklasan →',

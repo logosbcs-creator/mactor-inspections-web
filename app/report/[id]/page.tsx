@@ -110,12 +110,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
 
   // Follow-up questions differ by service type
   const REPAIR_FOLLOW_UP_QS = catDef?.followUpQuestions[lang] || [];
-  const NEW_PROJECT_FOLLOW_UP_QS = [
-    "What's your target timeline for this project?",
-    "Do you have a budget range in mind?",
-    "Any specific materials, finishes, or requirements?",
-  ];
-  const followUpQs = isNewProject ? NEW_PROJECT_FOLLOW_UP_QS : REPAIR_FOLLOW_UP_QS;
+  const followUpQs = isNewProject ? m.newProjectFollowUpQs : REPAIR_FOLLOW_UP_QS;
 
   // Site observations aggregated from all photos (new project only)
   const allSiteObs = analyses.flatMap((a: any) => a.site_observations || []);
@@ -165,7 +160,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </button>
           <div style={{ flex: 1 }}>
             <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>
-              INSPECTOR MACTOR · {isNewProject ? "PROJECT ESTIMATE" : "INSPECTION REPORT"}
+              INSPECTOR MACTOR · {isNewProject ? m.projectEstimateHeader : "INSPECTION REPORT"}
             </p>
             <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>
               {isNewProject ? "🏗️ New project" : `${catDef?.icon} ${catDef?.name[lang]}`}
@@ -181,8 +176,8 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           {/* MacTor's verdict */}
           {isNewProject ? (
             <MacTorBubble
-              text="I've reviewed the site photos. Here's a summary to help plan and quote your project."
-              sub="Request an estimate below and I'll get back to you with pricing."
+              text={m.newProjectReportGreeting}
+              sub={m.newProjectReportSub}
             />
           ) : (
             <MacTorBubble
@@ -204,7 +199,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
             <>
               {inspection.problemDescription && (
                 <div style={{ padding: "14px 16px", borderRadius: "12px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "20px" }}>
-                  <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1px" }}>PROJECT REQUEST</p>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1px" }}>{m.projectRequestLabel}</p>
                   <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--white)", fontStyle: "italic" }}>"{inspection.problemDescription}"</p>
                 </div>
               )}
@@ -212,7 +207,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               {allSiteObs.length > 0 && (
                 <div style={{ marginBottom: "24px" }}>
                   <p style={{ fontSize: "0.7rem", fontFamily: "'Space Mono',monospace", color: "var(--muted)", letterSpacing: "1px", marginBottom: "10px" }}>
-                    SITE OBSERVATIONS
+                    {m.siteObservations}
                   </p>
                   <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                     {allSiteObs.map((obs: any, i: number) => (
@@ -277,7 +272,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           {photos.length > 0 && (
             <div style={{ marginBottom: "24px" }}>
               <p style={{ fontSize: "0.7rem", fontFamily: "'Space Mono',monospace", color: "var(--muted)", letterSpacing: "1px", marginBottom: "10px" }}>
-                {isNewProject ? "SITE PHOTOS" : "INSPECTED PHOTOS"}
+                {isNewProject ? m.sitePhotosLabel : "INSPECTED PHOTOS"}
               </p>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 {photos.map((url: string, i: number) => (
@@ -299,7 +294,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               fontWeight: 800, fontSize: "1.05rem",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-            {isNewProject ? "Request a project estimate →" : `${m.estimateTitle} →`}
+            {isNewProject ? m.requestProjectEstimate : `${m.estimateTitle} →`}
           </button>
         </div>
       </main>
@@ -325,10 +320,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
 
         <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto" }}>
           {isNewProject ? (
-            <MacTorBubble
-              text="A few quick details will help me give you a more accurate project estimate."
-              sub="Optional — skip anything that doesn't apply."
-            />
+            <MacTorBubble text={m.projectFollowupIntro} sub={m.projectFollowupSub} />
           ) : (
             <MacTorBubble text={m.followupIntro} sub={m.answerHint} />
           )}
@@ -389,10 +381,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
 
         <div style={{ flex: 1, padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
           {isNewProject ? (
-          <MacTorBubble
-            text="Ready to send your project request to MacTor?"
-            sub="Free — no commitment. You'll get a quote within 24 hours."
-          />
+          <MacTorBubble text={m.projectEstimateReady} sub={m.projectEstimateSub} />
         ) : (
           <MacTorBubble text={m.estimateTitle} sub={m.estimateText} />
         )}
@@ -403,11 +392,11 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               <span style={{ fontSize: "1.8rem" }}>{isNewProject ? "🏗️" : catDef?.icon}</span>
               <div>
                 <p style={{ margin: 0, fontWeight: 700, color: "var(--white)" }}>
-                  {isNewProject ? "New project" : catDef?.name[lang]}
+                  {isNewProject ? m.newProjectLabel : catDef?.name[lang]}
                 </p>
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--muted)" }}>
                   {isNewProject
-                    ? `${photos.length} site photo${photos.length !== 1 ? "s" : ""}`
+                    ? m.sitePhotoCount(photos.length)
                     : `${allDefects.length} issue${allDefects.length !== 1 ? "s" : ""} · ${photos.length} photo${photos.length !== 1 ? "s" : ""}`}
                 </p>
               </div>
