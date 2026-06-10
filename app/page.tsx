@@ -13,7 +13,9 @@ const btnReset: React.CSSProperties = {
   background: "none", padding: 0,
 };
 
-// ─── Logo mark (small, for header) ─────────────────────────────────────────
+type ServiceType = "repair" | "new_project";
+
+// ─── Logo mark ──────────────────────────────────────────────────────────────
 function LogoMark({ size = "sm" }: { size?: "sm" | "lg" }) {
   const isLg = size === "lg";
   return (
@@ -39,7 +41,7 @@ function LogoMark({ size = "sm" }: { size?: "sm" | "lg" }) {
   );
 }
 
-// ─── Language Picker ────────────────────────────────────────────────────────
+// ─── Language Picker ─────────────────────────────────────────────────────────
 function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
   const [hovered, setHovered] = useState<Lang | null>(null);
 
@@ -50,7 +52,6 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
       padding: "24px 20px", background: "var(--navy)",
       backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.08) 0%, transparent 65%)",
     }}>
-      {/* Logo */}
       <div className="fade-up-1" style={{ display: "flex", flexDirection: "column", alignItems: "center", marginBottom: "36px", gap: "14px" }}>
         <LogoMark size="lg" />
         <div style={{ textAlign: "center" }}>
@@ -67,7 +68,6 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
         </div>
       </div>
 
-      {/* Subtitle — multilingual */}
       <div className="fade-up-2" style={{ textAlign: "center", marginBottom: "28px" }}>
         <p style={{ fontSize: "1.05rem", fontWeight: 600, color: "var(--white)", marginBottom: "4px" }}>
           Choose your language
@@ -77,7 +77,6 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
         </p>
       </div>
 
-      {/* Language cards — 2×2 + last card centered */}
       <div className="fade-up-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", width: "100%", maxWidth: "360px", marginBottom: "32px" }}>
         {LANGUAGES.map((lang, i) => (
           <button
@@ -98,7 +97,6 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
         ))}
       </div>
 
-      {/* Footer */}
       <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", textAlign: "center" }}>
         MacTor Maintenance · GTA Toronto © 2026
       </p>
@@ -106,13 +104,14 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
   );
 }
 
-// ─── Main Landing Page ──────────────────────────────────────────────────────
+// ─── Main Landing Page ────────────────────────────────────────────────────────
 export default function LandingPage() {
   const router = useRouter();
-  const [lang, setLang] = useState<Lang | null>(null);
-  const [ready, setReady] = useState(false);
-  const [selected, setSelected] = useState<"residential" | "commercial" | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [lang, setLang]             = useState<Lang | null>(null);
+  const [ready, setReady]           = useState(false);
+  const [serviceType, setServiceType] = useState<ServiceType | null>(null);
+  const [propertyType, setPropertyType] = useState<"residential" | "commercial" | null>(null);
+  const [loading, setLoading]       = useState(false);
   const [showLangPicker, setShowLangPicker] = useState(false);
 
   useEffect(() => {
@@ -123,7 +122,6 @@ export default function LandingPage() {
 
   if (!ready) return null;
 
-  // Show language picker
   if (lang === null || showLangPicker) {
     return (
       <LanguagePicker onSelect={(l) => {
@@ -135,31 +133,40 @@ export default function LandingPage() {
 
   const m = M[lang];
   const currentLangMeta = LANGUAGES.find(l => l.code === lang)!;
+  const canStart = serviceType !== null && propertyType !== null && !loading;
 
   const start = async () => {
-    if (!selected || loading) return;
+    if (!canStart) return;
     setLoading(true);
     try {
       const res = await fetch(`${API_URL}/api/inspection`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ propertyType: selected, clientLanguage: lang }),
+        body: JSON.stringify({ propertyType, clientLanguage: lang, serviceType }),
       });
       const data = await res.json();
-      router.push(`/inspection/${data.id}?lang=${lang}`);
+      router.push(`/inspection/${data.id}?lang=${lang}&serviceType=${serviceType}`);
     } catch {
       setLoading(false);
       alert(m.connectionError);
     }
   };
 
-  return (
-    <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", padding: "0 20px",
-      backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 60%)" }}>
+  // TODO: translate service type labels
+  const SERVICE_OPTIONS: { id: ServiceType; icon: string; label: string; desc: string }[] = [
+    { id: "repair",      icon: "🔧", label: "Repair",      desc: "Fix a problem or damage" },
+    { id: "new_project", icon: "🏗️", label: "New project", desc: "Build, install, or renovate" },
+  ];
 
-      {/* Header */}
-      <div style={{ paddingTop: "44px", paddingBottom: "24px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
+  return (
+    <main style={{
+      minHeight: "100dvh", display: "flex", flexDirection: "column", padding: "0 20px",
+      backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 60%)",
+    }}>
+
+      {/* Compact header */}
+      <div style={{ paddingTop: "44px", paddingBottom: "20px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <LogoMark size="sm" />
             <div>
@@ -177,104 +184,117 @@ export default function LandingPage() {
             <span>{currentLangMeta.name}</span>
           </button>
         </div>
+      </div>
 
-        {/* MacTor intro card */}
-        <div style={{
-          position: "relative", overflow: "hidden",
-          borderRadius: "16px", minHeight: "110px",
-          background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.2)",
-          marginBottom: "8px",
-        }}>
-          {/* Full figure — right side */}
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/mactor.png" alt=""
-            aria-hidden="true"
-            style={{
-              position: "absolute", right: "-8px", bottom: 0,
-              height: "148px", width: "auto", objectFit: "contain",
-              objectPosition: "center bottom", pointerEvents: "none",
-            }} />
-          {/* Text — left side, padded right so it doesn't overlap figure */}
-          <div style={{ padding: "16px", paddingRight: "110px" }}>
-            <p style={{ margin: 0, fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "5px" }}>
-              INSPECTOR MACTOR · {m.free.toUpperCase()} INSPECTION
-            </p>
-            <p style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--white)", lineHeight: 1.4 }}>
-              "{m.tagline}"
-            </p>
-            <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>
-              {m.subtitle}
-            </p>
-          </div>
+      {/* MacTor intro card */}
+      <div style={{
+        position: "relative", overflow: "hidden",
+        borderRadius: "16px", minHeight: "110px",
+        background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.2)",
+        marginBottom: "24px",
+      }}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/mactor.png" alt="" aria-hidden="true"
+          style={{
+            position: "absolute", right: "-8px", bottom: 0,
+            height: "148px", width: "auto", objectFit: "contain",
+            objectPosition: "center bottom", pointerEvents: "none",
+          }} />
+        <div style={{ padding: "16px", paddingRight: "110px" }}>
+          <p style={{ margin: 0, fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "5px" }}>
+            INSPECTOR MACTOR · {m.free.toUpperCase()} INSPECTION
+          </p>
+          <p style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--white)", lineHeight: 1.4 }}>
+            "{m.tagline}"
+          </p>
+          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>
+            {m.subtitle}
+          </p>
         </div>
       </div>
 
-      {/* Property type selector */}
+      {/* ── Service type selector — MAIN CHOICE ── */}
+      <div style={{ marginBottom: "20px" }}>
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px" }}>
+          WHAT DO YOU NEED?
+        </p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          {SERVICE_OPTIONS.map(opt => {
+            const active = serviceType === opt.id;
+            return (
+              <button key={opt.id} type="button" onClick={() => setServiceType(opt.id)}
+                style={{
+                  ...btnReset,
+                  padding: "24px 12px 20px",
+                  borderRadius: "20px",
+                  minHeight: "150px",
+                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px",
+                  background: active
+                    ? "linear-gradient(160deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06))"
+                    : "var(--navy-800)",
+                  border: active ? "2px solid var(--gold)" : "1.5px solid var(--border)",
+                  boxShadow: active ? "0 0 0 3px rgba(245,158,11,0.12)" : "none",
+                  transition: "all 0.15s",
+                }}>
+                <span style={{ fontSize: "2.6rem", lineHeight: 1 }}>{opt.icon}</span>
+                <span style={{
+                  fontWeight: 800, fontSize: "1rem",
+                  color: active ? "var(--gold-light)" : "var(--white)",
+                  letterSpacing: "-0.2px",
+                }}>
+                  {active ? "✓ " : ""}{opt.label}
+                </span>
+                <span style={{ fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.4, textAlign: "center" }}>
+                  {opt.desc}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Property type — secondary choice ── */}
       <div style={{ marginBottom: "24px" }}>
         <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px" }}>
           {m.propertyLabel.toUpperCase()}
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
           {([
-            { id: "residential", label: m.residential, icon: "🏠", desc: m.residentialDesc },
-            { id: "commercial",  label: m.commercial,  icon: "🏢", desc: m.commercialDesc  },
-          ] as const).map(opt => (
-            <button key={opt.id} type="button" onClick={() => setSelected(opt.id)}
-              style={{
-                ...btnReset, padding: "20px 12px", borderRadius: "18px", textAlign: "center",
-                background: selected === opt.id ? "rgba(245,158,11,0.12)" : "var(--navy-800)",
-                border: selected === opt.id ? "2px solid var(--gold)" : "1.5px solid var(--border)",
-                minHeight: "120px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px",
-              }}>
-              <span style={{ fontSize: "2.2rem" }}>{opt.icon}</span>
-              <span style={{ fontWeight: 700, color: selected === opt.id ? "var(--gold-light)" : "var(--white)", fontSize: "1rem" }}>
-                {selected === opt.id ? "✓ " : ""}{opt.label}
-              </span>
-              <span style={{ fontSize: "0.75rem", color: "var(--muted)", whiteSpace: "pre-line", lineHeight: 1.4 }}>
-                {opt.desc}
-              </span>
-            </button>
-          ))}
+            { id: "residential" as const, label: m.residential, icon: "🏠", desc: m.residentialDesc },
+            { id: "commercial"  as const, label: m.commercial,  icon: "🏢", desc: m.commercialDesc  },
+          ]).map(opt => {
+            const active = propertyType === opt.id;
+            return (
+              <button key={opt.id} type="button" onClick={() => setPropertyType(opt.id)}
+                style={{
+                  ...btnReset, padding: "14px 10px", borderRadius: "16px", textAlign: "center",
+                  background: active ? "rgba(59,130,246,0.12)" : "var(--navy-800)",
+                  border: active ? "2px solid rgba(59,130,246,0.6)" : "1.5px solid var(--border)",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
+                }}>
+                <span style={{ fontSize: "1.6rem" }}>{opt.icon}</span>
+                <span style={{ fontWeight: 700, color: active ? "#93c5fd" : "var(--white)", fontSize: "0.9rem" }}>
+                  {active ? "✓ " : ""}{opt.label}
+                </span>
+                <span style={{ fontSize: "0.7rem", color: "var(--muted)", lineHeight: 1.4 }}>{opt.desc}</span>
+              </button>
+            );
+          })}
         </div>
       </div>
 
-      {/* How it works — MacTor's 5-step process */}
-      <div style={{ marginBottom: "24px", padding: "18px", borderRadius: "16px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "14px" }}>
-          HOW IT WORKS
-        </p>
-        {[
-          { icon: "💬", en: "Describe the problem", es: "Describe el problema", zh: "描述问题", hi: "समस्या बताएं", tl: "Ilarawan ang problema" },
-          { icon: "📷", en: "Show me the photos",   es: "Muéstrame las fotos", zh: "拍照给我看", hi: "फोटो दिखाएं", tl: "Ipakita ang mga larawan" },
-          { icon: "🔍", en: "I analyze everything", es: "Analizo todo", zh: "我来分析", hi: "मैं सब कुछ विश्लेषण करता हूं", tl: "Sinusuri ko ang lahat" },
-          { icon: "📋", en: "You get the report",   es: "Recibes el reporte", zh: "您获得报告", hi: "आपको रिपोर्ट मिलती है", tl: "Makatatanggap ka ng ulat" },
-          { icon: "💰", en: "Optional: cost estimate by email", es: "Opcional: estimado por email", zh: "可选：邮件费用估算", hi: "वैकल्पिक: ईमेल पर लागत अनुमान", tl: "Opsyonal: tantya ng gastos sa email" },
-        ].map((s, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: i < 4 ? "10px" : 0 }}>
-            <div style={{
-              width: 28, height: 28, borderRadius: "50%",
-              background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)",
-              display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-            }}>
-              <span style={{ fontSize: "0.85rem" }}>{s.icon}</span>
-            </div>
-            <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{s[lang as keyof typeof s] || s.en}</span>
-          </div>
-        ))}
-      </div>
-
       {/* CTA */}
-      <button type="button" onClick={start} disabled={!selected || loading}
+      <button type="button" onClick={start} disabled={!canStart}
         style={{
           ...btnReset,
-          background: selected && !loading ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-800)",
-          color: selected && !loading ? "#0a0f1e" : "var(--muted)",
+          background: canStart ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-800)",
+          color: canStart ? "#0a0f1e" : "var(--muted)",
           padding: "20px", borderRadius: "18px", fontWeight: 800, fontSize: "1.1rem",
           width: "100%", minHeight: "64px", marginBottom: "28px",
-          opacity: selected && !loading ? 1 : 0.5,
+          opacity: canStart ? 1 : 0.45,
           display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-          boxShadow: selected && !loading ? "0 4px 20px rgba(245,158,11,0.3)" : "none",
-          border: selected && !loading ? "none" : "1px solid var(--border)",
+          boxShadow: canStart ? "0 4px 20px rgba(245,158,11,0.3)" : "none",
+          border: canStart ? "none" : "1px solid var(--border)",
         }}>
         {loading ? (
           <><span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "currentColor" }} />{m.starting}</>

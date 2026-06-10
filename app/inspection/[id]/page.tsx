@@ -14,7 +14,7 @@ const btn: React.CSSProperties = {
 
 type Severity = "low" | "medium" | "high" | "critical";
 type Step = "describe" | "photos";
-type ServiceType = "repair" | "renovation" | "new_project";
+type ServiceType = "repair" | "new_project";
 
 interface Defect {
   defect_type: string;
@@ -48,13 +48,6 @@ const SEVERITY_LABELS: Record<Severity, Record<Lang, string>> = {
   medium:   { en: "MEDIUM",   es: "MEDIO",      zh: "中",   hi: "मध्यम",   tl: "KATAMTAMAN" },
   low:      { en: "LOW",      es: "BAJO",       zh: "低",   hi: "कम",      tl: "MABABA"     },
 };
-
-// TODO: translate service type labels
-const SERVICE_TYPES: { id: ServiceType; icon: string; label: string }[] = [
-  { id: "repair",      icon: "🔧", label: "Repair"      },
-  { id: "renovation",  icon: "🎨", label: "Renovation"  },
-  { id: "new_project", icon: "🏗️", label: "New project" },
-];
 
 // ── MacTor speech bubble ──────────────────────────────────────────────────────
 function MacTorBubble({ text, sub }: { text: string; sub?: string }) {
@@ -93,6 +86,27 @@ function MacTorBubble({ text, sub }: { text: string; sub?: string }) {
   );
 }
 
+// Service type badge shown at top of describe step (read-only, chosen on landing)
+function ServiceBadge({ type }: { type: ServiceType }) {
+  const map: Record<ServiceType, { icon: string; label: string }> = {
+    repair:      { icon: "🔧", label: "Repair"      },
+    new_project: { icon: "🏗️", label: "New project" },
+  };
+  const { icon, label } = map[type];
+  return (
+    <div style={{
+      display: "inline-flex", alignItems: "center", gap: "6px",
+      padding: "6px 14px", borderRadius: "20px", marginBottom: "20px",
+      background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.3)",
+    }}>
+      <span style={{ fontSize: "1rem" }}>{icon}</span>
+      <span style={{ fontSize: "0.78rem", fontWeight: 700, color: "var(--gold-light)", fontFamily: "'Space Mono',monospace", letterSpacing: "0.5px" }}>
+        {label.toUpperCase()}
+      </span>
+    </div>
+  );
+}
+
 export default function InspectionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
@@ -107,6 +121,10 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
 
   useEffect(() => {
     setLang(getLangFromUrl() || getSavedLang() || "en");
+    // Read service type from URL param set by the landing page
+    const params = new URLSearchParams(window.location.search);
+    const svc = params.get("serviceType");
+    if (svc === "repair" || svc === "new_project") setServiceType(svc);
   }, []);
 
   const m = M[lang];
@@ -173,7 +191,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
   const totalDefects = photos.flatMap(p => p.analysis?.observed_defects || []).length;
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // STEP 1 — DESCRIBE + SERVICE TYPE
+  // STEP 1 — DESCRIBE
   // ─────────────────────────────────────────────────────────────────────────────
   if (step === "describe") {
     return (
@@ -195,23 +213,8 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
 
         <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto" }}>
 
-          {/* Service type selector */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", marginBottom: "24px" }}>
-            {SERVICE_TYPES.map(st => (
-              <button key={st.id} type="button" onClick={() => setServiceType(st.id)}
-                style={{
-                  ...btn, padding: "10px 8px", borderRadius: "12px", textAlign: "center",
-                  background: serviceType === st.id ? "rgba(245,158,11,0.12)" : "var(--navy-800)",
-                  border: `1.5px solid ${serviceType === st.id ? "var(--gold)" : "var(--border)"}`,
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: "4px",
-                }}>
-                <span style={{ fontSize: "1.3rem" }}>{st.icon}</span>
-                <span style={{ fontSize: "0.72rem", fontWeight: 600, color: serviceType === st.id ? "var(--gold)" : "var(--muted)" }}>
-                  {st.label}
-                </span>
-              </button>
-            ))}
-          </div>
+          {/* Read-only service type badge */}
+          <ServiceBadge type={serviceType} />
 
           <MacTorBubble text={m.describePrompt} sub={m.describeHint} />
 
