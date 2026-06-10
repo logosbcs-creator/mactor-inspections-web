@@ -218,7 +218,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
               INSPECTOR MACTOR · STEP 1 OF 2
             </p>
             <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>
-              {m.describeTitle}
+              {serviceType === "new_project" ? m.newProjectDescribeTitle : m.describeTitle}
             </h1>
           </div>
         </header>
@@ -228,13 +228,16 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
           {/* Read-only service type badge */}
           <ServiceBadge type={serviceType} />
 
-          <MacTorBubble text={m.describePrompt} sub={m.describeHint} />
+          <MacTorBubble
+            text={serviceType === "new_project" ? m.newProjectDescribePrompt : m.describePrompt}
+            sub={serviceType === "new_project" ? m.newProjectDescribeHint : m.describeHint}
+          />
 
           <textarea
             autoFocus
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder={m.describePlaceholder}
+            placeholder={serviceType === "new_project" ? m.newProjectDescribePlaceholder : m.describePlaceholder}
             rows={4}
             style={{
               width: "100%", padding: "16px", borderRadius: "14px",

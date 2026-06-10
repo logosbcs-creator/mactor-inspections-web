@@ -152,12 +152,6 @@ export default function LandingPage() {
     }
   };
 
-  // TODO: translate service type labels
-  const SERVICE_OPTIONS: { id: ServiceType; icon: string; label: string; desc: string }[] = [
-    { id: "repair",      icon: "🔧", label: "Repair",      desc: "Fix a problem or damage" },
-    { id: "new_project", icon: "🏗️", label: "New project", desc: "Build, install, or renovate" },
-  ];
-
   return (
     <main style={{
       minHeight: "100dvh", display: "flex", flexDirection: "column", padding: "0 20px",
@@ -205,7 +199,7 @@ export default function LandingPage() {
             INSPECTOR MACTOR · {m.free.toUpperCase()} INSPECTION
           </p>
           <p style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--white)", lineHeight: 1.4 }}>
-            "{m.tagline}"
+            {serviceType ? (serviceType === "repair" ? m.repairContextMsg : m.newProjectContextMsg) : m.welcomeTagline}
           </p>
           <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>
             {m.subtitle}
@@ -216,10 +210,13 @@ export default function LandingPage() {
       {/* ── Service type selector — MAIN CHOICE ── */}
       <div style={{ marginBottom: "20px" }}>
         <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px" }}>
-          WHAT DO YOU NEED?
+          {m.whatDoYouNeed.toUpperCase()}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-          {SERVICE_OPTIONS.map(opt => {
+          {([
+            { id: "repair" as ServiceType,      icon: "🔧", label: m.serviceRepairLabel,     desc: m.serviceRepairDesc     },
+            { id: "new_project" as ServiceType, icon: "🏗️", label: m.serviceNewProjectLabel, desc: m.serviceNewProjectDesc },
+          ]).map(opt => {
             const active = serviceType === opt.id;
             return (
               <button key={opt.id} type="button" onClick={() => setServiceType(opt.id)}

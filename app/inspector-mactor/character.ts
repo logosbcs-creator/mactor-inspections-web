@@ -250,12 +250,28 @@ export interface MacTorScript {
   tagline:        string;
   subtitle:       string;
 
-  // Step: Describe
+  // Landing
+  welcomeTagline:         string;
+  whatDoYouNeed:          string;
+  serviceRepairLabel:     string;
+  serviceRepairDesc:      string;
+  serviceNewProjectLabel: string;
+  serviceNewProjectDesc:  string;
+  repairContextMsg:       string;
+  newProjectContextMsg:   string;
+
+  // Step: Describe (repair)
   describeTitle:       string;
   describePrompt:      string;
   describePlaceholder: string;
   describeHint:        string;
   describeNext:        string;
+
+  // Step: Describe (new project)
+  newProjectDescribeTitle:       string;
+  newProjectDescribePrompt:      string;
+  newProjectDescribePlaceholder: string;
+  newProjectDescribeHint:        string;
 
   // Step: Category
   categoryTitle:    string;
@@ -346,11 +362,25 @@ const en: MacTorScript = {
   tagline:  "Show me what's going on.",
   subtitle: 'Free AI property inspection · GTA Toronto',
 
+  welcomeTagline:         "Hi! How can we help you today?",
+  whatDoYouNeed:          "What do you need?",
+  serviceRepairLabel:     "Repair",
+  serviceRepairDesc:      "Fix a problem or damage",
+  serviceNewProjectLabel: "New project",
+  serviceNewProjectDesc:  "Build, install, or renovate",
+  repairContextMsg:       "Tell me what's wrong and share a photo — I'll assess it right away.",
+  newProjectContextMsg:   "Tell me what you have in mind. Include measurements and materials if you can.",
+
   describeTitle:       "What's the issue?",
   describePrompt:      "Describe the problem in a few words. I'll guide you from there.",
   describePlaceholder: 'e.g. "Water stain on ceiling", "Crack in wall", "Heater not working"…',
   describeHint:        "No need for technical terms — just tell me what you're seeing.",
   describeNext:        'Got it →',
+
+  newProjectDescribeTitle:       "Tell us about your project",
+  newProjectDescribePrompt:      "What do you have in mind? The more details, the better.",
+  newProjectDescribePlaceholder: 'e.g. "Paint living room ceiling, 30×10 ft, popcorn texture. Want it smooth."',
+  newProjectDescribeHint:        "Include measurements, materials, or timeline if possible.",
 
   categoryTitle:    'Issue category',
   categoryDetected: (cat) => `Looks like a ${cat} issue. Is that right?`,
@@ -437,11 +467,25 @@ const es: MacTorScript = {
   tagline:  'Muéstrame qué está pasando.',
   subtitle: 'Inspección de propiedad con IA · Gratis · GTA Toronto',
 
+  welcomeTagline:         '¡Hola! ¿En qué podemos ayudarte hoy?',
+  whatDoYouNeed:          '¿Qué necesitas?',
+  serviceRepairLabel:     'Reparación',
+  serviceRepairDesc:      'Arreglar un problema o daño',
+  serviceNewProjectLabel: 'Nuevo proyecto',
+  serviceNewProjectDesc:  'Construir, instalar o renovar',
+  repairContextMsg:       'Cuéntame qué está pasando y comparte una foto — lo evalúo de inmediato.',
+  newProjectContextMsg:   'Cuéntame qué tienes en mente. Incluye medidas y materiales si puedes.',
+
   describeTitle:       '¿Cuál es el problema?',
   describePrompt:      'Describe el problema en pocas palabras. Yo te guío desde ahí.',
   describePlaceholder: 'Ej: "Mancha de agua en el techo", "Grieta en la pared", "Calefacción no funciona"…',
   describeHint:        'Sin términos técnicos — solo dime qué estás viendo.',
   describeNext:        'Listo →',
+
+  newProjectDescribeTitle:       'Cuéntanos sobre tu proyecto',
+  newProjectDescribePrompt:      '¿Qué tienes en mente? Cuantos más detalles, mejor.',
+  newProjectDescribePlaceholder: 'Ej: "Pintar el techo del living, 30×10 pies, textura popcorn. Quiero que quede liso."',
+  newProjectDescribeHint:        'Incluye medidas, materiales o fecha límite si puedes.',
 
   categoryTitle:    'Categoría del problema',
   categoryDetected: (cat) => `Parece un problema de ${cat}. ¿Es correcto?`,
@@ -528,11 +572,25 @@ const zh: MacTorScript = {
   tagline:  '告诉我发生了什么。',
   subtitle: 'AI驱动的房产检测 · 免费 · 大多伦多地区',
 
+  welcomeTagline:         '您好！今天我们能帮您什么？',
+  whatDoYouNeed:          '您需要什么？',
+  serviceRepairLabel:     '维修',
+  serviceRepairDesc:      '修复问题或损坏',
+  serviceNewProjectLabel: '新项目',
+  serviceNewProjectDesc:  '建造、安装或翻新',
+  repairContextMsg:       '告诉我出了什么问题并分享一张照片——我会立即评估。',
+  newProjectContextMsg:   '告诉我您的想法，尽量包括尺寸和材料。',
+
   describeTitle:       '问题是什么？',
   describePrompt:      '用几个词描述问题，我来引导您完成接下来的步骤。',
   describePlaceholder: '例如："天花板有水渍"、"墙壁有裂缝"、"暖气不工作"…',
   describeHint:        '不用担心专业术语——只需告诉我您看到的。',
   describeNext:        '好的 →',
+
+  newProjectDescribeTitle:       '告诉我们您的项目',
+  newProjectDescribePrompt:      '您有什么想法？细节越多越好。',
+  newProjectDescribePlaceholder: '例如："粉刷客厅天花板，30×10英尺，爆米花纹理，想要平整效果。"',
+  newProjectDescribeHint:        '如有可能，请包括尺寸、材料或时间要求。',
 
   categoryTitle:    '问题类别',
   categoryDetected: (cat) => `听起来像是${cat}问题，对吗？`,
@@ -617,11 +675,25 @@ const hi: MacTorScript = {
   tagline:  'मुझे दिखाइए क्या हो रहा है।',
   subtitle: 'AI-संचालित संपत्ति निरीक्षण · मुफ्त · GTA टोरंटो',
 
+  welcomeTagline:         'नमस्ते! आज हम आपकी कैसे मदद कर सकते हैं?',
+  whatDoYouNeed:          'आपको क्या चाहिए?',
+  serviceRepairLabel:     'मरम्मत',
+  serviceRepairDesc:      'किसी समस्या या नुकसान को ठीक करें',
+  serviceNewProjectLabel: 'नया प्रोजेक्ट',
+  serviceNewProjectDesc:  'निर्माण, स्थापना या नवीनीकरण',
+  repairContextMsg:       'मुझे बताएं क्या हुआ है और एक फोटो शेयर करें — मैं तुरंत आकलन करूंगा।',
+  newProjectContextMsg:   'मुझे बताएं आपके मन में क्या है। माप और सामग्री शामिल करें यदि हो सके।',
+
   describeTitle:       'क्या समस्या है?',
   describePrompt:      'समस्या को कुछ शब्दों में बताएं। मैं आपको आगे गाइड करूंगा।',
   describePlaceholder: 'जैसे: "छत पर पानी का दाग", "दीवार में दरार", "हीटर काम नहीं कर रहा"…',
   describeHint:        'तकनीकी शब्दों की चिंता न करें — बस बताएं क्या दिख रहा है।',
   describeNext:        'ठीक है →',
+
+  newProjectDescribeTitle:       'अपने प्रोजेक्ट के बारे में बताएं',
+  newProjectDescribePrompt:      'आपके मन में क्या है? जितने अधिक विवरण, उतना बेहतर।',
+  newProjectDescribePlaceholder: 'जैसे: "लिविंग रूम की छत पेंट करनी है, 30×10 फीट, पॉपकॉर्न टेक्सचर।"',
+  newProjectDescribeHint:        'माप, सामग्री या समय-सीमा शामिल करें यदि संभव हो।',
 
   categoryTitle:    'समस्या की श्रेणी',
   categoryDetected: (cat) => `यह ${cat} की समस्या लगती है। क्या यह सही है?`,
@@ -708,11 +780,25 @@ const tl: MacTorScript = {
   tagline:  'Ipakita mo sa akin ang nangyayari.',
   subtitle: 'Libreng AI na inspeksyon · GTA Toronto',
 
+  welcomeTagline:         'Kumusta! Paano namin kayo matutulungan ngayon?',
+  whatDoYouNeed:          'Ano ang kailangan mo?',
+  serviceRepairLabel:     'Pagkukumpuni',
+  serviceRepairDesc:      'Ayusin ang isang problema o pinsala',
+  serviceNewProjectLabel: 'Bagong proyekto',
+  serviceNewProjectDesc:  'Magtayo, mag-install, o mag-renovate',
+  repairContextMsg:       'Sabihin mo kung ano ang problema at magbahagi ng larawan — susuriin ko agad.',
+  newProjectContextMsg:   'Sabihin mo kung ano ang nasa isip mo. Isama ang sukat at materyales kung maaari.',
+
   describeTitle:       'Ano ang problema?',
   describePrompt:      'Ilarawan ang problema sa ilang salita. Gagabayan kita mula doon.',
   describePlaceholder: 'Hal: "Water stain sa kisame", "Bitak sa dingding", "Hindi gumagana ang heater"…',
   describeHint:        'Huwag mag-alala sa technical terms — sabihin mo lang kung ano ang nakikita mo.',
   describeNext:        'Naintindihan →',
+
+  newProjectDescribeTitle:       'Sabihin mo sa amin ang iyong proyekto',
+  newProjectDescribePrompt:      'Ano ang nasa isip mo? Mas maraming detalye, mas mabuti.',
+  newProjectDescribePlaceholder: 'Hal: "Pinturahan ang kisame ng sala, 30×10 talampakan, popcorn texture."',
+  newProjectDescribeHint:        'Isama ang sukat, materyales, o timeline kung posible.',
 
   categoryTitle:    'Kategorya ng problema',
   categoryDetected: (cat) => `Parang ${cat} problema ito. Tama ba?`,
