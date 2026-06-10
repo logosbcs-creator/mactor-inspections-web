@@ -18,10 +18,10 @@ export default function AcceptPage({ params }: { params: Promise<{ token: string
   }, [token, action]);
 
   const content = {
-    loading: { icon: "⏳", title: "Procesando…", color: "var(--blue-light)", msg: "" },
-    accepted: { icon: "🎉", title: "¡Estimado Aceptado!", color: "var(--green)", msg: "Te llamaremos pronto para agendar la visita. ¡Gracias por confiar en MacTor!" },
-    declined: { icon: "👍", title: "Recibido", color: "var(--muted)", msg: "Gracias por tu respuesta. Si cambias de opinión, contáctanos." },
-    error:    { icon: "❌", title: "Error", color: "var(--red)", msg: "Hubo un problema. Por favor contacta a MacTor directamente." },
+    loading:  { icon: "⏳", title: "Processing…",       color: "var(--blue-light)", msg: "" },
+    accepted: { icon: "🎉", title: "Estimate Accepted!", color: "var(--green)",      msg: "We will call you soon to schedule the visit. Thank you for choosing MacTor!" },
+    declined: { icon: "👍", title: "Noted",              color: "var(--muted)",      msg: "Thank you for your response. If you change your mind, feel free to contact us." },
+    error:    { icon: "❌", title: "Error",              color: "var(--red)",        msg: "Something went wrong. Please contact MacTor directly." },
   }[status];
 
   return (
@@ -31,7 +31,7 @@ export default function AcceptPage({ params }: { params: Promise<{ token: string
       {content.msg && <p style={{ color: "var(--muted)", fontSize: "1rem", maxWidth: "300px", lineHeight: 1.6, marginBottom: "32px" }}>{content.msg}</p>}
       {status !== "loading" && (
         <Link href="/" style={{ padding: "14px 28px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", textDecoration: "none", fontWeight: 600, touchAction: "manipulation" }}>
-          Volver al inicio
+          Back to home
         </Link>
       )}
       <p style={{ marginTop: "32px", fontFamily: "monospace", fontSize: "11px", color: "var(--muted)" }}>MacTor Maintenance · GTA Toronto</p>

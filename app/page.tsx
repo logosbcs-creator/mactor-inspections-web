@@ -32,7 +32,7 @@ export default function LandingPage() {
       router.push(`/inspection/${data.id}`);
     } catch {
       setLoading(false);
-      alert("Error al conectar. Verifica tu conexión.");
+      alert("Connection error. Please check your internet connection.");
     }
   };
 
@@ -45,23 +45,23 @@ export default function LandingPage() {
           ▲ MACTOR MAINTENANCE
         </p>
         <h1 style={{ fontSize: "2rem", fontWeight: 800, color: "var(--white)", margin: "0 0 8px", lineHeight: 1.2 }}>
-          Inspección de<br />
-          <span style={{ color: "var(--blue-light)" }}>Propiedad</span>
+          Property<br />
+          <span style={{ color: "var(--blue-light)" }}>Inspection</span>
         </h1>
         <p style={{ color: "var(--muted)", fontSize: "0.95rem", margin: 0 }}>
-          IA detecta daños · Estimado instantáneo · GTA Toronto
+          AI detects damage · Instant estimate · GTA Toronto
         </p>
       </div>
 
       {/* Property type selector */}
       <div style={{ marginBottom: "28px" }}>
         <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "14px", textAlign: "center" }}>
-          TIPO DE PROPIEDAD
+          PROPERTY TYPE
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
           {[
-            { id: "residential", label: "Residencial", icon: "🏠", desc: "Casa, condo,\napartamento" },
-            { id: "commercial",  label: "Comercial",   icon: "🏢", desc: "Oficina, local,\nedificio comercial" },
+            { id: "residential", label: "Residential", icon: "🏠", desc: "House, condo,\napartment" },
+            { id: "commercial",  label: "Commercial",  icon: "🏢", desc: "Office, retail,\ncommercial building" },
           ].map(opt => (
             <button
               key={opt.id}
@@ -95,13 +95,13 @@ export default function LandingPage() {
 
       {/* How it works */}
       <div style={{ marginBottom: "28px", padding: "18px", borderRadius: "16px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
-        <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "14px" }}>CÓMO FUNCIONA</p>
+        <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "14px" }}>HOW IT WORKS</p>
         {[
-          { n: "1", icon: "📷", text: "Tomas hasta 10 fotos de los daños" },
-          { n: "2", icon: "🤖", text: "La IA analiza y detecta problemas al instante" },
-          { n: "3", icon: "📋", text: "Ves el reporte con alertas de riesgo" },
-          { n: "4", icon: "💰", text: "Recibes un estimado de costo por email" },
-          { n: "5", icon: "🔧", text: "Aceptas y agendamos la reparación" },
+          { n: "1", icon: "📷", text: "Take up to 10 photos of the damage" },
+          { n: "2", icon: "🤖", text: "AI analyzes and detects issues instantly" },
+          { n: "3", icon: "📋", text: "View the report with risk alerts" },
+          { n: "4", icon: "💰", text: "Receive a cost estimate by email" },
+          { n: "5", icon: "🔧", text: "Accept and we schedule the repair" },
         ].map(step => (
           <div key={step.n} style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "10px" }}>
             <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
@@ -137,9 +137,9 @@ export default function LandingPage() {
         {loading ? (
           <>
             <span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "white" }} />
-            Iniciando…
+            Starting…
           </>
-        ) : "Comenzar Inspección →"}
+        ) : "Start Inspection →"}
       </button>
 
       {/* Footer */}

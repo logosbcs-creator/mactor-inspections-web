@@ -101,7 +101,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
 
   const addItem = () => {
     setLineItems(prev => [...prev, {
-      defect_type: "Trabajo adicional",
+      defect_type: "Additional work",
       description: "",
       qty: 1,
       unit_price: 85,
@@ -119,7 +119,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
     if (!data || lineItems.length === 0) return;
     setSubmitting(true);
     try {
-      const approvedEstimate = { line_items: lineItems, subtotal, hst, total, currency: "CAD", valid_days: 30, disclaimer: "Este estimado es aproximado y puede variar según inspección presencial." };
+      const approvedEstimate = { line_items: lineItems, subtotal, hst, total, currency: "CAD", valid_days: 30, disclaimer: "This estimate is approximate and may vary after an in-person inspection." };
       await fetch(`${API_URL}/api/approve/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -127,7 +127,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
       });
       setSent(true);
     } catch {
-      alert("Error al enviar. Intenta de nuevo.");
+      alert("Error sending. Please try again.");
       setSubmitting(false);
     }
   };
@@ -135,21 +135,21 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
   if (loading) return (
     <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: "var(--navy)", gap: 16 }}>
       <span className="pulse-dot" style={{ width: 14, height: 14, borderRadius: "50%", background: "var(--blue)" }} />
-      <p style={{ color: "var(--muted)", fontFamily: "monospace", fontSize: "12px" }}>Generando estimado con IA…</p>
+      <p style={{ color: "var(--muted)", fontFamily: "monospace", fontSize: "12px" }}>Generating AI estimate…</p>
     </main>
   );
 
   if (sent) return (
     <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center", padding: 24, background: "var(--navy)" }}>
       <span style={{ fontSize: "3rem", marginBottom: 16 }}>📧</span>
-      <h1 style={{ color: "var(--green)", fontSize: "1.6rem", fontWeight: 800, marginBottom: 8 }}>Estimado enviado</h1>
-      <p style={{ color: "var(--muted)" }}>El cliente recibirá el email con el estimado ahora.</p>
+      <h1 style={{ color: "var(--green)", fontSize: "1.6rem", fontWeight: 800, marginBottom: 8 }}>Estimate sent</h1>
+      <p style={{ color: "var(--muted)" }}>The client will receive the estimate by email shortly.</p>
     </main>
   );
 
   if (!data) return (
     <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center", background: "var(--navy)" }}>
-      <p style={{ color: "var(--red)" }}>Token inválido o expirado.</p>
+      <p style={{ color: "var(--red)" }}>Invalid or expired token.</p>
     </main>
   );
 
@@ -159,12 +159,12 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
     <main style={{ minHeight: "100dvh", background: "var(--navy)", paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ background: "var(--navy-800)", borderBottom: "1px solid var(--border)", padding: "16px 20px" }}>
-        <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: "0 0 4px" }}>PANEL DE APROBACIÓN · MACTOR</p>
-        <h1 style={{ color: "var(--white)", fontSize: "1.15rem", fontWeight: 800, margin: "0 0 8px" }}>Revisar y Aprobar Estimado</h1>
+        <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: "0 0 4px" }}>APPROVAL PANEL · MACTOR</p>
+        <h1 style={{ color: "var(--white)", fontSize: "1.15rem", fontWeight: 800, margin: "0 0 8px" }}>Review and Approve Estimate</h1>
         <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>👤 {data.clientName}</span>
           <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>📍 {data.address}</span>
-          <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>🏠 {data.propertyType === "commercial" ? "Comercial" : "Residencial"}</span>
+          <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>🏠 {data.propertyType === "commercial" ? "Commercial" : "Residential"}</span>
         </div>
       </div>
 
@@ -172,11 +172,11 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
 
         {/* Photos strip */}
         <div style={{ marginBottom: "16px" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>FOTOS ({(data.photos || []).length})</p>
+          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>PHOTOS ({(data.photos || []).length})</p>
           <div style={{ display: "flex", gap: "8px", overflowX: "auto", paddingBottom: "6px" }}>
             {(data.photos || []).map((url: string, i: number) => (
               // eslint-disable-next-line @next/next/no-img-element
-              <img key={i} src={url} alt={`foto ${i + 1}`}
+              <img key={i} src={url} alt={`photo ${i + 1}`}
                 style={{ width: 80, height: 64, objectFit: "cover", borderRadius: 8, flexShrink: 0, border: "1px solid var(--border)" }} />
             ))}
           </div>
@@ -184,7 +184,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
 
         {/* Defects summary */}
         <div style={{ marginBottom: "16px", padding: "12px 14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>DAÑOS DETECTADOS ({defects.length})</p>
+          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>DETECTED ISSUES ({defects.length})</p>
           {defects.map((d: any, i: number) => (
             <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: i < defects.length - 1 ? "1px solid var(--border)" : "none" }}>
               <span style={{ fontSize: "0.82rem", color: "var(--white)" }}>{d.defect_type}</span>
@@ -196,7 +196,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
         {/* AI Engine toggle */}
         {data.aiEstimate?.openai?.line_items?.length > 0 && (
           <div style={{ marginBottom: "14px" }}>
-            <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>MOTOR DE IA</p>
+            <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>AI ENGINE</p>
             <div style={{ display: "flex", gap: "8px" }}>
               {(["claude", "openai"] as const).map(engine => (
                 <button key={engine} type="button" onClick={() => switchEngine(engine)}
@@ -219,16 +219,16 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
 
         {/* Line items — editable */}
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", margin: 0 }}>ÍTEMS DEL ESTIMADO</p>
+          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", margin: 0 }}>ESTIMATE LINE ITEMS</p>
           <button type="button" onClick={addItem}
             style={{ ...btn, padding: "6px 14px", borderRadius: "10px", background: "rgba(59,130,246,0.15)", border: "1px solid rgba(59,130,246,0.3)", color: "var(--blue-light)", fontSize: "0.8rem", fontWeight: 700 }}>
-            + Agregar ítem
+            + Add item
           </button>
         </div>
 
         {lineItems.length === 0 && (
           <div style={{ padding: "20px", textAlign: "center", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "14px" }}>
-            <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No hay ítems. Usa "+ Agregar ítem" para crear manualmente.</p>
+            <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No items yet. Use &quot;+ Add item&quot; to create manually.</p>
           </div>
         )}
 
@@ -240,7 +240,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
                 value={item.defect_type}
                 onChange={e => setLineItems(prev => prev.map((it, idx) => idx === i ? { ...it, defect_type: e.target.value } : it))}
                 style={{ ...input, fontFamily: "inherit", fontWeight: 700, fontSize: "0.9rem", flex: 1, marginRight: "8px" }}
-                placeholder="Nombre del trabajo"
+                placeholder="Work description"
               />
               <button type="button" onClick={() => removeItem(i)}
                 style={{ ...btn, width: 32, height: 32, borderRadius: "8px", background: "rgba(239,68,68,0.15)", border: "1px solid rgba(239,68,68,0.3)", color: "#fca5a5", fontSize: "16px", flexShrink: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
@@ -254,16 +254,16 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
                 value={item.description}
                 onChange={e => setLineItems(prev => prev.map((it, idx) => idx === i ? { ...it, description: e.target.value } : it))}
                 style={{ ...input, fontSize: "0.82rem", color: "var(--muted)" }}
-                placeholder="Descripción del trabajo…"
+                placeholder="Work details…"
               />
             </div>
 
             {/* Price fields */}
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px", padding: "0 14px 10px" }}>
               {[
-                { label: "Cantidad", field: "qty" as keyof LineItem, value: item.qty },
-                { label: "$/unidad", field: "unit_price" as keyof LineItem, value: item.unit_price },
-                { label: "Materiales $", field: "materials_cost" as keyof LineItem, value: item.materials_cost },
+                { label: "Qty", field: "qty" as keyof LineItem, value: item.qty },
+                { label: "$/unit", field: "unit_price" as keyof LineItem, value: item.unit_price },
+                { label: "Materials $", field: "materials_cost" as keyof LineItem, value: item.materials_cost },
               ].map(f => (
                 <div key={f.field}>
                   <label style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--muted)", display: "block", marginBottom: "4px" }}>{f.label}</label>
@@ -288,7 +288,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
             {/* Note */}
             <div style={{ padding: "0 14px 12px" }}>
               <input
-                placeholder="Nota (para training IA)…"
+                placeholder="Note (for AI training)…"
                 value={lineNotes[item.defect_type] || ""}
                 onChange={e => setLineNotes(prev => ({ ...prev, [item.defect_type]: e.target.value }))}
                 style={{ ...input, fontSize: "0.78rem", color: "var(--muted)" }}
@@ -316,11 +316,11 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
 
         {/* Global note */}
         <div style={{ marginBottom: "18px" }}>
-          <label style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "6px" }}>NOTA GENERAL</label>
+          <label style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "6px" }}>GENERAL NOTE</label>
           <textarea
             value={globalNote}
             onChange={e => setGlobalNote(e.target.value)}
-            placeholder="Notas para el cliente o internas…"
+            placeholder="Notes for the client or internal use…"
             rows={2}
             style={{ width: "100%", padding: "12px", borderRadius: "12px", background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", fontSize: "0.9rem", outline: "none", resize: "none", touchAction: "manipulation" }}
           />
@@ -333,7 +333,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
             color: "white", fontWeight: 700, fontSize: "1.05rem", minHeight: "60px",
             opacity: submitting || lineItems.length === 0 ? 0.5 : 1,
           }}>
-          {submitting ? "Enviando…" : `📧 Enviar Estimado al Cliente · $${total.toLocaleString()} CAD`}
+          {submitting ? "Sending…" : `📧 Send Estimate to Client · $${total.toLocaleString()} CAD`}
         </button>
       </div>
     </main>

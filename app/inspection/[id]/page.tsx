@@ -34,7 +34,7 @@ interface PhotoEntry {
 }
 
 const severityLabel: Record<Severity, string> = {
-  critical: "CRÍTICO", high: "ALTO", medium: "MEDIO", low: "BAJO",
+  critical: "CRITICAL", high: "HIGH", medium: "MEDIUM", low: "LOW",
 };
 
 export default function InspectionPage({ params }: { params: Promise<{ id: string }> }) {
@@ -111,8 +111,8 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
           ←
         </button>
         <div style={{ flex: 1 }}>
-          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>FOTOS DE INSPECCIÓN</p>
-          <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>Documenta los daños</h1>
+          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>INSPECTION PHOTOS</p>
+          <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>Document the damage</h1>
         </div>
         <div style={{ fontFamily: "monospace", fontSize: "13px", fontWeight: 700, color: photos.length >= MAX_PHOTOS ? "var(--amber)" : "var(--blue-light)", background: "var(--navy-800)", border: "1px solid var(--border)", padding: "6px 12px", borderRadius: 20 }}>
           {photos.length}/{MAX_PHOTOS}
@@ -136,10 +136,10 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
               }}>
               <span style={{ fontSize: "2.5rem" }}>📷</span>
               <span style={{ color: "var(--blue-light)", fontWeight: 700, fontSize: "1rem" }}>
-                {photos.length === 0 ? "Tomar o subir fotos" : "Agregar más fotos"}
+                {photos.length === 0 ? "Take or upload photos" : "Add more photos"}
               </span>
               <span style={{ color: "var(--muted)", fontSize: "0.78rem", fontFamily: "monospace" }}>
-                Máx {MAX_PHOTOS} fotos · IA analiza automáticamente
+                Max {MAX_PHOTOS} photos · AI analyzes automatically
               </span>
             </button>
           </>
@@ -151,7 +151,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
             {/* Image */}
             <div style={{ position: "relative" }}>
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={photo.preview} alt={`foto ${i + 1}`}
+              <img src={photo.preview} alt={`photo ${i + 1}`}
                 style={{ width: "100%", maxHeight: "220px", objectFit: "cover", display: "block" }} />
 
               {/* Status overlay */}
@@ -160,7 +160,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                   {photo.status === "analyzing" && <div className="scan-line" style={{ top: 0 }} />}
                   <span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--blue)" }} />
                   <span style={{ fontFamily: "monospace", fontSize: "12px", color: "var(--blue-light)" }}>
-                    {photo.status === "uploading" ? "Subiendo foto…" : "IA analizando…"}
+                    {photo.status === "uploading" ? "Uploading photo…" : "AI analyzing…"}
                   </span>
                 </div>
               )}
@@ -183,9 +183,6 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
             <div style={{ padding: "14px" }}>
               {photo.status === "done" && photo.analysis ? (
                 <div>
-                  <p style={{ fontSize: "0.85rem", color: "var(--white)", marginBottom: "10px", fontWeight: 500 }}>
-                    {photo.analysis.scene_description}
-                  </p>
                   {photo.analysis.observed_defects.length > 0 ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                       {photo.analysis.observed_defects.map((d, j) => (
@@ -204,12 +201,12 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                     </div>
                   ) : (
                     <p style={{ fontSize: "0.8rem", color: "var(--green)", fontFamily: "monospace", margin: 0 }}>
-                      ✓ Sin daños detectados en esta foto
+                      ✓ No damage detected in this photo
                     </p>
                   )}
                 </div>
               ) : photo.status === "error" ? (
-                <p style={{ fontSize: "0.8rem", color: "var(--red)", margin: 0 }}>✕ Error al procesar esta foto</p>
+                <p style={{ fontSize: "0.8rem", color: "var(--red)", margin: 0 }}>✕ Error processing this photo</p>
               ) : null}
             </div>
           </div>
@@ -220,12 +217,12 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
           <div style={{ padding: "14px 16px", borderRadius: "14px", background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
             <span className="pulse-dot" style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--blue)", flexShrink: 0 }} />
             <span style={{ fontSize: "0.85rem", color: "var(--blue-light)" }}>
-              Analizando fotos con IA… {photos.filter(p => p.status === "done").length}/{photos.length} completadas
+              Analyzing photos with AI… {photos.filter(p => p.status === "done").length}/{photos.length} completed
             </span>
           </div>
         )}
 
-        {/* CTA: Ver reporte */}
+        {/* CTA: View report */}
         {hasAnalysis && (
           <button type="button"
             onClick={() => router.push(`/report/${id}`)}
@@ -237,15 +234,15 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
               display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
             }}>
             {allDone
-              ? `Ver Reporte → ${totalDefects > 0 ? `(${totalDefects} daños detectados)` : "(Sin daños)"}`
-              : "Ver Reporte Parcial →"}
+              ? `View Report → ${totalDefects > 0 ? `(${totalDefects} issues found)` : "(No damage found)"}`
+              : "View Partial Report →"}
           </button>
         )}
 
         {photos.length === 0 && (
           <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
             <p style={{ fontSize: "2.5rem", marginBottom: "12px" }}>🔍</p>
-            <p style={{ fontSize: "0.9rem" }}>Toma fotos de los daños que quieres reportar.<br />La IA detectará los problemas automáticamente.</p>
+            <p style={{ fontSize: "0.9rem" }}>Take photos of the damage you want to report.<br />AI will detect issues automatically.</p>
           </div>
         )}
       </div>

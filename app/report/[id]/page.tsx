@@ -38,7 +38,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
 
   const handleSubmit = async () => {
     if (!name || !email || !phone || !address) {
-      alert("Por favor completa todos los campos.");
+      alert("Please fill in all fields.");
       return;
     }
     setSubmitting(true);
@@ -51,7 +51,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       router.push(`/status/${id}`);
     } catch {
       setSubmitting(false);
-      alert("Error al enviar. Intenta de nuevo.");
+      alert("Error sending. Please try again.");
     }
   };
 
@@ -86,20 +86,20 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
             ←
           </button>
           <div>
-            <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>TUS DATOS</p>
-            <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>Información de contacto</h1>
+            <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>YOUR DETAILS</p>
+            <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>Contact information</h1>
           </div>
         </header>
 
         <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
           <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "24px" }}>
-            Revisaremos tu reporte y te enviaremos un estimado de costo por email.
+            We will review your report and send you a cost estimate by email.
           </p>
 
           {[
-            { label: "NOMBRE COMPLETO", value: name, onChange: setName, placeholder: "Juan García", type: "text", inputMode: "text" },
-            { label: "EMAIL", value: email, onChange: setEmail, placeholder: "juan@email.com", type: "email", inputMode: "email" },
-            { label: "TELÉFONO", value: phone, onChange: setPhone, placeholder: "+1 (416) 000-0000", type: "tel", inputMode: "tel" },
+            { label: "FULL NAME", value: name, onChange: setName, placeholder: "John Smith", type: "text", inputMode: "text" },
+            { label: "EMAIL", value: email, onChange: setEmail, placeholder: "john@email.com", type: "email", inputMode: "email" },
+            { label: "PHONE", value: phone, onChange: setPhone, placeholder: "+1 (416) 000-0000", type: "tel", inputMode: "tel" },
           ].map(field => (
             <div key={field.label} style={{ marginBottom: "18px" }}>
               <label style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "8px" }}>
@@ -123,7 +123,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
 
           <div style={{ marginBottom: "24px" }}>
             <label style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "8px" }}>
-              DIRECCIÓN DE LA PROPIEDAD
+              PROPERTY ADDRESS
             </label>
             <textarea
               value={address}
@@ -140,7 +140,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </div>
 
           <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginBottom: "20px", fontFamily: "monospace" }}>
-            🔒 Tu información es confidencial y solo se usa para el estimado.
+            🔒 Your information is confidential and only used for the estimate.
           </p>
 
           <button type="button" onClick={handleSubmit} disabled={submitting}
@@ -150,7 +150,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               color: "white", fontWeight: 700, fontSize: "1.05rem", minHeight: "60px",
               opacity: submitting ? 0.6 : 1,
             }}>
-            {submitting ? "Enviando…" : "Enviar y Solicitar Estimado →"}
+            {submitting ? "Sending…" : "Submit and Request Estimate →"}
           </button>
         </div>
       </main>
@@ -166,8 +166,8 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           ←
         </button>
         <div>
-          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>REPORTE DE INSPECCIÓN</p>
-          <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>Resultados del Análisis IA</h1>
+          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>INSPECTION REPORT</p>
+          <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>AI Analysis Results</h1>
         </div>
       </header>
 
@@ -185,12 +185,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </span>
           <div>
             <p style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: priorityColor(topPriority) }}>
-              {topPriority === "no_issues" ? "Sin daños significativos" :
-               topPriority === "critical" ? "Atención inmediata requerida" :
-               topPriority === "high" ? "Reparación urgente recomendada" : "Mantenimiento necesario"}
+              {topPriority === "no_issues" ? "No significant damage found" :
+               topPriority === "critical" ? "Immediate attention required" :
+               topPriority === "high" ? "Urgent repair recommended" : "Maintenance needed"}
             </p>
             <p style={{ margin: "4px 0 0", fontSize: "0.82rem", color: "var(--muted)" }}>
-              {photos.length} foto(s) analizadas · {allDefects.length} daño(s) detectado(s)
+              {photos.length} photo(s) analyzed · {allDefects.length} issue(s) detected
             </p>
           </div>
         </div>
@@ -198,9 +198,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
           {[
-            { label: "Críticos/Altos", value: criticalOrHigh.length, color: "var(--red)" },
-            { label: "Total daños", value: allDefects.length, color: "var(--amber)" },
-            { label: "Fotos", value: photos.length, color: "var(--blue-light)" },
+            { label: "Critical/High", value: criticalOrHigh.length, color: "var(--red)" },
+            { label: "Total issues", value: allDefects.length, color: "var(--amber)" },
+            { label: "Photos", value: photos.length, color: "var(--blue-light)" },
           ].map(stat => (
             <div key={stat.label} style={{ padding: "14px 10px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", textAlign: "center" }}>
               <p style={{ margin: 0, fontFamily: "monospace", fontWeight: 700, fontSize: "1.8rem", color: stat.color }}>{stat.value}</p>
@@ -213,12 +213,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         {criticalOrHigh.length > 0 && (
           <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)", marginBottom: "20px" }}>
             <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--red)", letterSpacing: "2px", marginBottom: "12px" }}>
-              ⚠ ALERTAS DE RIESGO
+              ⚠ RISK ALERTS
             </p>
             {criticalOrHigh.map((d: any, i: number) => (
               <div key={i} style={{ marginBottom: "10px", paddingBottom: "10px", borderBottom: i < criticalOrHigh.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
                 <p style={{ margin: "0 0 4px", fontWeight: 600, fontSize: "0.88rem", color: "var(--white)" }}>{d.defect_type}</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--amber)" }}>Si no se repara: {d.danger_if_ignored}</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--amber)" }}>If not repaired: {d.danger_if_ignored}</p>
               </div>
             ))}
           </div>
@@ -233,7 +233,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
                 <img src={photos[i]} alt="" style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8 }} />
                 <div>
                   <p style={{ margin: 0, fontWeight: 600, fontSize: "0.88rem", color: "var(--white)", textTransform: "capitalize" }}>{a.area_detected?.replace(/_/g, " ")}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>{a.observed_defects?.length} problema(s) detectado(s)</p>
+                  <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>{a.observed_defects?.length} issue(s) detected</p>
                 </div>
               </div>
               {a.observed_defects.map((d: any, j: number) => (
@@ -249,15 +249,15 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         {allDefects.length === 0 && (
           <div style={{ textAlign: "center", padding: "24px", borderRadius: "16px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", marginBottom: "20px" }}>
             <p style={{ fontSize: "2rem", marginBottom: "8px" }}>✅</p>
-            <p style={{ color: "var(--green)", fontWeight: 600 }}>No se detectaron daños en las fotos analizadas.</p>
+            <p style={{ color: "var(--green)", fontWeight: 600 }}>No damage detected in the analyzed photos.</p>
           </div>
         )}
 
         {/* CTA */}
         <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)", marginBottom: "16px" }}>
-          <p style={{ fontWeight: 700, fontSize: "1rem", color: "var(--white)", marginBottom: "6px" }}>¿Quieres un estimado de costo?</p>
+          <p style={{ fontWeight: 700, fontSize: "1rem", color: "var(--white)", marginBottom: "6px" }}>Want a cost estimate?</p>
           <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: 0 }}>
-            Ingresa tus datos y MacTor revisará el reporte. Recibirás el estimado por email.
+            Enter your details and MacTor will review the report. You will receive the estimate by email.
           </p>
         </div>
 
@@ -267,12 +267,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
             background: "var(--blue)", color: "white", fontWeight: 700,
             fontSize: "1.05rem", minHeight: "60px", marginBottom: "12px",
           }}>
-          Solicitar Estimado de Costo →
+          Request Cost Estimate →
         </button>
 
         <button type="button" onClick={() => router.push(`/inspection/${id}`)}
           style={{ ...btn, width: "100%", padding: "14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--muted)", fontSize: "0.9rem", marginBottom: "24px" }}>
-          ← Agregar más fotos
+          ← Add more photos
         </button>
       </div>
     </main>

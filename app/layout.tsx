@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "MacTor Inspections",
-  description: "Inspección de propiedades con IA — GTA Toronto",
+  description: "AI-powered property inspections — GTA Toronto",
   manifest: "/manifest.json",
   appleWebApp: { capable: true, statusBarStyle: "black-translucent", title: "MacTor" },
 };
@@ -18,7 +18,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
+    <html lang="en">
       <body style={{ background: "var(--navy)", minHeight: "100dvh" }}>{children}</body>
     </html>
   );
