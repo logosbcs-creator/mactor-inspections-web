@@ -98,13 +98,27 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   }
 
   // Derived data
+  const serviceType  = inspection.serviceType === "new_project" ? "new_project" : "repair";
+  const isNewProject = serviceType === "new_project";
+
   const analyses   = Object.values(inspection.aiAnalysis || {}) as any[];
   const allDefects = sortDefectsBySeverity(analyses.flatMap((a: any) => a.observed_defects || []));
   const isUrgent   = hasUrgentIssues(allDefects);
   const photos     = inspection.photos || [];
   const category   = (inspection.issueCategory || "other") as IssueCategory;
   const catDef     = CATEGORIES[category];
-  const followUpQs = catDef?.followUpQuestions[lang] || [];
+
+  // Follow-up questions differ by service type
+  const REPAIR_FOLLOW_UP_QS = catDef?.followUpQuestions[lang] || [];
+  const NEW_PROJECT_FOLLOW_UP_QS = [
+    "What's your target timeline for this project?",
+    "Do you have a budget range in mind?",
+    "Any specific materials, finishes, or requirements?",
+  ];
+  const followUpQs = isNewProject ? NEW_PROJECT_FOLLOW_UP_QS : REPAIR_FOLLOW_UP_QS;
+
+  // Site observations aggregated from all photos (new project only)
+  const allSiteObs = analyses.flatMap((a: any) => a.site_observations || []);
 
   const handleSubmit = async () => {
     if (!name || !email || !phone || !address) {
@@ -151,10 +165,10 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           </button>
           <div style={{ flex: 1 }}>
             <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>
-              INSPECTOR MACTOR · INSPECTION REPORT
+              INSPECTOR MACTOR · {isNewProject ? "PROJECT ESTIMATE" : "INSPECTION REPORT"}
             </p>
             <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>
-              {catDef?.icon} {catDef?.name[lang]}
+              {isNewProject ? "🏗️ New project" : `${catDef?.icon} ${catDef?.name[lang]}`}
             </h1>
           </div>
           <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--muted)", background: "var(--navy-800)", border: "1px solid var(--border)", padding: "4px 10px", borderRadius: 20 }}>
@@ -165,68 +179,105 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         <div style={{ flex: 1, padding: "20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
 
           {/* MacTor's verdict */}
-          <MacTorBubble
-            text={m.reportGreeting(allDefects.length)}
-            sub={allDefects.length === 0 ? m.reportNoIssues : undefined}
-          />
+          {isNewProject ? (
+            <MacTorBubble
+              text="I've reviewed the site photos. Here's a summary to help plan and quote your project."
+              sub="Request an estimate below and I'll get back to you with pricing."
+            />
+          ) : (
+            <MacTorBubble
+              text={m.reportGreeting(allDefects.length)}
+              sub={allDefects.length === 0 ? m.reportNoIssues : undefined}
+            />
+          )}
 
-          {/* Critical alert banner */}
-          {isUrgent && (
+          {/* Critical alert banner (repair only) */}
+          {!isNewProject && isUrgent && (
             <div style={{ padding: "14px 16px", borderRadius: "14px", background: "rgba(239,68,68,0.08)", border: "1px solid rgba(239,68,68,0.3)", marginBottom: "20px", display: "flex", alignItems: "center", gap: "10px" }}>
               <span style={{ fontSize: "1.3rem" }}>⚠</span>
               <span style={{ fontSize: "0.9rem", color: "#ff6b6b", fontWeight: 600 }}>{m.criticalAlert}</span>
             </div>
           )}
 
-          {/* Stats row */}
-          {allDefects.length > 0 && (
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "24px" }}>
-              {[
-                { label: "Issues", value: allDefects.length, color: "var(--amber)" },
-                { label: "Critical/High", value: allDefects.filter(d => d.severity === "critical" || d.severity === "high").length, color: "var(--red)" },
-                { label: "Photos", value: photos.length, color: "var(--gold)" },
-              ].map(stat => (
-                <div key={stat.label} style={{ padding: "14px", borderRadius: "12px", background: "var(--navy-800)", border: "1px solid var(--border)", textAlign: "center" }}>
-                  <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: 900, color: stat.color, fontFamily: "'Space Mono',monospace" }}>{stat.value}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: "0.7rem", color: "var(--muted)", fontFamily: "'Space Mono',monospace" }}>{stat.label}</p>
+          {/* ── NEW PROJECT: site observations ── */}
+          {isNewProject && (
+            <>
+              {inspection.problemDescription && (
+                <div style={{ padding: "14px 16px", borderRadius: "12px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "20px" }}>
+                  <p style={{ margin: "0 0 4px", fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1px" }}>PROJECT REQUEST</p>
+                  <p style={{ margin: 0, fontSize: "0.88rem", color: "var(--white)", fontStyle: "italic" }}>"{inspection.problemDescription}"</p>
                 </div>
-              ))}
-            </div>
+              )}
+
+              {allSiteObs.length > 0 && (
+                <div style={{ marginBottom: "24px" }}>
+                  <p style={{ fontSize: "0.7rem", fontFamily: "'Space Mono',monospace", color: "var(--muted)", letterSpacing: "1px", marginBottom: "10px" }}>
+                    SITE OBSERVATIONS
+                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {allSiteObs.map((obs: any, i: number) => (
+                      <div key={i} style={{ padding: "12px 14px", borderRadius: "12px", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.2)" }}>
+                        <p style={{ margin: "0 0 3px", fontSize: "0.82rem", fontWeight: 700, color: "#93c5fd" }}>{obs.aspect}</p>
+                        <p style={{ margin: "0 0 3px", fontSize: "0.78rem", color: "var(--white)" }}>{obs.detail}</p>
+                        {obs.project_relevance && (
+                          <p style={{ margin: 0, fontSize: "0.72rem", color: "var(--muted)", fontStyle: "italic" }}>→ {obs.project_relevance}</p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
-          {/* Defect list */}
-          {allDefects.length > 0 && (
-            <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
-              {allDefects.map((d: any, i: number) => (
-                <div key={i} style={{ padding: "14px 16px", borderRadius: "14px", background: "var(--navy-800)", border: `1px solid ${SEV_COLORS[d.severity as Severity] || "var(--border)"}33` }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-                    <span style={{ fontWeight: 700, color: "var(--white)", fontSize: "0.95rem" }}>{d.defect_type}</span>
-                    <span style={{
-                      fontSize: "0.65rem", fontWeight: 700, fontFamily: "'Space Mono',monospace",
-                      padding: "3px 10px", borderRadius: 20,
-                      background: `${SEV_COLORS[d.severity as Severity]}22`,
-                      color: SEV_COLORS[d.severity as Severity],
-                      border: `1px solid ${SEV_COLORS[d.severity as Severity]}44`,
-                    }}>
-                      {SEV_LABELS[d.severity as Severity]?.[lang] || d.severity.toUpperCase()}
-                    </span>
+          {/* ── REPAIR: stats + defect list ── */}
+          {!isNewProject && allDefects.length > 0 && (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "24px" }}>
+                {[
+                  { label: "Issues",        value: allDefects.length, color: "var(--amber)" },
+                  { label: "Critical/High", value: allDefects.filter((d: any) => d.severity === "critical" || d.severity === "high").length, color: "var(--red)" },
+                  { label: "Photos",        value: photos.length,     color: "var(--gold)" },
+                ].map(stat => (
+                  <div key={stat.label} style={{ padding: "14px", borderRadius: "12px", background: "var(--navy-800)", border: "1px solid var(--border)", textAlign: "center" }}>
+                    <p style={{ margin: 0, fontSize: "1.6rem", fontWeight: 900, color: stat.color, fontFamily: "'Space Mono',monospace" }}>{stat.value}</p>
+                    <p style={{ margin: "4px 0 0", fontSize: "0.7rem", color: "var(--muted)", fontFamily: "'Space Mono',monospace" }}>{stat.label}</p>
                   </div>
-                  {d.location && <p style={{ margin: "0 0 6px", fontSize: "0.78rem", color: "var(--muted)" }}>📍 {d.location}</p>}
-                  {d.danger_if_ignored && (
-                    <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--amber)", padding: "8px 10px", background: "rgba(245,158,11,0.07)", borderRadius: "8px" }}>
-                      ⚠ {d.danger_if_ignored}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "24px" }}>
+                {allDefects.map((d: any, i: number) => (
+                  <div key={i} style={{ padding: "14px 16px", borderRadius: "14px", background: "var(--navy-800)", border: `1px solid ${SEV_COLORS[d.severity as Severity] || "var(--border)"}33` }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+                      <span style={{ fontWeight: 700, color: "var(--white)", fontSize: "0.95rem" }}>{d.defect_type}</span>
+                      <span style={{
+                        fontSize: "0.65rem", fontWeight: 700, fontFamily: "'Space Mono',monospace",
+                        padding: "3px 10px", borderRadius: 20,
+                        background: `${SEV_COLORS[d.severity as Severity]}22`,
+                        color: SEV_COLORS[d.severity as Severity],
+                        border: `1px solid ${SEV_COLORS[d.severity as Severity]}44`,
+                      }}>
+                        {SEV_LABELS[d.severity as Severity]?.[lang] || d.severity.toUpperCase()}
+                      </span>
+                    </div>
+                    {d.location && <p style={{ margin: "0 0 6px", fontSize: "0.78rem", color: "var(--muted)" }}>📍 {d.location}</p>}
+                    {d.danger_if_ignored && (
+                      <p style={{ margin: 0, fontSize: "0.78rem", color: "var(--amber)", padding: "8px 10px", background: "rgba(245,158,11,0.07)", borderRadius: "8px" }}>
+                        ⚠ {d.danger_if_ignored}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </>
           )}
 
           {/* Photo thumbnails */}
           {photos.length > 0 && (
             <div style={{ marginBottom: "24px" }}>
               <p style={{ fontSize: "0.7rem", fontFamily: "'Space Mono',monospace", color: "var(--muted)", letterSpacing: "1px", marginBottom: "10px" }}>
-                INSPECTED PHOTOS
+                {isNewProject ? "SITE PHOTOS" : "INSPECTED PHOTOS"}
               </p>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
                 {photos.map((url: string, i: number) => (
@@ -248,7 +299,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               fontWeight: 800, fontSize: "1.05rem",
               display: "flex", alignItems: "center", justifyContent: "center",
             }}>
-            {m.estimateTitle} →
+            {isNewProject ? "Request a project estimate →" : `${m.estimateTitle} →`}
           </button>
         </div>
       </main>
@@ -273,7 +324,14 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         </header>
 
         <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto" }}>
-          <MacTorBubble text={m.followupIntro} sub={m.answerHint} />
+          {isNewProject ? (
+            <MacTorBubble
+              text="A few quick details will help me give you a more accurate project estimate."
+              sub="Optional — skip anything that doesn't apply."
+            />
+          ) : (
+            <MacTorBubble text={m.followupIntro} sub={m.answerHint} />
+          )}
 
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {followUpQs.map((q, i) => (
@@ -330,16 +388,27 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         </header>
 
         <div style={{ flex: 1, padding: "24px 20px", display: "flex", flexDirection: "column", justifyContent: "center" }}>
+          {isNewProject ? (
+          <MacTorBubble
+            text="Ready to send your project request to MacTor?"
+            sub="Free — no commitment. You'll get a quote within 24 hours."
+          />
+        ) : (
           <MacTorBubble text={m.estimateTitle} sub={m.estimateText} />
+        )}
 
-          {/* Inspection summary card */}
+          {/* Summary card */}
           <div style={{ padding: "20px", borderRadius: "16px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "24px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-              <span style={{ fontSize: "1.8rem" }}>{catDef?.icon}</span>
+              <span style={{ fontSize: "1.8rem" }}>{isNewProject ? "🏗️" : catDef?.icon}</span>
               <div>
-                <p style={{ margin: 0, fontWeight: 700, color: "var(--white)" }}>{catDef?.name[lang]}</p>
+                <p style={{ margin: 0, fontWeight: 700, color: "var(--white)" }}>
+                  {isNewProject ? "New project" : catDef?.name[lang]}
+                </p>
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--muted)" }}>
-                  {allDefects.length} issue{allDefects.length !== 1 ? "s" : ""} · {photos.length} photo{photos.length !== 1 ? "s" : ""}
+                  {isNewProject
+                    ? `${photos.length} site photo${photos.length !== 1 ? "s" : ""}`
+                    : `${allDefects.length} issue${allDefects.length !== 1 ? "s" : ""} · ${photos.length} photo${photos.length !== 1 ? "s" : ""}`}
                 </p>
               </div>
             </div>
