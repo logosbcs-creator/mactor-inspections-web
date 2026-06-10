@@ -153,14 +153,24 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
     </main>
   );
 
-  const defects = data.aiSummary?.all_defects || [];
+  const isNewProject = data?.serviceType === 'new_project';
+  const defects = isNewProject ? [] : (data.aiSummary?.all_defects || []);
+  const allSiteObs: any[] = isNewProject
+    ? Object.values(data.aiAnalysis || {}).flatMap((a: any) => a.site_observations || [])
+    : [];
+  const inspectorNotes: string[] = Object.values(data.aiAnalysis || {})
+    .map((a: any) => a.inspector_note).filter(Boolean) as string[];
 
   return (
     <main style={{ minHeight: "100dvh", background: "var(--navy)", paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ background: "var(--navy-800)", borderBottom: "1px solid var(--border)", padding: "16px 20px" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: "0 0 4px" }}>PANEL DE APROBACIÓN · INSPECTOR MACTOR</p>
-        <h1 style={{ color: "var(--white)", fontSize: "1.15rem", fontWeight: 800, margin: "0 0 8px" }}>Revisar y Aprobar Estimado</h1>
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: isNewProject ? "var(--blue-light)" : "var(--gold)", letterSpacing: "2px", margin: "0 0 4px" }}>
+          {isNewProject ? "NUEVA SOLICITUD · INSPECTOR MACTOR" : "PANEL DE APROBACIÓN · INSPECTOR MACTOR"}
+        </p>
+        <h1 style={{ color: "var(--white)", fontSize: "1.15rem", fontWeight: 800, margin: "0 0 8px" }}>
+          {isNewProject ? "🏗️ Revisar y Cotizar Proyecto" : "Revisar y Aprobar Estimado"}
+        </h1>
         <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>👤 {data.clientName}</span>
           <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>📍 {data.address}</span>
@@ -182,39 +192,82 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
           </div>
         </div>
 
-        {/* Defects summary */}
-        <div style={{ marginBottom: "16px", padding: "12px 14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>DETECTED ISSUES ({defects.length})</p>
-          {defects.map((d: any, i: number) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: i < defects.length - 1 ? "1px solid var(--border)" : "none" }}>
-              <span style={{ fontSize: "0.82rem", color: "var(--white)" }}>{d.defect_type}</span>
-              <span className={`badge-${d.severity}`}>{d.severity?.toUpperCase()}</span>
-            </div>
-          ))}
-        </div>
+        {/* Client request description — always shown when available */}
+        {data.problemDescription && (
+          <div style={{ marginBottom: "14px", padding: "14px 16px", borderRadius: "14px", background: isNewProject ? "rgba(59,130,246,0.08)" : "rgba(245,158,11,0.06)", border: `1.5px solid ${isNewProject ? "rgba(59,130,246,0.3)" : "rgba(245,158,11,0.25)"}` }}>
+            <p style={{ fontFamily: "monospace", fontSize: "11px", color: isNewProject ? "var(--blue-light)" : "var(--gold)", letterSpacing: "2px", marginBottom: "6px" }}>
+              {isNewProject ? "PROJECT REQUEST" : "CLIENT REQUEST"}
+            </p>
+            <p style={{ color: "var(--white)", fontSize: "0.9rem", fontWeight: 500, margin: 0, lineHeight: 1.5 }}>
+              &ldquo;{data.problemDescription}&rdquo;
+            </p>
+          </div>
+        )}
 
-        {/* AI Engine toggle */}
-        {data.aiEstimate?.openai?.line_items?.length > 0 && (
-          <div style={{ marginBottom: "14px" }}>
-            <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>AI ENGINE</p>
-            <div style={{ display: "flex", gap: "8px" }}>
-              {(["claude", "openai"] as const).map(engine => (
-                <button key={engine} type="button" onClick={() => switchEngine(engine)}
-                  style={{
-                    ...btn, flex: 1, padding: "10px 8px", borderRadius: "12px",
-                    background: activeEngine === engine ? "rgba(59,130,246,0.2)" : "var(--navy-800)",
-                    border: activeEngine === engine ? "1.5px solid var(--blue)" : "1px solid var(--border)",
-                    color: activeEngine === engine ? "var(--blue-light)" : "var(--muted)",
-                    fontFamily: "monospace", fontSize: "12px", fontWeight: 700,
-                  }}>
-                  {engine === "claude" ? "🤖 Claude" : "🧠 GPT-4o"}
-                  <span style={{ display: "block", fontSize: "11px", marginTop: "2px" }}>
-                    ${(data.aiEstimate[engine]?.total || 0).toLocaleString()} CAD
-                  </span>
-                </button>
+        {/* Photo analysis synopsis — shown for repair when available */}
+        {!isNewProject && inspectorNotes.length > 0 && (
+          <div style={{ marginBottom: "14px", padding: "12px 14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
+            <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>PHOTO ANALYSIS</p>
+            {inspectorNotes.map((note: string, i: number) => (
+              <p key={i} style={{ margin: i < inspectorNotes.length - 1 ? "0 0 6px" : 0, fontSize: "0.82rem", color: "var(--white)", lineHeight: 1.5 }}>🔍 {note}</p>
+            ))}
+          </div>
+        )}
+
+        {/* New Project: show request description + site observations */}
+        {isNewProject ? (
+          <>
+            {allSiteObs.length > 0 && (
+              <div style={{ marginBottom: "16px", padding: "12px 14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
+                <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "10px" }}>SITE OBSERVATIONS ({allSiteObs.length})</p>
+                {allSiteObs.map((obs: any, i: number) => (
+                  <div key={i} style={{ padding: "8px 0", borderBottom: i < allSiteObs.length - 1 ? "1px solid var(--border)" : "none" }}>
+                    <span style={{ fontSize: "0.82rem", fontWeight: 700, color: "var(--blue-light)" }}>{obs.aspect}</span>
+                    <p style={{ margin: "3px 0 2px", fontSize: "0.8rem", color: "var(--white)" }}>{obs.detail}</p>
+                    {obs.project_relevance && (
+                      <p style={{ margin: 0, fontSize: "0.75rem", color: "var(--muted)", fontStyle: "italic" }}>{obs.project_relevance}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            {/* Defects summary */}
+            <div style={{ marginBottom: "16px", padding: "12px 14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
+              <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>DETECTED ISSUES ({defects.length})</p>
+              {defects.map((d: any, i: number) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "5px 0", borderBottom: i < defects.length - 1 ? "1px solid var(--border)" : "none" }}>
+                  <span style={{ fontSize: "0.82rem", color: "var(--white)" }}>{d.defect_type}</span>
+                  <span className={`badge-${d.severity}`}>{d.severity?.toUpperCase()}</span>
+                </div>
               ))}
             </div>
-          </div>
+            {/* AI Engine toggle */}
+            {data.aiEstimate?.openai?.line_items?.length > 0 && (
+              <div style={{ marginBottom: "14px" }}>
+                <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>AI ENGINE</p>
+                <div style={{ display: "flex", gap: "8px" }}>
+                  {(["claude", "openai"] as const).map(engine => (
+                    <button key={engine} type="button" onClick={() => switchEngine(engine)}
+                      style={{
+                        ...btn, flex: 1, padding: "10px 8px", borderRadius: "12px",
+                        background: activeEngine === engine ? "rgba(59,130,246,0.2)" : "var(--navy-800)",
+                        border: activeEngine === engine ? "1.5px solid var(--blue)" : "1px solid var(--border)",
+                        color: activeEngine === engine ? "var(--blue-light)" : "var(--muted)",
+                        fontFamily: "monospace", fontSize: "12px", fontWeight: 700,
+                      }}>
+                      {engine === "claude" ? "🤖 Claude" : "🧠 GPT-4o"}
+                      <span style={{ display: "block", fontSize: "11px", marginTop: "2px" }}>
+                        ${(data.aiEstimate[engine]?.total || 0).toLocaleString()} CAD
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
 
         {/* Line items — editable */}
@@ -228,7 +281,11 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
 
         {lineItems.length === 0 && (
           <div style={{ padding: "20px", textAlign: "center", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "14px" }}>
-            <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>No items yet. Use &quot;+ Add item&quot; to create manually.</p>
+            <p style={{ color: "var(--muted)", fontSize: "0.85rem" }}>
+              {isNewProject
+                ? "Add pricing items for this project using \"+ Add item\" above."
+                : "No items yet. Use \"+ Add item\" to create manually."}
+            </p>
           </div>
         )}
 
@@ -333,7 +390,9 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
             color: "white", fontWeight: 700, fontSize: "1.05rem", minHeight: "60px",
             opacity: submitting || lineItems.length === 0 ? 0.5 : 1,
           }}>
-          {submitting ? "Sending…" : `📧 Send Estimate to Client · $${total.toLocaleString()} CAD`}
+          {submitting ? "Sending…" : isNewProject
+            ? `📧 Send Project Quote · $${total.toLocaleString()} CAD`
+            : `📧 Send Estimate to Client · $${total.toLocaleString()} CAD`}
         </button>
       </div>
     </main>
