@@ -63,24 +63,20 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
   const [globalNote, setGlobalNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
-  const [activeEngine, setActiveEngine] = useState<"claude" | "openai">("claude");
 
   useEffect(() => {
     fetch(`${API_URL}/api/approve/${token}`)
       .then(r => r.json())
       .then(d => {
         setData(d);
-        const raw = d.aiEstimate?.recommended?.line_items || d.aiEstimate?.claude?.line_items || d.aiEstimate?.openai?.line_items || [];
+        const raw = d.aiEstimate?.recommended?.line_items || d.aiEstimate?.openai?.line_items || [];
         setLineItems(normalizeItems(raw));
         setLoading(false);
       })
       .catch(() => setLoading(false));
   }, [token]);
 
-  const switchEngine = (engine: "claude" | "openai") => {
-    if (!data?.aiEstimate) return;
-    const raw = data.aiEstimate[engine]?.line_items || [];
-    setLineItems(normalizeItems(raw));
+
     setActiveEngine(engine);
   };
 
@@ -244,29 +240,6 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
                 </div>
               ))}
             </div>
-            {/* AI Engine toggle */}
-            {data.aiEstimate?.openai?.line_items?.length > 0 && (
-              <div style={{ marginBottom: "14px" }}>
-                <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "8px" }}>AI ENGINE</p>
-                <div style={{ display: "flex", gap: "8px" }}>
-                  {(["claude", "openai"] as const).map(engine => (
-                    <button key={engine} type="button" onClick={() => switchEngine(engine)}
-                      style={{
-                        ...btn, flex: 1, padding: "10px 8px", borderRadius: "12px",
-                        background: activeEngine === engine ? "rgba(59,130,246,0.2)" : "var(--navy-800)",
-                        border: activeEngine === engine ? "1.5px solid var(--blue)" : "1px solid var(--border)",
-                        color: activeEngine === engine ? "var(--blue-light)" : "var(--muted)",
-                        fontFamily: "monospace", fontSize: "12px", fontWeight: 700,
-                      }}>
-                      {engine === "claude" ? "🤖 Claude" : "🧠 GPT-4o"}
-                      <span style={{ display: "block", fontSize: "11px", marginTop: "2px" }}>
-                        ${(data.aiEstimate[engine]?.total || 0).toLocaleString()} CAD
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
           </>
         )}
 
