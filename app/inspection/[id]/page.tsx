@@ -110,7 +110,8 @@ function ServiceBadge({ type }: { type: ServiceType }) {
 export default function InspectionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef  = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
 
   const [lang, setLang]               = useState<Lang>("en");
   const [step, setStep]               = useState<Step>("describe");
@@ -298,23 +299,44 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
 
         {photos.length < MAX_PHOTOS && (
           <>
-            <input ref={fileRef} type="file" accept="image/*" multiple capture="environment"
-              onChange={e => handleFiles(e.target.files)} style={{ display: "none" }} />
-            <button type="button" onClick={() => fileRef.current?.click()}
-              style={{
-                ...btn, width: "100%", padding: "28px 16px", marginBottom: "20px",
-                borderRadius: "18px", background: "var(--navy-800)",
-                border: "2px dashed rgba(245,158,11,0.3)",
-                display: "flex", flexDirection: "column", alignItems: "center", gap: "10px",
-              }}>
-              <span style={{ fontSize: "2.5rem" }}>📷</span>
-              <span style={{ color: "var(--gold-light)", fontWeight: 700, fontSize: "1rem" }}>
-                {photos.length === 0 ? m.addPhoto : m.addMore}
-              </span>
-              <span style={{ color: "var(--muted)", fontSize: "0.78rem", fontFamily: "'Space Mono',monospace" }}>
-                {m.maxPhotos(MAX_PHOTOS)}
-              </span>
-            </button>
+            {/* Camera input — opens camera directly */}
+            <input ref={cameraRef} type="file" accept="image/*" capture="environment"
+              onChange={e => { handleFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
+            {/* Gallery input — opens photo library */}
+            <input ref={galleryRef} type="file" accept="image/*" multiple
+              onChange={e => { handleFiles(e.target.files); e.target.value = ""; }} style={{ display: "none" }} />
+
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "20px" }}>
+              <button type="button" onClick={() => cameraRef.current?.click()}
+                style={{
+                  ...btn, padding: "22px 12px",
+                  borderRadius: "18px", background: "var(--navy-800)",
+                  border: "2px dashed rgba(245,158,11,0.35)",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: "8px",
+                }}>
+                <span style={{ fontSize: "2rem" }}>📷</span>
+                <span style={{ color: "var(--gold-light)", fontWeight: 700, fontSize: "0.9rem" }}>
+                  Take photo
+                </span>
+              </button>
+
+              <button type="button" onClick={() => galleryRef.current?.click()}
+                style={{
+                  ...btn, padding: "22px 12px",
+                  borderRadius: "18px", background: "var(--navy-800)",
+                  border: "2px dashed rgba(59,130,246,0.35)",
+                  display: "flex", flexDirection: "column", alignItems: "center", gap: "8px",
+                }}>
+                <span style={{ fontSize: "2rem" }}>🖼️</span>
+                <span style={{ color: "#93c5fd", fontWeight: 700, fontSize: "0.9rem" }}>
+                  Upload photo
+                </span>
+              </button>
+            </div>
+
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", textAlign: "center", marginBottom: "16px", marginTop: "-8px" }}>
+              {m.maxPhotos(MAX_PHOTOS)}
+            </p>
           </>
         )}
 
