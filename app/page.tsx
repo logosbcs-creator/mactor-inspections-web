@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LANGUAGES, type Lang, getSavedLang, saveLang, getLangFromUrl } from "./i18n/translations";
-import { M, MACTOR } from "./inspector-mactor/character";
+import { M } from "./inspector-mactor/character";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -180,19 +180,22 @@ export default function LandingPage() {
 
         {/* MacTor intro card */}
         <div style={{
-          display: "flex", gap: "12px", alignItems: "flex-start",
-          padding: "16px", borderRadius: "16px",
+          position: "relative", overflow: "hidden",
+          borderRadius: "16px", minHeight: "110px",
           background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.2)",
           marginBottom: "8px",
         }}>
-          <div style={{
-            flexShrink: 0, width: 48, height: 48, borderRadius: "50%",
-            background: "linear-gradient(135deg,rgba(245,158,11,0.25),rgba(59,130,246,0.15))",
-            border: "2px solid var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
-          }}>
-            {MACTOR.avatar}
-          </div>
-          <div>
+          {/* Full figure — right side */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/mactor.png" alt=""
+            aria-hidden="true"
+            style={{
+              position: "absolute", right: "-8px", bottom: 0,
+              height: "148px", width: "auto", objectFit: "contain",
+              objectPosition: "center bottom", pointerEvents: "none",
+            }} />
+          {/* Text — left side, padded right so it doesn't overlap figure */}
+          <div style={{ padding: "16px", paddingRight: "110px" }}>
             <p style={{ margin: 0, fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "5px" }}>
               INSPECTOR MACTOR · {m.free.toUpperCase()} INSPECTION
             </p>
