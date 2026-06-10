@@ -1,7 +1,8 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { T, LANGUAGES, type Lang, getSavedLang, saveLang, getLangFromUrl } from "./i18n/translations";
+import { LANGUAGES, type Lang, getSavedLang, saveLang, getLangFromUrl } from "./i18n/translations";
+import { M, MACTOR } from "./inspector-mactor/character";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -132,7 +133,7 @@ export default function LandingPage() {
     );
   }
 
-  const t = T[lang];
+  const m = M[lang];
   const currentLangMeta = LANGUAGES.find(l => l.code === lang)!;
 
   const start = async () => {
@@ -145,12 +146,10 @@ export default function LandingPage() {
         body: JSON.stringify({ propertyType: selected, clientLanguage: lang }),
       });
       const data = await res.json();
-      // Store lang in sessionStorage so sub-pages can read it
-      sessionStorage.setItem("inspector_inspect_lang", lang);
       router.push(`/inspection/${data.id}?lang=${lang}`);
     } catch {
       setLoading(false);
-      alert(t.connectionError);
+      alert(m.connectionError);
     }
   };
 
@@ -159,66 +158,70 @@ export default function LandingPage() {
       backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 60%)" }}>
 
       {/* Header */}
-      <div style={{ paddingTop: "44px", paddingBottom: "28px" }}>
-        {/* Brand row */}
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "20px" }}>
+      <div style={{ paddingTop: "44px", paddingBottom: "24px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "24px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <LogoMark size="sm" />
             <div>
               <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "9px", letterSpacing: "2px", color: "var(--gold)", margin: 0 }}>
-                ▲ MACTOR MAINTENANCE
+                FIXMYPROPERTY · GTA
               </p>
               <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 900, letterSpacing: "-0.3px" }}>
                 <span style={{ fontWeight: 300, color: "var(--muted)" }}>Inspector </span>
-                <span style={{ color: "var(--white)" }}>Mactor</span>
+                <span style={{ color: "var(--white)" }}>MacTor</span>
               </h1>
             </div>
           </div>
-          {/* Language switcher */}
-          <button
-            type="button"
-            className="lang-chip"
-            onClick={() => setShowLangPicker(true)}
-          >
+          <button type="button" className="lang-chip" onClick={() => setShowLangPicker(true)}>
             <span>{currentLangMeta.flag}</span>
             <span>{currentLangMeta.name}</span>
           </button>
         </div>
 
-        {/* Tagline */}
-        <div style={{ textAlign: "center", paddingTop: "8px" }}>
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", letterSpacing: "2px", color: "var(--muted)", marginBottom: "6px" }}>
-            AI · GTA TORONTO
-          </p>
-          <p style={{ color: "var(--muted)", fontSize: "0.88rem", margin: 0 }}>
-            {t.tagline}
-          </p>
+        {/* MacTor intro card */}
+        <div style={{
+          display: "flex", gap: "12px", alignItems: "flex-start",
+          padding: "16px", borderRadius: "16px",
+          background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.2)",
+          marginBottom: "8px",
+        }}>
+          <div style={{
+            flexShrink: 0, width: 48, height: 48, borderRadius: "50%",
+            background: "linear-gradient(135deg,rgba(245,158,11,0.25),rgba(59,130,246,0.15))",
+            border: "2px solid var(--gold)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "1.5rem",
+          }}>
+            {MACTOR.avatar}
+          </div>
+          <div>
+            <p style={{ margin: 0, fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "5px" }}>
+              INSPECTOR MACTOR · {m.free.toUpperCase()} INSPECTION
+            </p>
+            <p style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--white)", lineHeight: 1.4 }}>
+              "{m.tagline}"
+            </p>
+            <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>
+              {m.subtitle}
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Property type selector */}
       <div style={{ marginBottom: "24px" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px", textAlign: "center" }}>
-          {t.propertyType}
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px" }}>
+          {m.propertyLabel.toUpperCase()}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
           {([
-            { id: "residential", label: t.residential, icon: "🏠", desc: t.residentialDesc },
-            { id: "commercial",  label: t.commercial,  icon: "🏢", desc: t.commercialDesc  },
+            { id: "residential", label: m.residential, icon: "🏠", desc: m.residentialDesc },
+            { id: "commercial",  label: m.commercial,  icon: "🏢", desc: m.commercialDesc  },
           ] as const).map(opt => (
-            <button
-              key={opt.id}
-              type="button"
-              onClick={() => setSelected(opt.id)}
+            <button key={opt.id} type="button" onClick={() => setSelected(opt.id)}
               style={{
-                ...btnReset,
-                padding: "20px 12px",
-                borderRadius: "18px",
+                ...btnReset, padding: "20px 12px", borderRadius: "18px", textAlign: "center",
                 background: selected === opt.id ? "rgba(245,158,11,0.12)" : "var(--navy-800)",
                 border: selected === opt.id ? "2px solid var(--gold)" : "1.5px solid var(--border)",
-                textAlign: "center",
-                minHeight: "120px",
-                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px",
+                minHeight: "120px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px",
               }}>
               <span style={{ fontSize: "2.2rem" }}>{opt.icon}</span>
               <span style={{ fontWeight: 700, color: selected === opt.id ? "var(--gold-light)" : "var(--white)", fontSize: "1rem" }}>
@@ -232,61 +235,51 @@ export default function LandingPage() {
         </div>
       </div>
 
-      {/* How it works */}
+      {/* How it works — MacTor's 5-step process */}
       <div style={{ marginBottom: "24px", padding: "18px", borderRadius: "16px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
         <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "14px" }}>
-          {t.howItWorks}
+          HOW IT WORKS
         </p>
-        {t.steps.map((step, i) => (
+        {[
+          { icon: "💬", en: "Describe the problem", es: "Describe el problema", zh: "描述问题", hi: "समस्या बताएं", tl: "Ilarawan ang problema" },
+          { icon: "📷", en: "Show me the photos",   es: "Muéstrame las fotos", zh: "拍照给我看", hi: "फोटो दिखाएं", tl: "Ipakita ang mga larawan" },
+          { icon: "🔍", en: "I analyze everything", es: "Analizo todo", zh: "我来分析", hi: "मैं सब कुछ विश्लेषण करता हूं", tl: "Sinusuri ko ang lahat" },
+          { icon: "📋", en: "You get the report",   es: "Recibes el reporte", zh: "您获得报告", hi: "आपको रिपोर्ट मिलती है", tl: "Makatatanggap ka ng ulat" },
+          { icon: "💰", en: "Optional: cost estimate by email", es: "Opcional: estimado por email", zh: "可选：邮件费用估算", hi: "वैकल्पिक: ईमेल पर लागत अनुमान", tl: "Opsyonal: tantya ng gastos sa email" },
+        ].map((s, i) => (
           <div key={i} style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: i < 4 ? "10px" : 0 }}>
             <div style={{
               width: 28, height: 28, borderRadius: "50%",
               background: "rgba(245,158,11,0.12)", border: "1px solid rgba(245,158,11,0.25)",
               display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
             }}>
-              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--gold-light)", fontWeight: 700 }}>{i + 1}</span>
+              <span style={{ fontSize: "0.85rem" }}>{s.icon}</span>
             </div>
-            <span style={{ fontSize: "0.88rem", color: "var(--muted)" }}>
-              {["📷","🤖","📋","💰","🔧"][i]} {step}
-            </span>
+            <span style={{ fontSize: "0.85rem", color: "var(--muted)" }}>{s[lang as keyof typeof s] || s.en}</span>
           </div>
         ))}
       </div>
 
       {/* CTA */}
-      <button
-        type="button"
-        onClick={start}
-        disabled={!selected || loading}
+      <button type="button" onClick={start} disabled={!selected || loading}
         style={{
           ...btnReset,
-          background: selected && !loading
-            ? "linear-gradient(135deg, #f59e0b, #d97706)"
-            : "var(--navy-700)",
+          background: selected && !loading ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-800)",
           color: selected && !loading ? "#0a0f1e" : "var(--muted)",
-          padding: "20px",
-          borderRadius: "18px",
-          fontWeight: 800,
-          fontSize: "1.1rem",
-          width: "100%",
-          minHeight: "64px",
-          marginBottom: "28px",
+          padding: "20px", borderRadius: "18px", fontWeight: 800, fontSize: "1.1rem",
+          width: "100%", minHeight: "64px", marginBottom: "28px",
           opacity: selected && !loading ? 1 : 0.5,
           display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
           boxShadow: selected && !loading ? "0 4px 20px rgba(245,158,11,0.3)" : "none",
-          letterSpacing: "-0.2px",
+          border: selected && !loading ? "none" : "1px solid var(--border)",
         }}>
         {loading ? (
-          <>
-            <span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "currentColor" }} />
-            {t.starting}
-          </>
-        ) : t.startBtn}
+          <><span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "currentColor" }} />{m.starting}</>
+        ) : m.startBtn}
       </button>
 
-      {/* Footer */}
       <p style={{ textAlign: "center", fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", paddingBottom: "24px" }}>
-        MacTor Maintenance · GTA Toronto © 2026
+        FixMyProperty · MacTor Maintenance · GTA Toronto © 2026
       </p>
     </main>
   );

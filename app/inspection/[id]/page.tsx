@@ -1,7 +1,8 @@
 "use client";
 import { useState, useRef, use, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { T, type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
+import { type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
+import { M, MACTOR, CATEGORIES, CATEGORY_LIST, type IssueCategory, detectCategory } from "../../inspector-mactor/character";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -12,6 +13,7 @@ const btn: React.CSSProperties = {
 };
 
 type Severity = "low" | "medium" | "high" | "critical";
+type Step = "describe" | "category" | "photos";
 
 interface Defect {
   defect_type: string;
@@ -19,6 +21,7 @@ interface Defect {
   location: string;
   danger_if_ignored: string;
   confidence: string;
+  inspector_note?: string;
 }
 
 interface PhotoEntry {
@@ -30,30 +33,105 @@ interface PhotoEntry {
     overall_condition: string;
     observed_defects: Defect[];
     priority_level: string;
+    inspector_note?: string;
   } | null;
 }
 
-const SEVERITY_LABELS: Record<Severity, Record<Lang, string>> = {
-  critical: { en: "CRITICAL", es: "CRÍTICO", zh: "严重", hi: "गंभीर",   tl: "KRITIKAL" },
-  high:     { en: "HIGH",     es: "ALTO",    zh: "高",   hi: "उच्च",    tl: "MATAAS"   },
-  medium:   { en: "MEDIUM",   es: "MEDIO",   zh: "中",   hi: "मध्यम",   tl: "KATAMTAMAN" },
-  low:      { en: "LOW",      es: "BAJO",    zh: "低",   hi: "कम",      tl: "MABABA"   },
+const SEVERITY_COLORS: Record<Severity, string> = {
+  critical: "var(--red)", high: "var(--amber)", medium: "var(--blue)", low: "var(--green)",
 };
+
+const SEVERITY_LABELS: Record<Severity, Record<Lang, string>> = {
+  critical: { en: "CRITICAL", es: "CRÍTICO",   zh: "严重", hi: "गंभीर",   tl: "KRITIKAL"    },
+  high:     { en: "HIGH",     es: "ALTO",       zh: "高",   hi: "उच्च",    tl: "MATAAS"      },
+  medium:   { en: "MEDIUM",   es: "MEDIO",      zh: "中",   hi: "मध्यम",   tl: "KATAMTAMAN"  },
+  low:      { en: "LOW",      es: "BAJO",       zh: "低",   hi: "कम",      tl: "MABABA"      },
+};
+
+// ── MacTor speech bubble ──────────────────────────────────────────────────────
+function MacTorBubble({ text, sub }: { text: string; sub?: string }) {
+  return (
+    <div style={{ display: "flex", gap: "12px", alignItems: "flex-start", marginBottom: "28px" }}>
+      {/* Avatar */}
+      <div style={{
+        flexShrink: 0, width: 44, height: 44, borderRadius: "50%",
+        background: "linear-gradient(135deg,rgba(245,158,11,0.2),rgba(59,130,246,0.15))",
+        border: "2px solid var(--gold)", display: "flex", alignItems: "center",
+        justifyContent: "center", fontSize: "1.3rem",
+      }}>
+        {MACTOR.avatar}
+      </div>
+      {/* Bubble */}
+      <div style={{ flex: 1 }}>
+        <p style={{
+          margin: 0, fontSize: "0.7rem", fontFamily: "'Space Mono',monospace",
+          color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "6px",
+        }}>
+          INSPECTOR MACTOR
+        </p>
+        <div style={{
+          background: "var(--navy-800)", border: "1px solid rgba(245,158,11,0.25)",
+          borderRadius: "0 14px 14px 14px", padding: "14px 16px",
+        }}>
+          <p style={{ margin: 0, fontSize: "1rem", fontWeight: 600, color: "var(--white)", lineHeight: 1.45 }}>
+            {text}
+          </p>
+          {sub && (
+            <p style={{ margin: "6px 0 0", fontSize: "0.8rem", color: "var(--muted)", lineHeight: 1.5 }}>
+              {sub}
+            </p>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function InspectionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const fileRef = useRef<HTMLInputElement>(null);
-  const [photos, setPhotos] = useState<PhotoEntry[]>([]);
-  const [lang, setLang] = useState<Lang>("en");
+
+  const [lang, setLang]             = useState<Lang>("en");
+  const [step, setStep]             = useState<Step>("describe");
+  const [description, setDescription] = useState("");
+  const [category, setCategory]     = useState<IssueCategory>("other");
+  const [detectedCat, setDetectedCat] = useState<IssueCategory>("other");
+  const [showCatPicker, setShowCatPicker] = useState(false);
+  const [photos, setPhotos]         = useState<PhotoEntry[]>([]);
+  const [savingContext, setSavingContext] = useState(false);
 
   useEffect(() => {
     setLang(getLangFromUrl() || getSavedLang() || "en");
   }, []);
 
-  const t = T[lang];
+  const m = M[lang];
   const MAX_PHOTOS = 10;
 
+  // ── Step 1 → 2: save description, detect category ──────────────────────────
+  const handleDescribeNext = () => {
+    if (!description.trim()) return;
+    const detected = detectCategory(description);
+    setDetectedCat(detected);
+    setCategory(detected);
+    setStep("category");
+  };
+
+  // ── Step 2 → 3: save context to API ────────────────────────────────────────
+  const handleCategoryNext = async () => {
+    setSavingContext(true);
+    try {
+      await fetch(`${API_URL}/api/inspection/${id}/context`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ problemDescription: description, issueCategory: category }),
+      });
+    } catch { /* non-blocking */ }
+    setSavingContext(false);
+    setStep("photos");
+  };
+
+  // ── Photo handling ──────────────────────────────────────────────────────────
   const handleFiles = async (files: FileList | null) => {
     if (!files) return;
     const remaining = MAX_PHOTOS - photos.length;
@@ -77,55 +155,220 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
         formData.append("photo", file);
         if (exifCoords) formData.append("exifCoords", JSON.stringify(exifCoords));
 
-        setPhotos(prev => prev.map(p =>
-          p.preview === preview ? { ...p, status: "analyzing" } : p
-        ));
+        setPhotos(prev => prev.map(p => p.preview === preview ? { ...p, status: "analyzing" } : p));
 
-        const res = await fetch(`${API_URL}/api/inspection/${id}/photo`, {
-          method: "POST",
-          body: formData,
-        });
+        const res = await fetch(`${API_URL}/api/inspection/${id}/photo`, { method: "POST", body: formData });
         const data = await res.json();
 
         setPhotos(prev => prev.map(p =>
-          p.preview === preview
-            ? { ...p, url: data.photoUrl, analysis: data.analysis, status: "done" }
-            : p
+          p.preview === preview ? { ...p, url: data.photoUrl, analysis: data.analysis, status: "done" } : p
         ));
       } catch {
-        setPhotos(prev => prev.map(p =>
-          p.preview === preview ? { ...p, status: "error" } : p
-        ));
+        setPhotos(prev => prev.map(p => p.preview === preview ? { ...p, status: "error" } : p));
       }
     }
   };
 
   const removePhoto = (preview: string) => setPhotos(prev => prev.filter(p => p.preview !== preview));
 
-  const allDone = photos.length > 0 && photos.every(p => p.status === "done" || p.status === "error");
-  const totalDefects = photos.flatMap(p => p.analysis?.observed_defects || []).length;
+  const allDone    = photos.length > 0 && photos.every(p => p.status === "done" || p.status === "error");
   const hasAnalysis = photos.some(p => p.analysis !== null);
+  const totalDefects = photos.flatMap(p => p.analysis?.observed_defects || []).length;
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // STEP 1 — DESCRIBE
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (step === "describe") {
+    return (
+      <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", background: "var(--navy)" }}>
+        <header style={{ padding: "18px 20px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
+          <button type="button" onClick={() => router.back()}
+            style={{ ...btn, width: 40, height: 40, borderRadius: 12, background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", fontSize: "1.1rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            ←
+          </button>
+          <div>
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>INSPECTOR MACTOR · STEP 1 OF 3</p>
+            <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>{m.describeTitle}</h1>
+          </div>
+        </header>
+
+        <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto" }}>
+          <MacTorBubble text={m.describePrompt} sub={m.describeHint} />
+
+          <textarea
+            autoFocus
+            value={description}
+            onChange={e => setDescription(e.target.value)}
+            placeholder={m.describePlaceholder}
+            rows={4}
+            style={{
+              width: "100%", padding: "16px", borderRadius: "14px",
+              background: "var(--navy-800)", border: `1px solid ${description.trim() ? "rgba(245,158,11,0.4)" : "var(--border)"}`,
+              color: "var(--white)", fontSize: "1rem", outline: "none",
+              resize: "none", fontFamily: "'Outfit',sans-serif", lineHeight: 1.5,
+              touchAction: "manipulation", boxSizing: "border-box",
+              transition: "border-color 0.2s",
+            }}
+            onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey && description.trim()) { e.preventDefault(); handleDescribeNext(); } }}
+          />
+
+          {/* Word count hint */}
+          <p style={{ fontSize: "0.75rem", color: "var(--muted)", margin: "8px 0 0", fontFamily: "'Space Mono',monospace" }}>
+            {description.trim().split(/\s+/).filter(Boolean).length} / 100 words
+          </p>
+        </div>
+
+        <div style={{ padding: "16px 20px", borderTop: "1px solid var(--border)" }}>
+          <button type="button"
+            onClick={handleDescribeNext}
+            disabled={!description.trim()}
+            style={{
+              ...btn, width: "100%", padding: "18px", borderRadius: "16px",
+              background: description.trim() ? "linear-gradient(135deg,#f59e0b,#d97706)" : "rgba(245,158,11,0.2)",
+              color: description.trim() ? "#0a0f1e" : "var(--gold-light)",
+              fontWeight: 800, fontSize: "1.05rem",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+            }}>
+            {m.describeNext}
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // STEP 2 — CATEGORY
+  // ─────────────────────────────────────────────────────────────────────────────
+  if (step === "category") {
+    const catDef = CATEGORIES[category];
+    return (
+      <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", background: "var(--navy)" }}>
+        <header style={{ padding: "18px 20px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
+          <button type="button" onClick={() => setStep("describe")}
+            style={{ ...btn, width: 40, height: 40, borderRadius: 12, background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", fontSize: "1.1rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
+            ←
+          </button>
+          <div>
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>INSPECTOR MACTOR · STEP 2 OF 3</p>
+            <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>{m.categoryTitle}</h1>
+          </div>
+        </header>
+
+        <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto" }}>
+          <MacTorBubble
+            text={m.categoryDetected(catDef.name[lang])}
+            sub={!showCatPicker ? m.categoryChange : undefined}
+          />
+
+          {/* Quick confirm — show detected category prominently */}
+          {!showCatPicker && (
+            <>
+              <div style={{
+                padding: "20px", borderRadius: "16px", marginBottom: "16px",
+                background: "rgba(245,158,11,0.08)", border: "2px solid rgba(245,158,11,0.4)",
+                display: "flex", alignItems: "center", gap: "16px",
+              }}>
+                <span style={{ fontSize: "2rem" }}>{catDef.icon}</span>
+                <div>
+                  <p style={{ margin: 0, fontWeight: 700, color: "var(--white)", fontSize: "1.1rem" }}>{catDef.name[lang]}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>{description}</p>
+                </div>
+              </div>
+
+              <button type="button" onClick={() => setShowCatPicker(true)}
+                style={{ ...btn, width: "100%", padding: "12px", borderRadius: "12px", marginBottom: "20px",
+                  background: "var(--navy-800)", border: "1px solid var(--border)",
+                  color: "var(--muted)", fontSize: "0.85rem",
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: "6px" }}>
+                🔄 {m.categoryChange}
+              </button>
+            </>
+          )}
+
+          {/* Full category picker */}
+          {showCatPicker && (
+            <>
+              <p style={{ fontSize: "0.8rem", color: "var(--muted)", margin: "0 0 12px", fontFamily: "'Space Mono',monospace" }}>
+                {m.categorySelect}
+              </p>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                {CATEGORY_LIST.map(cat => {
+                  const def = CATEGORIES[cat];
+                  const isSelected = cat === category;
+                  return (
+                    <button key={cat} type="button"
+                      onClick={() => { setCategory(cat); setShowCatPicker(false); }}
+                      style={{
+                        ...btn, padding: "14px 12px", borderRadius: "14px",
+                        background: isSelected ? "rgba(245,158,11,0.12)" : "var(--navy-800)",
+                        border: `1px solid ${isSelected ? "var(--gold)" : "var(--border)"}`,
+                        display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "4px",
+                      }}>
+                      <span style={{ fontSize: "1.4rem" }}>{def.icon}</span>
+                      <span style={{ fontSize: "0.8rem", fontWeight: 600, color: isSelected ? "var(--gold)" : "var(--white)", textAlign: "left", lineHeight: 1.3 }}>
+                        {def.name[lang]}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+
+        <div style={{ padding: "16px 20px", borderTop: "1px solid var(--border)" }}>
+          <button type="button"
+            onClick={handleCategoryNext}
+            disabled={savingContext}
+            style={{
+              ...btn, width: "100%", padding: "18px", borderRadius: "16px",
+              background: "linear-gradient(135deg,#f59e0b,#d97706)", color: "#0a0f1e",
+              fontWeight: 800, fontSize: "1.05rem",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+              opacity: savingContext ? 0.7 : 1,
+            }}>
+            {savingContext ? "…" : m.next}
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // STEP 3 — PHOTOS
+  // ─────────────────────────────────────────────────────────────────────────────
+  const catDef = CATEGORIES[category];
 
   return (
     <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", background: "var(--navy)" }}>
       {/* Header */}
       <header style={{ padding: "18px 20px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
-        <button type="button" onClick={() => router.back()}
+        <button type="button" onClick={() => setStep("category")}
           style={{ ...btn, width: 40, height: 40, borderRadius: 12, background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", fontSize: "1.1rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
           ←
         </button>
         <div style={{ flex: 1 }}>
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>{t.inspectionPhotos}</p>
-          <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>{t.documentDamage}</h1>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>
+            INSPECTOR MACTOR · STEP 3 OF 3
+          </p>
+          <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>{m.photoTitle}</h1>
         </div>
-        <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "13px", fontWeight: 700,
+        {/* Photo counter */}
+        <div style={{
+          fontFamily: "'Space Mono',monospace", fontSize: "13px", fontWeight: 700,
           color: photos.length >= MAX_PHOTOS ? "var(--amber)" : "var(--gold-light)",
-          background: "var(--navy-800)", border: "1px solid var(--border)", padding: "6px 12px", borderRadius: 20 }}>
+          background: "var(--navy-800)", border: "1px solid var(--border)", padding: "6px 12px", borderRadius: 20,
+        }}>
           {photos.length}/{MAX_PHOTOS}
         </div>
       </header>
 
       <div style={{ flex: 1, padding: "20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
+
+        {/* MacTor guidance */}
+        {photos.length === 0 && (
+          <MacTorBubble text={m.photoPrompt} sub={catDef.photoHint[lang]} />
+        )}
 
         {/* Upload button */}
         {photos.length < MAX_PHOTOS && (
@@ -141,10 +384,10 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
               }}>
               <span style={{ fontSize: "2.5rem" }}>📷</span>
               <span style={{ color: "var(--gold-light)", fontWeight: 700, fontSize: "1rem" }}>
-                {photos.length === 0 ? t.takePhotos : t.addMorePhotos}
+                {photos.length === 0 ? m.addPhoto : m.addMore}
               </span>
               <span style={{ color: "var(--muted)", fontSize: "0.78rem", fontFamily: "'Space Mono',monospace" }}>
-                {t.maxPhotos(MAX_PHOTOS)}
+                {m.maxPhotos(MAX_PHOTOS)}
               </span>
             </button>
           </>
@@ -163,7 +406,7 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                   {photo.status === "analyzing" && <div className="scan-line" style={{ top: 0 }} />}
                   <span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "var(--gold)" }} />
                   <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--gold-light)" }}>
-                    {photo.status === "uploading" ? t.uploadingPhoto : t.aiAnalyzing}
+                    {photo.status === "uploading" ? m.uploading : m.analyzing}
                   </span>
                 </div>
               )}
@@ -180,16 +423,25 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
               </div>
             </div>
 
+            {/* Analysis results */}
             <div style={{ padding: "14px" }}>
               {photo.status === "done" && photo.analysis ? (
-                <div>
+                <>
                   {photo.analysis.observed_defects.length > 0 ? (
                     <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                       {photo.analysis.observed_defects.map((d, j) => (
                         <div key={j} style={{ padding: "10px 12px", borderRadius: "10px", background: "rgba(255,255,255,0.03)", border: "1px solid var(--border)" }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "4px" }}>
                             <span style={{ fontSize: "0.85rem", fontWeight: 600, color: "var(--white)" }}>{d.defect_type}</span>
-                            <span className={`badge-${d.severity}`}>{SEVERITY_LABELS[d.severity]?.[lang] || d.severity.toUpperCase()}</span>
+                            <span style={{
+                              fontSize: "0.65rem", fontWeight: 700, fontFamily: "'Space Mono',monospace",
+                              padding: "2px 8px", borderRadius: 20,
+                              background: `${SEVERITY_COLORS[d.severity]}22`,
+                              color: SEVERITY_COLORS[d.severity],
+                              border: `1px solid ${SEVERITY_COLORS[d.severity]}44`,
+                            }}>
+                              {SEVERITY_LABELS[d.severity]?.[lang] || d.severity.toUpperCase()}
+                            </span>
                           </div>
                           {d.danger_if_ignored && (
                             <p style={{ fontSize: "0.75rem", color: "var(--amber)", margin: 0 }}>
@@ -201,28 +453,34 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
                     </div>
                   ) : (
                     <p style={{ fontSize: "0.8rem", color: "var(--green)", fontFamily: "'Space Mono',monospace", margin: 0 }}>
-                      {t.noDamagePhoto}
+                      {m.noDamage}
                     </p>
                   )}
-                </div>
+                  {/* MacTor's note */}
+                  {photo.analysis.inspector_note && (
+                    <p style={{ fontSize: "0.78rem", color: "var(--muted)", margin: "8px 0 0", fontStyle: "italic", borderTop: "1px solid var(--border)", paddingTop: "8px" }}>
+                      🔍 {photo.analysis.inspector_note}
+                    </p>
+                  )}
+                </>
               ) : photo.status === "error" ? (
-                <p style={{ fontSize: "0.8rem", color: "var(--red)", margin: 0 }}>{t.errorPhoto}</p>
+                <p style={{ fontSize: "0.8rem", color: "var(--red)", margin: 0 }}>{m.photoError}</p>
               ) : null}
             </div>
           </div>
         ))}
 
-        {/* Analyzing bar */}
+        {/* Analyzing progress bar */}
         {photos.length > 0 && !allDone && (
           <div style={{ padding: "14px 16px", borderRadius: "14px", background: "rgba(245,158,11,0.07)", border: "1px solid rgba(245,158,11,0.2)", marginBottom: "16px", display: "flex", alignItems: "center", gap: "12px" }}>
             <span className="pulse-dot" style={{ width: 8, height: 8, borderRadius: "50%", background: "var(--gold)", flexShrink: 0 }} />
             <span style={{ fontSize: "0.85rem", color: "var(--gold-light)" }}>
-              {t.analyzingBar(photos.filter(p => p.status === "done").length, photos.length)}
+              {m.progress(photos.filter(p => p.status === "done").length, photos.length)}
             </span>
           </div>
         )}
 
-        {/* CTA */}
+        {/* CTA to report */}
         {hasAnalysis && (
           <button type="button"
             onClick={() => router.push(`/report/${id}?lang=${lang}`)}
@@ -234,14 +492,14 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
               display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
               boxShadow: allDone ? "0 4px 16px rgba(245,158,11,0.3)" : "none",
             }}>
-            {allDone ? t.viewReport(totalDefects) : t.viewPartialReport}
+            {allDone ? m.reportCTA(totalDefects) : m.partialCTA}
           </button>
         )}
 
         {photos.length === 0 && (
-          <div style={{ textAlign: "center", padding: "40px 20px", color: "var(--muted)" }}>
-            <p style={{ fontSize: "2.5rem", marginBottom: "12px" }}>🔍</p>
-            <p style={{ fontSize: "0.9rem", whiteSpace: "pre-line", lineHeight: 1.6 }}>{t.takeDamagePhotos}</p>
+          <div style={{ textAlign: "center", padding: "32px 20px", color: "var(--muted)" }}>
+            <p style={{ fontSize: "2.5rem", marginBottom: "12px" }}>{catDef.icon}</p>
+            <p style={{ fontSize: "0.9rem", lineHeight: 1.6 }}>{catDef.photoHint[lang]}</p>
           </div>
         )}
       </div>
