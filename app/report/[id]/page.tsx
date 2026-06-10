@@ -1,6 +1,7 @@
 "use client";
-import { useState, use } from "react";
-import { useRouter } from "next/navigation";
+import { useState, use, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { T, type Lang, getSavedLang } from "../../i18n/translations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -15,7 +16,9 @@ type Severity = "low" | "medium" | "high" | "critical";
 export default function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
+  const [lang, setLang] = useState<Lang>("en");
   const [step, setStep] = useState<"report" | "form">("report");
   const [inspection, setInspection] = useState<any>(null);
   const [loaded, setLoaded] = useState(false);
@@ -27,7 +30,12 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
 
-  // Load inspection data
+  useEffect(() => {
+    const fromUrl = searchParams.get("lang") as Lang;
+    const saved = getSavedLang();
+    setLang(fromUrl || saved || "en");
+  }, [searchParams]);
+
   if (!loaded) {
     setLoaded(true);
     fetch(`${API_URL}/api/inspection/${id}`)
@@ -36,9 +44,11 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       .catch(console.error);
   }
 
+  const t = T[lang];
+
   const handleSubmit = async () => {
     if (!name || !email || !phone || !address) {
-      alert("Please fill in all fields.");
+      alert(t.fillAllFields);
       return;
     }
     setSubmitting(true);
@@ -46,19 +56,19 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       await fetch(`${API_URL}/api/inspection/${id}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ clientName: name, clientEmail: email, clientPhone: phone, address }),
+        body: JSON.stringify({ clientName: name, clientEmail: email, clientPhone: phone, address, clientLanguage: lang }),
       });
-      router.push(`/status/${id}`);
+      router.push(`/status/${id}?lang=${lang}`);
     } catch {
       setSubmitting(false);
-      alert("Error sending. Please try again.");
+      alert(t.sendError);
     }
   };
 
   if (!inspection) {
     return (
       <main style={{ minHeight: "100dvh", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <span className="pulse-dot" style={{ width: 12, height: 12, borderRadius: "50%", background: "var(--blue)" }} />
+        <span className="pulse-dot" style={{ width: 12, height: 12, borderRadius: "50%", background: "var(--gold)" }} />
       </main>
     );
   }
@@ -77,97 +87,95 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
     return (order[d.severity] || 0) > (order[best] || 0) ? d.severity : best;
   }, "no_issues");
 
+  const priorityLabel = topPriority === "no_issues" ? t.noDamage
+    : topPriority === "critical" ? t.immediateAttention
+    : topPriority === "high" ? t.urgentRepair
+    : t.maintenanceNeeded;
+
+  const inputStyle: React.CSSProperties = {
+    width: "100%", padding: "16px", borderRadius: "14px",
+    background: "var(--navy-800)", border: "1px solid var(--border)",
+    color: "var(--white)", fontSize: "1rem", outline: "none",
+    touchAction: "manipulation", fontFamily: "'Outfit', sans-serif",
+  };
+
+  // ── Contact form ──
   if (step === "form") {
     return (
       <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", background: "var(--navy)" }}>
-        <header style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
+        <header style={{ padding: "18px 20px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
           <button type="button" onClick={() => setStep("report")}
             style={{ ...btn, width: 40, height: 40, borderRadius: 12, background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", fontSize: "1.1rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
             ←
           </button>
           <div>
-            <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>YOUR DETAILS</p>
-            <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>Contact information</h1>
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>{t.yourDetails}</p>
+            <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>{t.contactInfo}</h1>
           </div>
         </header>
 
         <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto", WebkitOverflowScrolling: "touch" }}>
-          <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "24px" }}>
-            We will review your report and send you a cost estimate by email.
-          </p>
+          <p style={{ color: "var(--muted)", fontSize: "0.9rem", marginBottom: "24px" }}>{t.contactDesc}</p>
 
           {[
-            { label: "FULL NAME", value: name, onChange: setName, placeholder: "John Smith", type: "text", inputMode: "text" },
-            { label: "EMAIL", value: email, onChange: setEmail, placeholder: "john@email.com", type: "email", inputMode: "email" },
-            { label: "PHONE", value: phone, onChange: setPhone, placeholder: "+1 (416) 000-0000", type: "tel", inputMode: "tel" },
+            { label: t.fullName,  value: name,  onChange: setName,  placeholder: t.namePlaceholder,  type: "text",  inputMode: "text"  },
+            { label: t.email,     value: email, onChange: setEmail, placeholder: t.emailPlaceholder, type: "email", inputMode: "email" },
+            { label: t.phone,     value: phone, onChange: setPhone, placeholder: t.phonePlaceholder, type: "tel",   inputMode: "tel"   },
           ].map(field => (
             <div key={field.label} style={{ marginBottom: "18px" }}>
-              <label style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "8px" }}>
+              <label style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "8px" }}>
                 {field.label}
               </label>
               <input
-                type={field.type}
-                inputMode={field.inputMode as any}
-                value={field.value}
-                onChange={e => field.onChange(e.target.value)}
-                placeholder={field.placeholder}
-                style={{
-                  width: "100%", padding: "16px", borderRadius: "14px",
-                  background: "var(--navy-800)", border: "1px solid var(--border)",
-                  color: "var(--white)", fontSize: "1rem", outline: "none",
-                  touchAction: "manipulation",
-                }}
+                type={field.type} inputMode={field.inputMode as any}
+                value={field.value} onChange={e => field.onChange(e.target.value)}
+                placeholder={field.placeholder} style={inputStyle}
               />
             </div>
           ))}
 
           <div style={{ marginBottom: "24px" }}>
-            <label style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "8px" }}>
-              PROPERTY ADDRESS
+            <label style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--muted)", letterSpacing: "2px", display: "block", marginBottom: "8px" }}>
+              {t.propertyAddress}
             </label>
             <textarea
-              value={address}
-              onChange={e => setAddress(e.target.value)}
-              placeholder="123 Main St, Toronto, ON M5V 1A1"
-              rows={3}
-              style={{
-                width: "100%", padding: "14px", borderRadius: "14px",
-                background: "var(--navy-800)", border: "1px solid var(--border)",
-                color: "var(--white)", fontSize: "0.95rem", outline: "none", resize: "none",
-                touchAction: "manipulation",
-              }}
+              value={address} onChange={e => setAddress(e.target.value)}
+              placeholder="123 Main St, Toronto, ON M5V 1A1" rows={3}
+              style={{ ...inputStyle, resize: "none" }}
             />
           </div>
 
-          <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginBottom: "20px", fontFamily: "monospace" }}>
-            🔒 Your information is confidential and only used for the estimate.
+          <p style={{ fontSize: "0.78rem", color: "var(--muted)", marginBottom: "20px", fontFamily: "'Space Mono',monospace" }}>
+            {t.privacy}
           </p>
 
           <button type="button" onClick={handleSubmit} disabled={submitting}
             style={{
               ...btn, width: "100%", padding: "18px", borderRadius: "18px",
-              background: submitting ? "var(--navy-700)" : "var(--blue)",
-              color: "white", fontWeight: 700, fontSize: "1.05rem", minHeight: "60px",
+              background: submitting ? "var(--navy-700)" : "linear-gradient(135deg,#f59e0b,#d97706)",
+              color: submitting ? "var(--muted)" : "#0a0f1e",
+              fontWeight: 800, fontSize: "1.05rem", minHeight: "60px",
               opacity: submitting ? 0.6 : 1,
+              boxShadow: submitting ? "none" : "0 4px 16px rgba(245,158,11,0.3)",
             }}>
-            {submitting ? "Sending…" : "Submit and Request Estimate →"}
+            {submitting ? t.sending : t.submitBtn}
           </button>
         </div>
       </main>
     );
   }
 
-  // Report view
+  // ── Report view ──
   return (
     <main style={{ minHeight: "100dvh", display: "flex", flexDirection: "column", background: "var(--navy)" }}>
-      <header style={{ padding: "20px 20px 16px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
-        <button type="button" onClick={() => router.push(`/inspection/${id}`)}
+      <header style={{ padding: "18px 20px 14px", borderBottom: "1px solid var(--border)", display: "flex", alignItems: "center", gap: "12px" }}>
+        <button type="button" onClick={() => router.push(`/inspection/${id}?lang=${lang}`)}
           style={{ ...btn, width: 40, height: 40, borderRadius: 12, background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--white)", fontSize: "1.1rem", display: "flex", alignItems: "center", justifyContent: "center" }}>
           ←
         </button>
         <div>
-          <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: 0 }}>INSPECTION REPORT</p>
-          <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 700, color: "var(--white)" }}>AI Analysis Results</h1>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: 0 }}>{t.inspectionReport}</p>
+          <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>{t.aiResults}</h1>
         </div>
       </header>
 
@@ -184,13 +192,9 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
             {topPriority === "no_issues" ? "✅" : topPriority === "critical" ? "🚨" : topPriority === "high" ? "⚠️" : "📋"}
           </span>
           <div>
-            <p style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: priorityColor(topPriority) }}>
-              {topPriority === "no_issues" ? "No significant damage found" :
-               topPriority === "critical" ? "Immediate attention required" :
-               topPriority === "high" ? "Urgent repair recommended" : "Maintenance needed"}
-            </p>
+            <p style={{ margin: 0, fontWeight: 700, fontSize: "1rem", color: priorityColor(topPriority) }}>{priorityLabel}</p>
             <p style={{ margin: "4px 0 0", fontSize: "0.82rem", color: "var(--muted)" }}>
-              {photos.length} photo(s) analyzed · {allDefects.length} issue(s) detected
+              {t.photosAnalyzedIssues(photos.length, allDefects.length)}
             </p>
           </div>
         </div>
@@ -198,33 +202,33 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "10px", marginBottom: "20px" }}>
           {[
-            { label: "Critical/High", value: criticalOrHigh.length, color: "var(--red)" },
-            { label: "Total issues", value: allDefects.length, color: "var(--amber)" },
-            { label: "Photos", value: photos.length, color: "var(--blue-light)" },
+            { label: t.criticalHigh, value: criticalOrHigh.length, color: "var(--red)" },
+            { label: t.totalIssues,  value: allDefects.length,     color: "var(--amber)" },
+            { label: t.photos,       value: photos.length,         color: "var(--gold-light)" },
           ].map(stat => (
             <div key={stat.label} style={{ padding: "14px 10px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", textAlign: "center" }}>
-              <p style={{ margin: 0, fontFamily: "monospace", fontWeight: 700, fontSize: "1.8rem", color: stat.color }}>{stat.value}</p>
-              <p style={{ margin: "4px 0 0", fontSize: "0.7rem", color: "var(--muted)" }}>{stat.label}</p>
+              <p style={{ margin: 0, fontFamily: "'Space Mono',monospace", fontWeight: 700, fontSize: "1.8rem", color: stat.color }}>{stat.value}</p>
+              <p style={{ margin: "4px 0 0", fontSize: "0.68rem", color: "var(--muted)", lineHeight: 1.3 }}>{stat.label}</p>
             </div>
           ))}
         </div>
 
-        {/* Danger alerts */}
+        {/* Risk alerts */}
         {criticalOrHigh.length > 0 && (
           <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)", marginBottom: "20px" }}>
-            <p style={{ fontFamily: "monospace", fontSize: "11px", color: "var(--red)", letterSpacing: "2px", marginBottom: "12px" }}>
-              ⚠ RISK ALERTS
+            <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--red)", letterSpacing: "2px", marginBottom: "12px" }}>
+              {t.riskAlerts}
             </p>
             {criticalOrHigh.map((d: any, i: number) => (
               <div key={i} style={{ marginBottom: "10px", paddingBottom: "10px", borderBottom: i < criticalOrHigh.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
                 <p style={{ margin: "0 0 4px", fontWeight: 600, fontSize: "0.88rem", color: "var(--white)" }}>{d.defect_type}</p>
-                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--amber)" }}>If not repaired: {d.danger_if_ignored}</p>
+                <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--amber)" }}>{t.ifNotRepaired} {d.danger_if_ignored}</p>
               </div>
             ))}
           </div>
         )}
 
-        {/* All defects by photo */}
+        {/* Defects by photo */}
         {analyses.map((a: any, i: number) => (
           a.observed_defects?.length > 0 && (
             <div key={i} style={{ marginBottom: "16px", padding: "14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
@@ -233,7 +237,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
                 <img src={photos[i]} alt="" style={{ width: 48, height: 48, objectFit: "cover", borderRadius: 8 }} />
                 <div>
                   <p style={{ margin: 0, fontWeight: 600, fontSize: "0.88rem", color: "var(--white)", textTransform: "capitalize" }}>{a.area_detected?.replace(/_/g, " ")}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>{a.observed_defects?.length} issue(s) detected</p>
+                  <p style={{ margin: "2px 0 0", fontSize: "0.75rem", color: "var(--muted)" }}>{t.issueDetected(a.observed_defects?.length)}</p>
                 </div>
               </div>
               {a.observed_defects.map((d: any, j: number) => (
@@ -249,30 +253,29 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
         {allDefects.length === 0 && (
           <div style={{ textAlign: "center", padding: "24px", borderRadius: "16px", background: "rgba(34,197,94,0.08)", border: "1px solid rgba(34,197,94,0.2)", marginBottom: "20px" }}>
             <p style={{ fontSize: "2rem", marginBottom: "8px" }}>✅</p>
-            <p style={{ color: "var(--green)", fontWeight: 600 }}>No damage detected in the analyzed photos.</p>
+            <p style={{ color: "var(--green)", fontWeight: 600 }}>{t.noDamageDetected}</p>
           </div>
         )}
 
         {/* CTA */}
-        <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(59,130,246,0.06)", border: "1px solid rgba(59,130,246,0.15)", marginBottom: "16px" }}>
-          <p style={{ fontWeight: 700, fontSize: "1rem", color: "var(--white)", marginBottom: "6px" }}>Want a cost estimate?</p>
-          <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: 0 }}>
-            Enter your details and MacTor will review the report. You will receive the estimate by email.
-          </p>
+        <div style={{ padding: "16px", borderRadius: "16px", background: "rgba(245,158,11,0.06)", border: "1px solid rgba(245,158,11,0.15)", marginBottom: "16px" }}>
+          <p style={{ fontWeight: 700, fontSize: "1rem", color: "var(--white)", marginBottom: "6px" }}>{t.wantEstimate}</p>
+          <p style={{ fontSize: "0.85rem", color: "var(--muted)", marginBottom: 0 }}>{t.estimateDesc}</p>
         </div>
 
         <button type="button" onClick={() => setStep("form")}
           style={{
             ...btn, width: "100%", padding: "18px", borderRadius: "18px",
-            background: "var(--blue)", color: "white", fontWeight: 700,
-            fontSize: "1.05rem", minHeight: "60px", marginBottom: "12px",
+            background: "linear-gradient(135deg,#f59e0b,#d97706)",
+            color: "#0a0f1e", fontWeight: 800, fontSize: "1.05rem", minHeight: "60px", marginBottom: "12px",
+            boxShadow: "0 4px 16px rgba(245,158,11,0.3)",
           }}>
-          Request Cost Estimate →
+          {t.requestEstimate}
         </button>
 
-        <button type="button" onClick={() => router.push(`/inspection/${id}`)}
+        <button type="button" onClick={() => router.push(`/inspection/${id}?lang=${lang}`)}
           style={{ ...btn, width: "100%", padding: "14px", borderRadius: "14px", background: "var(--navy-800)", border: "1px solid var(--border)", color: "var(--muted)", fontSize: "0.9rem", marginBottom: "24px" }}>
-          ← Add more photos
+          {t.addMorePhotosBtn}
         </button>
       </div>
     </main>

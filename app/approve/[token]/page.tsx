@@ -159,8 +159,8 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
     <main style={{ minHeight: "100dvh", background: "var(--navy)", paddingBottom: 40 }}>
       {/* Header */}
       <div style={{ background: "var(--navy-800)", borderBottom: "1px solid var(--border)", padding: "16px 20px" }}>
-        <p style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--blue-light)", letterSpacing: "2px", margin: "0 0 4px" }}>APPROVAL PANEL · MACTOR</p>
-        <h1 style={{ color: "var(--white)", fontSize: "1.15rem", fontWeight: 800, margin: "0 0 8px" }}>Review and Approve Estimate</h1>
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--gold)", letterSpacing: "2px", margin: "0 0 4px" }}>PANEL DE APROBACIÓN · INSPECTOR MACTOR</p>
+        <h1 style={{ color: "var(--white)", fontSize: "1.15rem", fontWeight: 800, margin: "0 0 8px" }}>Revisar y Aprobar Estimado</h1>
         <div style={{ display: "flex", gap: "14px", flexWrap: "wrap" }}>
           <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>👤 {data.clientName}</span>
           <span style={{ fontSize: "0.82rem", color: "var(--muted)" }}>📍 {data.address}</span>
