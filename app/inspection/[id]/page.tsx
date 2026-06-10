@@ -1,7 +1,7 @@
 "use client";
 import { useState, useRef, use, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { T, type Lang, getSavedLang } from "../../i18n/translations";
+import { useRouter } from "next/navigation";
+import { T, type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -34,25 +34,22 @@ interface PhotoEntry {
 }
 
 const SEVERITY_LABELS: Record<Severity, Record<Lang, string>> = {
-  critical: { en: "CRITICAL", es: "CRÍTICO", zh: "严重",    hi: "गंभीर"    },
-  high:     { en: "HIGH",     es: "ALTO",    zh: "高",       hi: "उच्च"     },
-  medium:   { en: "MEDIUM",   es: "MEDIO",   zh: "中",       hi: "मध्यम"    },
-  low:      { en: "LOW",      es: "BAJO",    zh: "低",       hi: "कम"       },
+  critical: { en: "CRITICAL", es: "CRÍTICO", zh: "严重", hi: "गंभीर",   tl: "KRITIKAL" },
+  high:     { en: "HIGH",     es: "ALTO",    zh: "高",   hi: "उच्च",    tl: "MATAAS"   },
+  medium:   { en: "MEDIUM",   es: "MEDIO",   zh: "中",   hi: "मध्यम",   tl: "KATAMTAMAN" },
+  low:      { en: "LOW",      es: "BAJO",    zh: "低",   hi: "कम",      tl: "MABABA"   },
 };
 
 export default function InspectionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const searchParams = useSearchParams();
   const fileRef = useRef<HTMLInputElement>(null);
   const [photos, setPhotos] = useState<PhotoEntry[]>([]);
   const [lang, setLang] = useState<Lang>("en");
 
   useEffect(() => {
-    const fromUrl = searchParams.get("lang") as Lang;
-    const saved = getSavedLang();
-    setLang(fromUrl || saved || "en");
-  }, [searchParams]);
+    setLang(getLangFromUrl() || getSavedLang() || "en");
+  }, []);
 
   const t = T[lang];
   const MAX_PHOTOS = 10;

@@ -1,20 +1,16 @@
 "use client";
 import { use, useEffect, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { T, type Lang, getSavedLang } from "../../i18n/translations";
+import { T, type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
 
 export default function StatusPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   void id;
-  const searchParams = useSearchParams();
   const [lang, setLang] = useState<Lang>("en");
 
   useEffect(() => {
-    const fromUrl = searchParams.get("lang") as Lang;
-    const saved = getSavedLang();
-    setLang(fromUrl || saved || "en");
-  }, [searchParams]);
+    setLang(getLangFromUrl() || getSavedLang() || "en");
+  }, []);
 
   const t = T[lang];
 

@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { T, LANGUAGES, type Lang, getSavedLang, saveLang } from "./i18n/translations";
+import { T, LANGUAGES, type Lang, getSavedLang, saveLang, getLangFromUrl } from "./i18n/translations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -76,9 +76,9 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
         </p>
       </div>
 
-      {/* Language cards */}
+      {/* Language cards — 2×2 + last card centered */}
       <div className="fade-up-3" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", width: "100%", maxWidth: "360px", marginBottom: "32px" }}>
-        {LANGUAGES.map(lang => (
+        {LANGUAGES.map((lang, i) => (
           <button
             key={lang.code}
             type="button"
@@ -86,6 +86,9 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
             onMouseEnter={() => setHovered(lang.code)}
             onMouseLeave={() => setHovered(null)}
             onClick={() => { saveLang(lang.code); onSelect(lang.code); }}
+            style={i === LANGUAGES.length - 1 && LANGUAGES.length % 2 !== 0
+              ? { gridColumn: "1 / -1", maxWidth: 180, justifySelf: "center", width: "100%" }
+              : {}}
           >
             <span className="lang-flag">{lang.flag}</span>
             <span className="lang-native">{lang.name}</span>
@@ -112,7 +115,7 @@ export default function LandingPage() {
   const [showLangPicker, setShowLangPicker] = useState(false);
 
   useEffect(() => {
-    const saved = getSavedLang();
+    const saved = getLangFromUrl() || getSavedLang();
     setLang(saved);
     setReady(true);
   }, []);

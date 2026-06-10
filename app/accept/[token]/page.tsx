@@ -1,23 +1,19 @@
 "use client";
 import { use, useState, useEffect } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { T, type Lang, getSavedLang } from "../../i18n/translations";
+import { T, type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
 export default function AcceptPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = use(params);
-  const searchParams = useSearchParams();
   const [status, setStatus] = useState<"loading" | "accepted" | "declined" | "error">("loading");
   const [lang, setLang] = useState<Lang>("en");
   const action = typeof window !== "undefined" ? new URL(window.location.href).searchParams.get("action") : null;
 
   useEffect(() => {
-    const fromUrl = searchParams.get("lang") as Lang;
-    const saved = getSavedLang();
-    setLang(fromUrl || saved || "en");
-  }, [searchParams]);
+    setLang(getLangFromUrl() || getSavedLang() || "en");
+  }, []);
 
   useEffect(() => {
     const endpoint = action === "decline" ? "decline" : "accept";

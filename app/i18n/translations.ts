@@ -1,4 +1,4 @@
-export type Lang = 'en' | 'es' | 'zh' | 'hi';
+export type Lang = 'en' | 'es' | 'zh' | 'hi' | 'tl';
 
 export interface LangMeta {
   code: Lang;
@@ -12,6 +12,7 @@ export const LANGUAGES: LangMeta[] = [
   { code: 'es', flag: '🇲🇽', name: 'Español',  nameEn: 'Spanish'            },
   { code: 'zh', flag: '🇨🇳', name: '中文',      nameEn: 'Chinese (Mandarin)' },
   { code: 'hi', flag: '🇮🇳', name: 'हिंदी',     nameEn: 'Hindi'              },
+  { code: 'tl', flag: '🇵🇭', name: 'Filipino', nameEn: 'Filipino (Tagalog)'  },
 ];
 
 export const LANG_KEY = 'inspector_lang';
@@ -494,13 +495,118 @@ const hi: Strings = {
   backHome: 'होम पर वापस',
 };
 
-export const T: Record<Lang, Strings> = { en, es, zh, hi };
+// ─── Filipino (Tagalog) ────────────────────────────────────────────────────
+const tl: Strings = {
+  chooseLanguage: 'Pumili ng Wika',
+  chooseSubtitle: 'Piliin ang wika para sa iyong inspeksyon',
+
+  appTagline: 'AI na Inspeksyon ng Ari-arian',
+  tagline: 'Natutukoy ng AI ang pinsala · Agarang tantya · GTA Toronto',
+
+  propertyType: 'URI NG ARI-ARIAN',
+  residential: 'Tirahan',
+  residentialDesc: 'Bahay, kondo,\napartamento',
+  commercial: 'Komersyal',
+  commercialDesc: 'Opisina, tindahan,\ngusali',
+  howItWorks: 'PAANO ITO GUMAGANA',
+  steps: [
+    'Kumuha ng hanggang 10 larawan ng pinsala',
+    'Sinusuri ng AI ang mga isyu kaagad',
+    'Tingnan ang ulat na may mga babala sa panganib',
+    'Tumatanggap ng tantya ng gastos sa email',
+    'Tanggapin at mag-iskedyul ng pagkukumpuni',
+  ],
+  startBtn: 'Simulan ang Inspeksyon →',
+  starting: 'Nagsisimula…',
+  connectionError: 'Error sa koneksyon. Suriin ang iyong internet.',
+
+  inspectionPhotos: 'MGA LARAWAN NG INSPEKSYON',
+  documentDamage: 'I-dokumento ang pinsala',
+  takePhotos: 'Kumuha o mag-upload ng larawan',
+  addMorePhotos: 'Magdagdag ng larawan',
+  maxPhotos: (n) => `Max ${n} larawan · Awtomatikong sinusuri ng AI`,
+  uploadingPhoto: 'Ina-upload ang larawan…',
+  aiAnalyzing: 'Sinusuri ng AI…',
+  noDamagePhoto: '✓ Walang pinsala na nakita sa larawang ito',
+  errorPhoto: '✕ Error sa pagproseso ng larawan',
+  analyzingBar: (done, total) => `Sinusuri ng AI… ${done}/${total} na kumpleto`,
+  viewReport: (n) => n > 0 ? `Tingnan ang Ulat → (${n} isyu)` : 'Tingnan ang Ulat → (Walang pinsala)',
+  viewPartialReport: 'Tingnan ang Bahagyang Ulat →',
+  takeDamagePhotos: 'Kumuha ng larawan ng pinsalang gusto mong iulat.\nAwtomatikong matutukoy ng AI ang mga isyu.',
+
+  inspectionReport: 'ULAT NG INSPEKSYON',
+  aiResults: 'Mga Resulta ng Pagsusuri ng AI',
+  noDamage: 'Walang makabuluhang pinsala ang natagpuan',
+  immediateAttention: 'Kailangan ng agarang pansin',
+  urgentRepair: 'Inirerekomenda ang agarang pagkukumpuni',
+  maintenanceNeeded: 'Kailangan ng pagpapanatili',
+  photosAnalyzedIssues: (p, i) => `${p} larawang nasuri · ${i} isyung natagpuan`,
+  criticalHigh: 'Kritikal/Mataas',
+  totalIssues: 'Kabuuang isyu',
+  photos: 'Mga larawan',
+  riskAlerts: '⚠ MGA BABALA SA PANGANIB',
+  ifNotRepaired: 'Kung hindi kukumpunihin:',
+  issueDetected: (n) => `${n} isyung natagpuan`,
+  noDamageDetected: 'Walang pinsala na natukoy sa mga sinuring larawan.',
+  wantEstimate: 'Gusto ng tantya ng gastos?',
+  estimateDesc: 'Ilagay ang iyong mga detalye at susuriin ng MacTor ang ulat. Makakatanggap ka ng tantya sa email.',
+  requestEstimate: 'Humiling ng Tantya ng Gastos →',
+  addMorePhotosBtn: '← Magdagdag ng larawan',
+
+  yourDetails: 'ANG IYONG MGA DETALYE',
+  contactInfo: 'Impormasyon sa pakikipag-ugnayan',
+  contactDesc: 'Susuriin namin ang iyong ulat at magpapadala ng tantya ng gastos sa email.',
+  fullName: 'BUONG PANGALAN',
+  email: 'EMAIL',
+  phone: 'TELEPONO',
+  namePlaceholder: 'Juan dela Cruz',
+  emailPlaceholder: 'juan@email.com',
+  phonePlaceholder: '+1 (416) 000-0000',
+  propertyAddress: 'ADDRESS NG ARI-ARIAN',
+  privacy: '🔒 Ang iyong impormasyon ay kumpidensyal at para lamang sa tantya.',
+  submitBtn: 'Isumite at Humiling ng Tantya →',
+  sending: 'Nagpapadala…',
+  fillAllFields: 'Pakipunan ang lahat ng mga field.',
+  sendError: 'Error sa pagpapadala. Subukan ulit.',
+
+  reportSubmitted: 'NAISUMITE ANG ULAT',
+  allDone: 'Tapos na!',
+  statusDesc: 'Natanggap namin ang iyong inspeksyon. Susuriin ito ng aming koponan at magpapadala ng',
+  costEstimateByEmail: 'tantya ng gastos sa email',
+  statusAfter: 'sa loob ng ilang oras.',
+  statusSteps: [
+    'Nai-save ang ulat sa aming sistema',
+    'Makakatanggap ka ng tantya sa email',
+    'Susuriin ng MacTor ang mga presyo bago magpadala',
+    'Kung tatanggap ka, tatawagan ka namin para mag-iskedyul',
+  ],
+  newInspection: 'Bagong Inspeksyon',
+
+  processing: 'Pinoproseso…',
+  accepted: 'Tinanggap ang Tantya!',
+  acceptedMsg: 'Malapit na kaming makipag-ugnayan para mag-iskedyul ng pagbisita. Salamat sa pagpili ng MacTor!',
+  declined: 'Natanggap',
+  declinedMsg: 'Salamat sa iyong tugon. Kung magbabago ang isip mo, makipag-ugnayan sa amin.',
+  errorMsg: 'May nagkamali. Makipag-ugnayan sa MacTor nang direkta.',
+  backHome: 'Bumalik sa simula',
+};
+
+export const T: Record<Lang, Strings> = { en, es, zh, hi, tl };
+
+const VALID_LANGS = ['en', 'es', 'zh', 'hi', 'tl'];
 
 // Helper: read language from localStorage (client-side only)
 export function getSavedLang(): Lang | null {
   if (typeof window === 'undefined') return null;
   const saved = localStorage.getItem(LANG_KEY) as Lang;
-  return saved && ['en', 'es', 'zh', 'hi'].includes(saved) ? saved : null;
+  return saved && VALID_LANGS.includes(saved) ? saved : null;
+}
+
+// Helper: read language from URL search params (client-side only, no Suspense needed)
+export function getLangFromUrl(): Lang | null {
+  if (typeof window === 'undefined') return null;
+  const param = new URLSearchParams(window.location.search).get('lang') as Lang;
+  return param && VALID_LANGS.includes(param) ? param : null;
 }
 
 export function saveLang(lang: Lang): void {

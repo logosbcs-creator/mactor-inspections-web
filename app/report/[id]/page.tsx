@@ -1,7 +1,7 @@
 "use client";
 import { useState, use, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { T, type Lang, getSavedLang } from "../../i18n/translations";
+import { useRouter } from "next/navigation";
+import { T, type Lang, getSavedLang, getLangFromUrl } from "../../i18n/translations";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -16,7 +16,6 @@ type Severity = "low" | "medium" | "high" | "critical";
 export default function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
-  const searchParams = useSearchParams();
 
   const [lang, setLang] = useState<Lang>("en");
   const [step, setStep] = useState<"report" | "form">("report");
@@ -31,10 +30,8 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
   const [address, setAddress] = useState("");
 
   useEffect(() => {
-    const fromUrl = searchParams.get("lang") as Lang;
-    const saved = getSavedLang();
-    setLang(fromUrl || saved || "en");
-  }, [searchParams]);
+    setLang(getLangFromUrl() || getSavedLang() || "en");
+  }, []);
 
   if (!loaded) {
     setLoaded(true);
