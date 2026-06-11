@@ -77,9 +77,6 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
   }, [token]);
 
 
-    setActiveEngine(engine);
-  };
-
   const updateItem = (i: number, field: keyof LineItem, value: string | number) => {
     setLineItems(prev => prev.map((item, idx) => {
       if (idx !== i) return item;
