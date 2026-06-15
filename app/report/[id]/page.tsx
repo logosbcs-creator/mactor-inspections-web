@@ -163,7 +163,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               INSPECTOR MACTOR · {isNewProject ? m.projectEstimateHeader : "INSPECTION REPORT"}
             </p>
             <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>
-              {isNewProject ? "🏗️ New project" : "🔨 Repair Service"}
+              {isNewProject ? `🏗️ ${m.newProjectLabel}` : "🔨 Repair Service"}
             </h1>
           </div>
           <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--muted)", background: "var(--navy-800)", border: "1px solid var(--border)", padding: "4px 10px", borderRadius: 20 }}>
