@@ -63,6 +63,7 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
   const [globalNote, setGlobalNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+  const [zoomedPhoto, setZoomedPhoto] = useState<string | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/api/approve/${token}`)
@@ -180,7 +181,8 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
             {(data.photos || []).map((url: string, i: number) => (
               // eslint-disable-next-line @next/next/no-img-element
               <img key={i} src={url} alt={`photo ${i + 1}`}
-                style={{ width: 80, height: 64, objectFit: "cover", borderRadius: 8, flexShrink: 0, border: "1px solid var(--border)" }} />
+                onClick={() => setZoomedPhoto(url)}
+                style={{ width: 80, height: 64, objectFit: "cover", borderRadius: 8, flexShrink: 0, border: "1px solid var(--border)", cursor: "zoom-in" }} />
             ))}
           </div>
         </div>
@@ -365,6 +367,27 @@ export default function ApprovePage({ params }: { params: Promise<{ token: strin
             : `📧 Send Estimate to Client · $${total.toLocaleString()} CAD`}
         </button>
       </div>
+
+      {/* Lightbox */}
+      {zoomedPhoto && (
+        <div onClick={() => setZoomedPhoto(null)} style={{
+          position: "fixed", inset: 0, zIndex: 9999,
+          background: "rgba(0,0,0,0.92)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          cursor: "zoom-out", padding: "20px",
+        }}>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={zoomedPhoto} alt="photo zoom"
+            onClick={e => e.stopPropagation()}
+            style={{ maxWidth: "100%", maxHeight: "90dvh", borderRadius: 12, objectFit: "contain", boxShadow: "0 8px 40px rgba(0,0,0,0.6)" }} />
+          <button onClick={() => setZoomedPhoto(null)} style={{
+            position: "absolute", top: 16, right: 16,
+            background: "rgba(255,255,255,0.15)", border: "none", color: "white",
+            width: 40, height: 40, borderRadius: "50%", fontSize: "1.2rem",
+            cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center",
+          }}>✕</button>
+        </div>
+      )}
     </main>
   );
 }
