@@ -163,7 +163,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               INSPECTOR MACTOR · {isNewProject ? m.projectEstimateHeader : "INSPECTION REPORT"}
             </p>
             <h1 style={{ margin: 0, fontSize: "1.05rem", fontWeight: 700, color: "var(--white)" }}>
-              {isNewProject ? "🏗️ New project" : `${catDef?.icon} ${catDef?.name[lang]}`}
+              {isNewProject ? "🏗️ New project" : "🔨 Repair Service"}
             </h1>
           </div>
           <div style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", color: "var(--muted)", background: "var(--navy-800)", border: "1px solid var(--border)", padding: "4px 10px", borderRadius: 20 }}>
@@ -389,10 +389,10 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           {/* Summary card */}
           <div style={{ padding: "20px", borderRadius: "16px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "24px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
-              <span style={{ fontSize: "1.8rem" }}>{isNewProject ? "🏗️" : catDef?.icon}</span>
+              <span style={{ fontSize: "1.8rem" }}>{isNewProject ? "🏗️" : "🔨"}</span>
               <div>
                 <p style={{ margin: 0, fontWeight: 700, color: "var(--white)" }}>
-                  {isNewProject ? m.newProjectLabel : catDef?.name[lang]}
+                  {isNewProject ? m.newProjectLabel : "Repair Service"}
                 </p>
                 <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--muted)" }}>
                   {isNewProject
