@@ -218,3 +218,40 @@ html, body {
 /* ── Utility ────────────────────────────────────────────── */
 .font-mono { font-family: 'Space Mono', monospace !important; }
 input, textarea, button { font-family: 'Outfit', sans-serif; }
+
+/* ── Invoice system — mobile (<= 640px) ─────────────────── */
+@media (max-width: 640px) {
+  /* Nav: hide logo, collapse secondary buttons */
+  .inv-logo        { display: none !important; }
+  .inv-nav         { padding: 0 10px !important; flex-wrap: nowrap; overflow: hidden; }
+  .inv-nav-extra   { display: none !important; }
+  .inv-tab-btn     { padding: 12px 8px !important; font-size: 12px !important; }
+  .inv-create-btn  { padding: 7px 11px !important; font-size: 12px !important; white-space: nowrap; }
+  .inv-logout-btn  { padding: 6px 9px !important; font-size: 11px !important; }
+
+  /* Page padding */
+  .inv-page        { padding: 12px 10px !important; }
+
+  /* Stats: 2 columns on mobile */
+  .inv-stats       { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+  .inv-stats > div { padding: 14px 12px !important; }
+  .inv-stats p[style*="font-size: 24"] { font-size: 18px !important; }
+
+  /* Table rows: 3 columns (number | client | amount), hide date & badge */
+  .inv-table-row   { grid-template-columns: 72px 1fr 96px !important; padding: 10px 10px !important; }
+  .inv-col-date    { display: none !important; }
+  .inv-col-empty   { display: none !important; }
+
+  /* Tabs scrollable */
+  .inv-tabs-bar    { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+
+  /* Detail page top bar */
+  .inv-detail-topbar { padding: 10px 12px !important; flex-wrap: wrap !important; gap: 6px !important; }
+  .inv-detail-logo   { display: none !important; }
+  .inv-detail-meta   { min-width: 0; }
+  .inv-actions       { flex-wrap: wrap !important; gap: 6px !important; width: 100% !important; }
+  .inv-detail-content { padding: 14px 10px !important; }
+  .inv-detail-tabs    { padding: 0 10px !important; }
+  .inv-sent-label     { display: none !important; }
+  .inv-action-btn     { font-size: 12px !important; padding: 7px 10px !important; }
+}

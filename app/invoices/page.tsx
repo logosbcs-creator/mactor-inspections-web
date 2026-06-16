@@ -90,22 +90,6 @@ function InvoicesContent() {
 
   return (
     <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
-      <style>{`
-        @media (max-width: 640px) {
-          .inv-nav { padding: 0 12px !important; }
-          .inv-logo { margin-right: 8px !important; }
-          .inv-nav-extra { display: none !important; }
-          .inv-tab-btn { padding: 14px 10px !important; font-size: 12px !important; }
-          .inv-stats { grid-template-columns: 1fr 1fr !important; gap: 10px !important; }
-          .inv-page { padding: 14px 12px !important; }
-          .inv-table-row { grid-template-columns: 80px 1fr 110px !important; }
-          .inv-col-date { display: none !important; }
-          .inv-col-empty { display: none !important; }
-          .inv-search input { width: 130px !important; }
-          .inv-create-btn { padding: 8px 12px !important; font-size: 12px !important; }
-          .inv-logout-btn { padding: 6px 10px !important; font-size: 11px !important; }
-        }
-      `}</style>
 
       {/* Top nav */}
       <div className="inv-nav" style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 24px", display: "flex", alignItems: "center", gap: 0 }}>

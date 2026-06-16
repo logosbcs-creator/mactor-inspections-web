@@ -187,22 +187,6 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   // ─────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight:"100dvh", background:"#f8fafc", fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color:"#111" }}>
-      <style>{`
-        @media (max-width: 640px) {
-          .inv-detail-topbar { padding: 10px 12px !important; flex-wrap: wrap; gap: 8px !important; }
-          .inv-detail-logo { display: none !important; }
-          .inv-detail-meta { flex: 1 !important; min-width: 0; }
-          .inv-actions { flex-wrap: wrap !important; gap: 6px !important; width: 100%; }
-          .inv-action-btn { font-size: 12px !important; padding: 7px 10px !important; }
-          .inv-detail-tabs { padding: 0 12px !important; }
-          .inv-detail-content { padding: 16px 12px !important; }
-          .inv-doc { margin: 0 !important; }
-          .inv-doc-inner { padding: 14px 16px !important; }
-          .inv-doc-header { grid-template-columns: 80px 1fr 120px !important; gap: 10px !important; }
-          .inv-doc-logo { width: 70px !important; }
-          .inv-sent-label { display: none !important; }
-        }
-      `}</style>
 
       {/* ── Top bar ── */}
       <div style={{ background:"#fff", borderBottom:"1px solid #e2e8f0" }}>
@@ -291,8 +275,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           <div>
             {/* Invoice document — matches PDF format */}
             <div className="inv-doc" style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", overflow:"hidden", marginBottom:16 }}>
-              <style>{`.inv-doc-scroll { overflow-x: auto; } @media (max-width:640px) { .inv-doc-inner { min-width: 340px; } }`}</style>
-              <div className="inv-doc-scroll">
+              <div className="inv-doc-scroll" style={{ overflowX:"auto" }}>
 
               {/* Top rule */}
               <div style={{ height:4, background:"#333" }} />
