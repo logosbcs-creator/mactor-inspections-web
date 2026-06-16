@@ -39,6 +39,9 @@ export default function ClientsPage() {
   const [showNew,  setShowNew]  = useState(false);
   const [newClient, setNewClient] = useState({ name: "", email: "", phone: "", address: "", notes: "" });
   const [creating, setCreating] = useState(false);
+  const [editingContact, setEditingContact] = useState(false);
+  const [editForm, setEditForm] = useState({ name: "", email: "", phone: "", address: "" });
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -87,8 +90,36 @@ export default function ClientsPage() {
     }
   }
 
+  async function saveContact() {
+    if (!selected) return;
+    setSaving(true);
+    const r = await fetch(`${API}/api/clients/${selected.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify(editForm),
+    });
+    const updated = await r.json();
+    setSaving(false);
+    setEditingContact(false);
+    setSelected(updated);
+    load();
+  }
+
+  async function deleteClient() {
+    if (!selected) return;
+    if (!confirm(`¿Eliminar a "${selected.name}"? Esta acción no se puede deshacer.`)) return;
+    setDeleting(true);
+    await fetch(`${API}/api/clients/${selected.id}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${token()}` },
+    });
+    setDeleting(false);
+    setSelected(null);
+    load();
+  }
+
   function select(c: Client) {
-    setSelected(c); setNotes(c.notes || ""); setEditing(false);
+    setSelected(c); setNotes(c.notes || ""); setEditing(false); setEditingContact(false);
+    setEditForm({ name: c.name, email: c.email || "", phone: c.phone || "", address: c.address || "" });
   }
 
   const filtered = clients.filter(c =>
@@ -252,23 +283,70 @@ export default function ClientsPage() {
                     {selected.invoiceCount} facturas · {selected.estimateCount} estimados
                   </p>
                 </div>
-                <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8" }}>×</button>
+                <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                  <button onClick={() => setEditingContact(v => !v)}
+                    title="Editar"
+                    style={{ background: editingContact ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
+                    ✏️
+                  </button>
+                  <button onClick={deleteClient} disabled={deleting}
+                    title="Eliminar"
+                    style={{ background: "none", border: "1px solid #fee2e2", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#dc2626" }}>
+                    🗑️
+                  </button>
+                  <button onClick={() => { setSelected(null); setEditingContact(false); }}
+                    style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8", marginLeft: 2 }}>×</button>
+                </div>
               </div>
 
               <div style={{ padding: "16px 20px" }}>
-                {/* Contact */}
-                <p style={{ ...lbl, marginBottom: 10 }}>Contacto</p>
-                <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
-                  {[
-                    { icon: "📧", val: selected.email },
-                    { icon: "📞", val: selected.phone },
-                    { icon: "📍", val: selected.address },
-                  ].map(r => r.val && (
-                    <div key={r.icon} style={{ display: "flex", gap: 8, fontSize: 13, color: "#374151" }}>
-                      <span>{r.icon}</span><span>{r.val}</span>
-                    </div>
-                  ))}
+                {/* Contact — view or edit */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+                  <p style={{ ...lbl, margin: 0 }}>Contacto</p>
                 </div>
+                {editingContact ? (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 16 }}>
+                    {[
+                      { label: "Nombre", key: "name", placeholder: "Nombre del cliente" },
+                      { label: "Email",  key: "email", placeholder: "email@ejemplo.com" },
+                      { label: "Tel",    key: "phone", placeholder: "416-000-0000" },
+                      { label: "Dir",    key: "address", placeholder: "123 Main St" },
+                    ].map(f => (
+                      <div key={f.key} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                        <span style={{ ...lbl, minWidth: 36, margin: 0 }}>{f.label}</span>
+                        <input style={{ ...inp, flex: 1 }}
+                          value={(editForm as Record<string,string>)[f.key]}
+                          onChange={e => setEditForm(p => ({ ...p, [f.key]: e.target.value }))}
+                          placeholder={f.placeholder} />
+                      </div>
+                    ))}
+                    <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                      <button onClick={saveContact} disabled={saving}
+                        style={{ flex: 1, padding: "8px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                        {saving ? "Guardando..." : "Guardar cambios"}
+                      </button>
+                      <button onClick={() => setEditingContact(false)}
+                        style={{ padding: "8px 12px", background: "#f1f5f9", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+                        Cancelar
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
+                    {[
+                      { icon: "📧", val: selected.email },
+                      { icon: "📞", val: selected.phone },
+                      { icon: "📍", val: selected.address },
+                    ].map(r => r.val && (
+                      <div key={r.icon} style={{ display: "flex", gap: 8, fontSize: 13, color: "#374151" }}>
+                        <span>{r.icon}</span><span>{r.val}</span>
+                      </div>
+                    ))}
+                    {!selected.email && !selected.phone && !selected.address && (
+                      <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>Sin datos de contacto — clic en ✏️ para agregar</p>
+                    )}
+                  </div>
+                )}
 
                 {/* Totals */}
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>

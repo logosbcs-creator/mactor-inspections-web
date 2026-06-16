@@ -30,9 +30,13 @@ export default function CatalogPage() {
   const [selected, setSelected] = useState<ServiceItem | null>(null);
   const [loading,  setLoading]  = useState(true);
   const [backfilling, setBackfilling] = useState(false);
-  const [showNew,  setShowNew]  = useState(false);
-  const [newSvc,   setNewSvc]   = useState({ name: "", price: "", unit: "lump sum", category: "General", description: "" });
-  const [creating, setCreating] = useState(false);
+  const [showNew,    setShowNew]    = useState(false);
+  const [newSvc,     setNewSvc]     = useState({ name: "", price: "", unit: "lump sum", category: "General", description: "" });
+  const [creating,   setCreating]   = useState(false);
+  const [editingSvc, setEditingSvc] = useState(false);
+  const [editSvcForm, setEditSvcForm] = useState({ name: "", category: "General", unit: "lump sum", lastPrice: "", description: "" });
+  const [savingSvc,  setSavingSvc]  = useState(false);
+  const [deletingSvc, setDeletingSvc] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -86,6 +90,38 @@ export default function CatalogPage() {
     } finally {
       setCreating(false);
     }
+  }
+
+  function openEdit(item: ServiceItem) {
+    setEditSvcForm({ name: item.name, category: item.category || "General", unit: item.unit || "lump sum", lastPrice: String(item.lastPrice), description: item.description || "" });
+    setEditingSvc(true);
+  }
+
+  async function saveService() {
+    if (!selected) return;
+    setSavingSvc(true);
+    const r = await fetch(`${API}/api/catalog/${selected.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify({ ...editSvcForm, lastPrice: Number(editSvcForm.lastPrice) }),
+    });
+    const updated = await r.json();
+    setSavingSvc(false);
+    setEditingSvc(false);
+    setSelected(updated);
+    load();
+  }
+
+  async function deleteService() {
+    if (!selected) return;
+    if (!confirm(`¿Eliminar "${selected.name}"? Esta acción no se puede deshacer.`)) return;
+    setDeletingSvc(true);
+    await fetch(`${API}/api/catalog/${selected.id}`, {
+      method: "DELETE", headers: { Authorization: `Bearer ${token()}` },
+    });
+    setDeletingSvc(false);
+    setSelected(null);
+    load();
   }
 
   const filtered = items.filter(s => {
@@ -265,27 +301,86 @@ export default function CatalogPage() {
                   </div>
                 ))}
 
-                {/* Price history panel */}
+                {/* Price history / edit panel */}
                 {selected && (
                   <div style={{ borderTop: "2px solid #e63946", background: "#fff9f9", padding: "20px 24px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
                       <div>
                         <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{selected.name}</p>
-                        {selected.description && <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b", maxWidth: 600 }}>{selected.description}</p>}
+                        {selected.description && !editingSvc && <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>{selected.description}</p>}
                       </div>
-                      <button onClick={() => setSelected(null)} style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8" }}>×</button>
+                      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                        <button onClick={() => editingSvc ? setEditingSvc(false) : openEdit(selected)}
+                          title="Editar"
+                          style={{ background: editingSvc ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
+                          ✏️
+                        </button>
+                        <button onClick={deleteService} disabled={deletingSvc}
+                          title="Eliminar"
+                          style={{ background: "none", border: "1px solid #fee2e2", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#dc2626" }}>
+                          🗑️
+                        </button>
+                        <button onClick={() => { setSelected(null); setEditingSvc(false); }}
+                          style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8", marginLeft: 2 }}>×</button>
+                      </div>
                     </div>
-                    <p style={{ ...lbl, marginBottom: 8 }}>Historial de precios</p>
-                    <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                      {[...selected.priceHistory].reverse().map((h, i) => (
-                        <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "8px 12px", background: "#fff", borderRadius: 8, border: "1px solid #fee2e2" }}>
-                          <span style={{ fontSize: 12, color: "#94a3b8", minWidth: 90 }}>{h.date}</span>
-                          <span style={{ fontSize: 14, fontWeight: 700, color: "#e63946", minWidth: 80 }}>${Number(h.price).toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                          <span style={{ fontSize: 12, color: "#374151" }}>{h.estimateNumber}</span>
-                          <span style={{ fontSize: 12, color: "#64748b" }}>— {h.clientName}</span>
+
+                    {editingSvc ? (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {[
+                          { label: "Nombre",      key: "name",        type: "text",   placeholder: "Nombre del servicio" },
+                          { label: "Precio ($)",  key: "lastPrice",   type: "number", placeholder: "0.00" },
+                          { label: "Descripción", key: "description", type: "text",   placeholder: "Descripción opcional" },
+                        ].map(f => (
+                          <div key={f.key} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                            <span style={{ ...lbl, minWidth: 80, margin: 0 }}>{f.label}</span>
+                            <input type={f.type}
+                              style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                              value={(editSvcForm as Record<string,string>)[f.key]}
+                              onChange={e => setEditSvcForm(p => ({ ...p, [f.key]: e.target.value }))}
+                              placeholder={f.placeholder} />
+                          </div>
+                        ))}
+                        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                          <span style={{ ...lbl, minWidth: 80, margin: 0 }}>Categoría</span>
+                          <select style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                            value={editSvcForm.category} onChange={e => setEditSvcForm(p => ({ ...p, category: e.target.value }))}>
+                            {["General","Masonry","Drainage","Landscaping","Cleanup","Foundation","Coating","Fencing","Roofing","Windows & Doors","Concrete","Flooring","Drywall","Spray & Coating","Eaves & Gutters","Insulation","Decking"].map(c => <option key={c}>{c}</option>)}
+                          </select>
                         </div>
-                      ))}
-                    </div>
+                        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                          <span style={{ ...lbl, minWidth: 80, margin: 0 }}>Unidad</span>
+                          <select style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                            value={editSvcForm.unit} onChange={e => setEditSvcForm(p => ({ ...p, unit: e.target.value }))}>
+                            {["lump sum","sqft","lf","hr","unit","bag","load","each"].map(u => <option key={u}>{u}</option>)}
+                          </select>
+                        </div>
+                        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                          <button onClick={saveService} disabled={savingSvc}
+                            style={{ flex: 1, padding: "9px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                            {savingSvc ? "Guardando..." : "Guardar cambios"}
+                          </button>
+                          <button onClick={() => setEditingSvc(false)}
+                            style={{ padding: "9px 14px", background: "#f1f5f9", border: "none", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <p style={{ ...lbl, marginBottom: 8 }}>Historial de precios</p>
+                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                          {[...selected.priceHistory].reverse().map((h, i) => (
+                            <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "8px 12px", background: "#fff", borderRadius: 8, border: "1px solid #fee2e2" }}>
+                              <span style={{ fontSize: 12, color: "#94a3b8", minWidth: 90 }}>{h.date}</span>
+                              <span style={{ fontSize: 14, fontWeight: 700, color: "#e63946", minWidth: 80 }}>${Number(h.price).toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
+                              <span style={{ fontSize: 12, color: "#374151" }}>{h.estimateNumber}</span>
+                              <span style={{ fontSize: 12, color: "#64748b" }}>— {h.clientName}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
