@@ -248,93 +248,141 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         {/* ═══════════════ PREVIEW TAB ═══════════════ */}
         {tab === "preview" && (
           <div>
-            {/* Invoice header card */}
+            {/* Invoice document — matches PDF format */}
             <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", overflow:"hidden", marginBottom:16 }}>
-              <div style={{ background:"#0a0f1e", padding:"24px 28px", display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-                <div>
-                  <p style={{ margin:0, fontSize:11, color:"#9ca3af", fontWeight:700, textTransform:"uppercase", letterSpacing:".06em" }}>MACTOR Construction</p>
-                  <p style={{ margin:"4px 0 0", fontSize:11, color:"#6b7280" }}>Julio Cesar Macias · GST # 70823 0743</p>
-                  <p style={{ margin:"2px 0 0", fontSize:11, color:"#6b7280" }}>71 Sufi Cresc, North York ON M4A 2X3</p>
+
+              {/* Top rule */}
+              <div style={{ height:4, background:"#333" }} />
+
+              {/* Header: Logo | Company info | Invoice meta */}
+              <div style={{ padding:"20px 28px 16px", display:"grid", gridTemplateColumns:"120px 1fr 160px", gap:16, borderBottom:"1px solid #e8e8e8" }}>
+                {/* Logo */}
+                <div style={{ display:"flex", alignItems:"flex-start" }}>
+                  <Image src="/mactor-logo.png" alt="MacTor Construction" width={110} height={70} style={{ objectFit:"contain" }} />
                 </div>
+                {/* Company info */}
+                <div>
+                  <p style={{ margin:"0 0 4px", fontSize:13, fontWeight:800, color:"#1a1a1a" }}>MACTOR Construction</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>Julio Cesar Macias</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>GST # 70823 0743</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>71 Sufi Cresc</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>North York On</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>M4A2X3</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>6475173343</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#2563eb" }}>https://www.mactor.ca</p>
+                  <p style={{ margin:0, fontSize:11, color:"#444" }}>julio@mactor.ca</p>
+                </div>
+                {/* Invoice meta */}
                 <div style={{ textAlign:"right" }}>
-                  <p style={{ margin:0, fontSize:24, fontWeight:900, color:"#e63946" }}>{inv.invoiceNumber}</p>
-                  <p style={{ margin:"4px 0 0", fontSize:11, color:"#9ca3af" }}>{isEst ? "ESTIMATE" : "INVOICE"}</p>
-                  <p style={{ margin:"4px 0 0", fontSize:11, color:"#6b7280" }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"long",day:"numeric",year:"numeric"})}</p>
+                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#666", textTransform:"uppercase", letterSpacing:".06em" }}>{isEst ? "ESTIMATE" : "INVOICE"}</p>
+                  <p style={{ margin:"0 0 8px", fontSize:16, fontWeight:800, color:"#1a1a1a" }}>{inv.invoiceNumber}</p>
+                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#666", textTransform:"uppercase" }}>DATE</p>
+                  <p style={{ margin:"0 0 8px", fontSize:11, fontWeight:700, color:"#1a1a1a" }}>
+                    {new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"2-digit",day:"2-digit",year:"numeric"})}
+                  </p>
+                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#666", textTransform:"uppercase" }}>BALANCE DUE</p>
+                  <p style={{ margin:0, fontSize:13, fontWeight:800, color:"#1a1a1a" }}>
+                    CAD ${inv.status==="paid" ? "0.00" : Number(inv.total).toFixed(2)}
+                  </p>
                 </div>
               </div>
 
-              {/* Client */}
-              <div style={{ padding:"20px 28px", borderBottom:"1px solid #f1f5f9", display:"flex", gap:40 }}>
-                <div>
-                  <p style={{ margin:"0 0 4px", fontSize:10, color:"#94a3b8", fontWeight:700, textTransform:"uppercase" }}>Bill To</p>
-                  <p style={{ margin:"0 0 2px", fontSize:15, fontWeight:700 }}>{inv.clientName}</p>
-                  {inv.clientAddress && <p style={{ margin:"2px 0", fontSize:13, color:"#64748b" }}>{inv.clientAddress}</p>}
-                  {inv.clientPhone   && <p style={{ margin:"2px 0", fontSize:13, color:"#64748b" }}>{inv.clientPhone}</p>}
-                  {inv.clientEmail   && <p style={{ margin:"2px 0", fontSize:13, color:"#2563eb" }}>{inv.clientEmail}</p>}
-                </div>
-                <div>
-                  <p style={{ margin:"0 0 4px", fontSize:10, color:"#94a3b8", fontWeight:700, textTransform:"uppercase" }}>Due</p>
-                  <p style={{ margin:0, fontSize:13, fontWeight:600 }}>{inv.dueDate || "On Receipt"}</p>
-                </div>
+              {/* Bill To */}
+              <div style={{ padding:"16px 28px 14px", borderBottom:"1px solid #e8e8e8" }}>
+                <p style={{ margin:"0 0 6px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase", letterSpacing:".06em" }}>BILL TO</p>
+                <p style={{ margin:"0 0 3px", fontSize:14, fontWeight:700, color:"#1a1a1a" }}>{inv.clientName}</p>
+                {inv.clientAddress && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientAddress}</p>}
+                {inv.clientPhone   && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientPhone}</p>}
+                {inv.clientEmail   && <p style={{ margin:"2px 0", fontSize:12, color:"#2563eb" }}>{inv.clientEmail}</p>}
               </div>
 
               {/* Line items */}
               <div style={{ padding:"0 28px" }}>
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 80px 60px 90px", padding:"10px 0", borderBottom:"2px solid #0a0f1e" }}>
-                  {["DESCRIPTION","RATE","QTY","AMOUNT"].map(h => (
-                    <span key={h} style={{ fontSize:10, fontWeight:800, color:"#0a0f1e", letterSpacing:".06em" }}>{h}</span>
+                {/* Table header */}
+                <div style={{ display:"grid", gridTemplateColumns:"1fr 80px 50px 80px", background:"#333", margin:"0 -28px", padding:"8px 28px" }}>
+                  {["DESCRIPTION","RATE","QTY","AMOUNT"].map((h,i) => (
+                    <span key={h} style={{ fontSize:9, fontWeight:800, color:"#fff", letterSpacing:".07em",
+                      textAlign: i>0 ? "right" as const : "left" as const }}>{h}</span>
                   ))}
                 </div>
                 {(inv.lineItems||[]).map((item: any, i: number) => (
-                  <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 80px 60px 90px", padding:"14px 0", borderBottom:"1px solid #f1f5f9" }}>
+                  <div key={i} style={{ display:"grid", gridTemplateColumns:"1fr 80px 50px 80px",
+                    padding:"12px 0", borderBottom:"1px solid #f0f0f0",
+                    background: i%2===0 ? "#fff" : "#f7f7f7" }}>
                     <div>
-                      <p style={{ margin:0, fontWeight:700, fontSize:14 }}>{item.description}</p>
-                      {item.notes && <p style={{ margin:"4px 0 0", fontSize:12, color:"#64748b", whiteSpace:"pre-line" }}>{item.notes}</p>}
+                      <p style={{ margin:0, fontWeight:700, fontSize:13, color:"#1a1a1a" }}>{item.description}</p>
+                      {item.notes && <p style={{ margin:"3px 0 0", fontSize:11, color:"#666", whiteSpace:"pre-line" }}>{item.notes}</p>}
                     </div>
-                    <span style={{ fontSize:13, color:"#64748b", paddingTop:2 }}>${Number(item.rate||0).toFixed(2)}</span>
-                    <span style={{ fontSize:13, color:"#64748b", paddingTop:2 }}>{item.qty}</span>
-                    <span style={{ fontSize:13, fontWeight:600, paddingTop:2 }}>${Number(item.amount||0).toFixed(2)}</span>
+                    <span style={{ fontSize:12, color:"#555", textAlign:"right", paddingTop:2 }}>${Number(item.rate||0).toFixed(2)}</span>
+                    <span style={{ fontSize:12, color:"#555", textAlign:"right", paddingTop:2 }}>{item.qty}</span>
+                    <span style={{ fontSize:12, fontWeight:600, color:"#1a1a1a", textAlign:"right", paddingTop:2 }}>${Number(item.amount||0).toFixed(2)}</span>
                   </div>
                 ))}
               </div>
 
-              {/* Totals + payment */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", padding:"20px 28px", gap:20 }}>
+              {/* Payment Info + Totals */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", padding:"20px 28px", gap:24, borderTop:"1px solid #e8e8e8" }}>
+                {/* Payment info left */}
                 <div>
-                  <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:14 }}>Payment Info</p>
-                  <p style={{ margin:"0 0 2px", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase" }}>PayPal</p>
-                  <p style={{ margin:"0 0 10px", fontSize:13, color:"#2563eb" }}>payments@mactor.ca</p>
-                  <p style={{ margin:"0 0 2px", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase" }}>By Cheque</p>
-                  <p style={{ margin:0, fontSize:13, color:"#374151" }}>Mactor Construction or Julio Cesar Macias Aguilar</p>
+                  <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Payment Info</p>
+                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>PAYPAL</p>
+                  <p style={{ margin:"0 0 10px", fontSize:12, color:"#2563eb" }}>payments@mactor.ca</p>
+                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>BY CHEQUE</p>
+                  <p style={{ margin:0, fontSize:12, color:"#444" }}>Mactor Construction or Julio Cesar Macias Aguilar</p>
                 </div>
+                {/* Totals right */}
                 <div>
-                  {[["Subtotal", inv.subtotal], ["HST (13%)", inv.hst]].map(([l, v]) => (
-                    <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:8 }}>
-                      <span style={{ fontSize:13, color:"#64748b" }}>{l}</span>
-                      <span style={{ fontSize:13 }}>${Number(v).toFixed(2)}</span>
+                  {[["Subtotal", inv.subtotal], ["HST (13%)", inv.hst]].map(([l,v]) => (
+                    <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
+                      <span style={{ fontSize:12, color:"#666" }}>{l}</span>
+                      <span style={{ fontSize:12, color:"#1a1a1a" }}>${Number(v).toFixed(2)}</span>
                     </div>
                   ))}
-                  <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:"#f8fafc", borderRadius:8, marginTop:4 }}>
-                    <span style={{ fontWeight:700, fontSize:13 }}>TOTAL</span>
-                    <span style={{ fontWeight:700, fontSize:13 }}>${Number(inv.total).toFixed(2)}</span>
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
+                    <span style={{ fontSize:12, fontWeight:700, color:"#1a1a1a" }}>TOTAL</span>
+                    <span style={{ fontSize:12, fontWeight:700, color:"#1a1a1a" }}>${Number(inv.total).toFixed(2)}</span>
                   </div>
-                  <div style={{ display:"flex", justifyContent:"space-between", padding:"10px 12px", background:"#0a0f1e", borderRadius:8, marginTop:6 }}>
-                    <span style={{ fontWeight:800, color:"#fff" }}>BALANCE DUE</span>
-                    <span style={{ fontWeight:800, color:"#e63946", fontSize:16 }}>
-                      {inv.status === "paid" ? "CAD $0.00" : `CAD $${Number(inv.total).toFixed(2)}`}
+                  {inv.status === "paid" && inv.paidAt && (
+                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
+                      <span style={{ fontSize:11, color:"#666" }}>Payment</span>
+                      <span style={{ fontSize:11, color:"#1a1a1a" }}>-${Number(inv.total).toFixed(2)}</span>
+                    </div>
+                  )}
+                  <div style={{ borderTop:"1px solid #ccc", paddingTop:7, marginTop:4, display:"flex", justifyContent:"space-between" }}>
+                    <span style={{ fontSize:13, fontWeight:800, color:"#1a1a1a" }}>BALANCE DUE</span>
+                    <span style={{ fontSize:14, fontWeight:800, color:"#1a1a1a" }}>
+                      CAD ${inv.status==="paid" ? "0.00" : Number(inv.total).toFixed(2)}
                     </span>
                   </div>
                 </div>
               </div>
 
+              {/* Notes */}
               {inv.notes && (
-                <div style={{ padding:"16px 28px", borderTop:"1px solid #f1f5f9", background:"#fafafa" }}>
-                  <p style={{ margin:0, fontSize:12, color:"#64748b", whiteSpace:"pre-line" }}>{inv.notes}</p>
+                <div style={{ padding:"0 28px 20px", borderTop:"1px solid #e8e8e8" }}>
+                  <div style={{ width:"45%", borderTop:"1px solid #ccc", paddingTop:12, marginTop:16 }}>
+                    <p style={{ margin:0, fontSize:12, color:"#444", whiteSpace:"pre-line", lineHeight:1.6 }}>{inv.notes}</p>
+                  </div>
+                </div>
+              )}
+
+              {/* Photos preview */}
+              {(inv.photos||[]).length > 0 && (
+                <div style={{ padding:"16px 28px", borderTop:"1px solid #e8e8e8" }}>
+                  <p style={{ margin:"0 0 10px", fontSize:10, fontWeight:700, color:"#888", textTransform:"uppercase", letterSpacing:".05em" }}>
+                    Photos ({inv.photos.length})
+                  </p>
+                  <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
+                    {inv.photos.map((url: string, i: number) => (
+                      <div key={i} style={{ position:"relative", borderRadius:6, overflow:"hidden", aspectRatio:"4/3", background:"#f1f5f9" }}>
+                        <Image src={url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Quick edit prompt */}
             <p style={{ textAlign:"center", fontSize:12, color:"#94a3b8" }}>
               Need to make a change?{" "}
               <button onClick={() => setTab("edit")} style={{ background:"none", border:"none", color:"#e63946", cursor:"pointer", fontWeight:700, fontSize:12 }}>
