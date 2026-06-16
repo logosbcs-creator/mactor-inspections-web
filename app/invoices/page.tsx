@@ -24,6 +24,7 @@ function InvoicesContent() {
   const [search,   setSearch]   = useState(searchParams.get("q") || "");
   const [loading,  setLoading]  = useState(true);
   const [perPage,  setPerPage]  = useState(50);
+  const [mob,      setMob]      = useState(false);
 
   function logout() {
     localStorage.removeItem("mactor_token");
@@ -33,6 +34,10 @@ function InvoicesContent() {
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
     load();
+    const check = () => setMob(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   async function load() {
@@ -91,47 +96,70 @@ function InvoicesContent() {
   return (
     <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
 
-      {/* Top nav */}
-      <div className="inv-nav" style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 24px", display: "flex", alignItems: "center", gap: 0 }}>
-        <div className="inv-logo" style={{ display: "flex", alignItems: "center", padding: "8px 0", marginRight: 32, flexShrink: 0 }}>
-          <Image src="/mactor-logo.png" alt="MacTor Construction" width={110} height={52} style={{ objectFit: "contain" }} />
-        </div>
+      {/* Top nav — mobile: no logo, no secondary buttons */}
+      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: 0, overflow: "hidden" }}>
+        {!mob && (
+          <div style={{ display: "flex", alignItems: "center", padding: "8px 0", marginRight: 28, flexShrink: 0 }}>
+            <Image src="/mactor-logo.png" alt="MacTor Construction" width={100} height={48} style={{ objectFit: "contain" }} />
+          </div>
+        )}
         {(["Invoices","Estimates"] as const).map(t => (
-          <button key={t} className="inv-tab-btn" onClick={() => setTypeFilter(t === "Invoices" ? "invoice" : "estimate")}
-            style={{ padding: "18px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600, flexShrink: 0,
+          <button key={t} onClick={() => setTypeFilter(t === "Invoices" ? "invoice" : "estimate")}
+            style={{ padding: mob ? "14px 10px" : "18px 16px", border: "none", background: "none", cursor: "pointer",
+              fontSize: mob ? 12 : 13, fontWeight: 600, flexShrink: 0,
               color: (t === "Invoices" ? typeFilter === "invoice" : typeFilter === "estimate") ? "#e63946" : "#64748b",
               borderBottom: (t === "Invoices" ? typeFilter === "invoice" : typeFilter === "estimate") ? "2px solid #e63946" : "2px solid transparent" }}>
             {t}
           </button>
         ))}
-        <div style={{ marginLeft: "auto", display: "flex", gap: 8, alignItems: "center" }}>
-          <button className="inv-nav-extra" onClick={() => router.push("/invoices/clients")}
-            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#0891b2" }}>
-            👥 Clientes
-          </button>
-          <button className="inv-nav-extra" onClick={() => router.push("/invoices/catalog")}
-            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#7c3aed" }}>
-            🗂️ Catálogo
-          </button>
-          <button className="inv-nav-extra" onClick={() => router.push("/invoices/import")}
-            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#374151" }}>
-            📥 Importar
-          </button>
-          <button className="inv-create-btn" onClick={() => router.push("/invoices/new")}
-            style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+        <div style={{ marginLeft: "auto", display: "flex", gap: mob ? 6 : 8, alignItems: "center" }}>
+          {!mob && <>
+            <button onClick={() => router.push("/invoices/clients")}
+              style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#0891b2" }}>
+              👥 Clientes
+            </button>
+            <button onClick={() => router.push("/invoices/catalog")}
+              style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#7c3aed" }}>
+              🗂️ Catálogo
+            </button>
+            <button onClick={() => router.push("/invoices/import")}
+              style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#374151" }}>
+              📥 Importar
+            </button>
+          </>}
+          <button onClick={() => router.push("/invoices/new")}
+            style={{ padding: mob ? "7px 12px" : "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
             + {isEst ? "Estimado" : "Factura"}
           </button>
-          <button className="inv-logout-btn" onClick={logout}
-            style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#94a3b8" }}>
+          <button onClick={logout}
+            style={{ padding: mob ? "6px 9px" : "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: mob ? 11 : 12, fontWeight: 600, cursor: "pointer", color: "#94a3b8" }}>
             Salir
           </button>
         </div>
       </div>
 
-      <div className="inv-page" style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px" }}>
+      {/* Mobile menu row for secondary nav */}
+      {mob && (
+        <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "8px 10px", display: "flex", gap: 6, overflowX: "auto" }}>
+          <button onClick={() => router.push("/invoices/clients")}
+            style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f0f9ff", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#0891b2", whiteSpace: "nowrap" }}>
+            👥 Clientes
+          </button>
+          <button onClick={() => router.push("/invoices/catalog")}
+            style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f5f3ff", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#7c3aed", whiteSpace: "nowrap" }}>
+            🗂️ Catálogo
+          </button>
+          <button onClick={() => router.push("/invoices/import")}
+            style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f8fafc", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#374151", whiteSpace: "nowrap" }}>
+            📥 Importar
+          </button>
+        </div>
+      )}
+
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: mob ? "14px 10px" : "28px 24px" }}>
 
         {/* Stats */}
-        <div className="inv-stats" style={{ display: "grid", gridTemplateColumns: isEst ? "1fr 1fr" : "1fr 1fr 1fr", gap: 16, marginBottom: 28 }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : isEst ? "1fr 1fr" : "1fr 1fr 1fr", gap: mob ? 8 : 16, marginBottom: mob ? 16 : 28 }}>
           {(isEst ? [
             { label: "Total Estimado", value: total,  color: "#0f172a", icon: "📊" },
             { label: "Enviados",       value: scoped.filter(i => i.status === "sent").reduce((s,i) => s + i.total, 0), color: "#2563eb", icon: "📤" },
@@ -140,15 +168,15 @@ function InvoicesContent() {
             { label: "Outstanding",    value: outstanding, color: "#d97706", icon: "⏳" },
             { label: "Paid",           value: paid,        color: "#16a34a", icon: "✅" },
           ]).map(s => (
-            <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: "20px 24px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
+            <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: mob ? "14px 14px" : "20px 24px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em" }}>{s.label}</p>
-                  <p style={{ margin: "6px 0 0", fontSize: 24, fontWeight: 800, color: s.color }}>
+                  <p style={{ margin: 0, fontSize: mob ? 10 : 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em" }}>{s.label}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: mob ? 17 : 24, fontWeight: 800, color: s.color }}>
                     ${s.value.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
-                <span style={{ fontSize: 22 }}>{s.icon}</span>
+                {!mob && <span style={{ fontSize: 22 }}>{s.icon}</span>}
               </div>
               <p style={{ margin: "6px 0 0", fontSize: 11, color: "#94a3b8" }}>CAD</p>
             </div>
@@ -159,39 +187,57 @@ function InvoicesContent() {
         <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)", overflow: "hidden" }}>
 
           {/* Tab bar + search */}
-          <div style={{ display: "flex", alignItems: "center", padding: "0 20px", borderBottom: "1px solid #e2e8f0", gap: 0 }}>
+          {/* Tab bar + search */}
+          <div style={{ display: "flex", alignItems: "center", padding: mob ? "0 10px" : "0 20px", borderBottom: "1px solid #e2e8f0", gap: 0, overflowX: mob ? "auto" : "visible" }}>
             {(isEst
               ? [["all","Todos"],["outstanding","Enviados"],["paid","Borradores"]] as [Tab,string][]
               : [["all","All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]
             ).map(([t,l]) => (
               <button key={t} onClick={() => setTab(t)}
-                style={{ padding: "14px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
+                style={{ padding: mob ? "12px 10px" : "14px 16px", border: "none", background: "none", cursor: "pointer",
+                  fontSize: mob ? 12 : 13, fontWeight: 600, flexShrink: 0,
                   color: tab === t ? "#e63946" : "#64748b",
                   borderBottom: tab === t ? "2px solid #e63946" : "2px solid transparent" }}>
-                {l}
-                <span style={{ marginLeft: 6, background: tab === t ? "#fee2e2" : "#f1f5f9", color: tab === t ? "#e63946" : "#94a3b8",
-                  borderRadius: 20, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>
+                {mob ? l.split(" ")[0] : l}
+                <span style={{ marginLeft: 4, background: tab === t ? "#fee2e2" : "#f1f5f9", color: tab === t ? "#e63946" : "#94a3b8",
+                  borderRadius: 20, padding: "1px 6px", fontSize: 10, fontWeight: 700 }}>
                   {t === "all" ? scoped.length
                     : t === "outstanding" ? scoped.filter(i => isEst ? i.status === "sent" : i.status !== "paid").length
                     : scoped.filter(i => isEst ? i.status === "draft" : i.status === "paid").length}
                 </span>
               </button>
             ))}
-            <div style={{ marginLeft: "auto" }}>
-              <input value={search} onChange={e => setSearch(e.target.value)}
-                placeholder="Search by client name..."
-                style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", width: 220, color: "#374151" }} />
-            </div>
+            {!mob && (
+              <div style={{ marginLeft: "auto" }}>
+                <input value={search} onChange={e => setSearch(e.target.value)}
+                  placeholder="Search by client name..."
+                  style={{ padding: "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", width: 220, color: "#374151" }} />
+              </div>
+            )}
           </div>
+          {/* Mobile search */}
+          {mob && (
+            <div style={{ padding: "8px 10px", borderBottom: "1px solid #e2e8f0" }}>
+              <input value={search} onChange={e => setSearch(e.target.value)}
+                placeholder="Buscar..."
+                style={{ padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", width: "100%", color: "#374151", boxSizing: "border-box" }} />
+            </div>
+          )}
 
           {/* Table header */}
-          <div className="inv-table-row" style={{ display: "grid", gridTemplateColumns: "130px 1fr 130px 140px 40px", padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em" }}>{isEst ? "Estimate" : "Invoice"}</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em" }}>Client</span>
-            <span className="inv-col-date" style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em" }}>Date</span>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em", textAlign: "right" }}>{isEst ? "Total" : "Balance Due"}</span>
-            <span className="inv-col-empty" style={{ fontSize: 11, fontWeight: 700, color: "#64748b" }}></span>
-          </div>
+          {(() => {
+            const cols = mob ? "72px 1fr 96px" : "130px 1fr 130px 140px 40px";
+            const hdr: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase" as const, letterSpacing: ".05em" };
+            return (
+              <div style={{ display: "grid", gridTemplateColumns: cols, padding: mob ? "8px 10px" : "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                <span style={hdr}>{isEst ? "Est." : "Inv."}</span>
+                <span style={hdr}>Cliente</span>
+                {!mob && <span style={hdr}>Fecha</span>}
+                <span style={{ ...hdr, textAlign: "right" }}>{isEst ? "Total" : "Saldo"}</span>
+                {!mob && <span style={hdr}></span>}
+              </div>
+            );
+          })()}
 
           {/* Rows grouped by year */}
           {loading ? (
@@ -205,39 +251,44 @@ function InvoicesContent() {
                 {isEst ? "Create first estimate" : "Create first invoice"}
               </button>
             </div>
-          ) : years.map(yr => (
-            <div key={yr}>
-              {/* Year header */}
-              <div className="inv-table-row" style={{ display: "grid", gridTemplateColumns: "130px 1fr 130px 140px 40px", padding: "8px 20px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0" }}>
-                <span style={{ fontWeight: 700, fontSize: 13, color: "#374151" }}>{yr}</span>
-                <span></span>
-                <span className="inv-col-date"></span>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#374151", textAlign: "right" }}>
-                  ${byYear[yr].reduce((s,i)=>s+i.total,0).toLocaleString("en-CA",{minimumFractionDigits:2})}
-                </span>
-                <span className="inv-col-empty"></span>
-              </div>
-              {byYear[yr].map((inv, i) => (
-                <div key={inv.id} className="inv-table-row" onClick={() => router.push(`/invoices/${inv.id}`)}
-                  style={{ display: "grid", gridTemplateColumns: "130px 1fr 130px 140px 40px", padding: "14px 20px",
-                    borderBottom: "1px solid #f1f5f9", cursor: "pointer", background: i%2===0 ? "#fff" : "#fafafa",
-                    transition: "background 0.1s", alignItems: "center" }}
-                  onMouseEnter={e => (e.currentTarget.style.background="#f0f9ff")}
-                  onMouseLeave={e => (e.currentTarget.style.background=i%2===0?"#fff":"#fafafa")}>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#e63946" }}>{inv.invoiceNumber}</span>
-                  <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</span>
-                  <span className="inv-col-date" style={{ fontSize: 13, color: "#64748b" }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>
-                  <div style={{ textAlign: "right" }}>
-                    {!isEst && inv.status === "paid"
-                      ? <span style={{ ...badge("#dcfce7","#16a34a"), fontSize: 12 }}>$0.00 Paid</span>
-                      : <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>${inv.total.toLocaleString("en-CA",{minimumFractionDigits:2})}</span>
-                    }
-                  </div>
-                  <div className="inv-col-empty" style={{ textAlign: "right" }}>{statusBadge(inv)}</div>
+          ) : years.map(yr => {
+            const cols = mob ? "72px 1fr 96px" : "130px 1fr 130px 140px 40px";
+            return (
+              <div key={yr}>
+                {/* Year header */}
+                <div style={{ display: "grid", gridTemplateColumns: cols, padding: mob ? "6px 10px" : "8px 20px", background: "#f1f5f9", borderBottom: "1px solid #e2e8f0" }}>
+                  <span style={{ fontWeight: 700, fontSize: 13, color: "#374151" }}>{yr}</span>
+                  <span></span>
+                  {!mob && <span></span>}
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#374151", textAlign: "right" }}>
+                    ${byYear[yr].reduce((s,i)=>s+i.total,0).toLocaleString("en-CA",{minimumFractionDigits:2})}
+                  </span>
+                  {!mob && <span></span>}
                 </div>
-              ))}
-            </div>
-          ))}
+                {byYear[yr].map((inv, i) => (
+                  <div key={inv.id} onClick={() => router.push(`/invoices/${inv.id}`)}
+                    style={{ display: "grid", gridTemplateColumns: cols,
+                      padding: mob ? "11px 10px" : "14px 20px",
+                      borderBottom: "1px solid #f1f5f9", cursor: "pointer",
+                      background: i%2===0 ? "#fff" : "#fafafa",
+                      transition: "background 0.1s", alignItems: "center" }}
+                    onMouseEnter={e => (e.currentTarget.style.background="#f0f9ff")}
+                    onMouseLeave={e => (e.currentTarget.style.background=i%2===0?"#fff":"#fafafa")}>
+                    <span style={{ fontSize: mob ? 12 : 13, fontWeight: 700, color: "#e63946" }}>{inv.invoiceNumber}</span>
+                    <span style={{ fontSize: mob ? 12 : 13, color: "#0f172a", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</span>
+                    {!mob && <span style={{ fontSize: 13, color: "#64748b" }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>}
+                    <div style={{ textAlign: "right" }}>
+                      {!isEst && inv.status === "paid"
+                        ? <span style={{ ...badge("#dcfce7","#16a34a"), fontSize: mob ? 10 : 12 }}>Pagado</span>
+                        : <span style={{ fontSize: mob ? 12 : 13, fontWeight: 700, color: "#0f172a" }}>${inv.total.toLocaleString("en-CA",{minimumFractionDigits:2})}</span>
+                      }
+                    </div>
+                    {!mob && <div style={{ textAlign: "right" }}>{statusBadge(inv)}</div>}
+                  </div>
+                ))}
+              </div>
+            );
+          })}
 
           {/* Footer */}
           <div style={{ padding: "12px 20px", borderTop: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>

@@ -25,6 +25,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [saving,    setSaving]    = useState(false);
   const [msg,       setMsg]       = useState("");
   const [uploading, setUploading] = useState(false);
+  const [mob,       setMob]       = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Edit form state
@@ -39,6 +40,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
     load();
+    const check = () => setMob(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, [id]);
 
   async function load() {
@@ -192,55 +197,59 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       <div style={{ background:"#fff", borderBottom:"1px solid #e2e8f0" }}>
 
         {/* Row 1: back + logo + invoice # + status + action buttons */}
-        <div className="inv-detail-topbar" style={{ padding:"12px 24px", display:"flex", alignItems:"center", gap:12 }}>
+        <div style={{ padding: mob ? "10px 12px" : "12px 24px", display:"flex", alignItems:"center", gap: mob ? 8 : 12, flexWrap: mob ? "wrap" : "nowrap" }}>
           <button onClick={() => router.push("/invoices")}
-            style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1 }}>←</button>
-          <div className="inv-detail-logo">
-            <Image src="/mactor-logo.png" alt="MacTor" width={90} height={44} style={{ objectFit:"contain" }} />
-          </div>
+            style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1, flexShrink:0 }}>←</button>
+          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={90} height={44} style={{ objectFit:"contain" }} />}
 
-          <div className="inv-detail-meta" style={{ display:"flex", alignItems:"center", gap:10, flex:1 }}>
-            <span style={{ fontWeight:800, fontSize:17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
-            <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20,
+          <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
+            <span style={{ fontWeight:800, fontSize: mob ? 15 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
+            <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0,
               background:(STATUS_COLORS[inv.status]||"#6b7280")+"22", color:STATUS_COLORS[inv.status]||"#6b7280" }}>
               {STATUS_LABELS[inv.status]||inv.status}
             </span>
-            {inv.sentAt && <span className="inv-sent-label" style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+            {inv.sentAt && !mob && <span style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
           </div>
 
           {/* Action buttons */}
-          <div className="inv-actions" style={{ display:"flex", gap:8 }}>
+          <div style={{ display:"flex", gap: mob ? 5 : 8, flexWrap: mob ? "wrap" : "nowrap", width: mob ? "100%" : "auto" }}>
             {isEst && (
               <button onClick={convertToInvoice} disabled={converting}
                 style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize:13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1 }}>
                 {converting ? "Creando..." : "🧾 Convertir a Invoice"}
               </button>
             )}
+            {isEst && (
+              <button onClick={convertToInvoice} disabled={converting}
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize: mob ? 12 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
+                {converting ? "Creando..." : "🧾 " + (mob ? "Invoice" : "Convertir a Invoice")}
+              </button>
+            )}
             {!isEst && inv.status !== "paid" && (
               <button onClick={markPaid}
-                style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #16a34a", background:"#dcfce7", color:"#16a34a", fontSize:13, fontWeight:700, cursor:"pointer" }}>
-                ✓ Mark Paid
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #16a34a", background:"#dcfce7", color:"#16a34a", fontSize: mob ? 12 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                ✓ {mob ? "Paid" : "Mark Paid"}
               </button>
             )}
             {!isEst && inv.status === "paid" && (
               <button onClick={markUnpaid}
-                style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize:13, fontWeight:600, cursor:"pointer" }}>
-                ↩ Mark Unpaid
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize: mob ? 12 : 13, fontWeight:600, cursor:"pointer" }}>
+                ↩ {mob ? "Unpaid" : "Mark Unpaid"}
               </button>
             )}
             <button onClick={openPDF}
-              style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize:13, fontWeight:600, cursor:"pointer" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 12 : 13, fontWeight:600, cursor:"pointer" }}>
               📄 PDF
             </button>
             {inv.clientEmail ? (
               <button onClick={send} disabled={sending}
-                style={{ padding:"8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize:13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1 }}>
-                {sending ? "Sending..." : isEst ? "✉ Email Estimate" : "✉ Email Invoice"}
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 12 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
+                {sending ? "Sending..." : "✉ " + (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
             ) : (
               <button onClick={() => setTab("edit")}
-                style={{ padding:"8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize:13, fontWeight:700, cursor:"pointer" }}>
-                ✉ Add Email to Send
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize: mob ? 12 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                ✉ {mob ? "Add Email" : "Add Email to Send"}
               </button>
             )}
           </div>
