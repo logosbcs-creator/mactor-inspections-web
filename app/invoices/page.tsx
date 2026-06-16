@@ -48,15 +48,16 @@ function InvoicesContent() {
     setLoading(false);
   }
 
+  const isEst = typeFilter === "estimate";
+  const label = isEst ? "estimate" : "invoice";
+
   // Filter
   const filtered = invoices.filter(inv => {
     if (typeFilter !== "all" && inv.type !== typeFilter) return false;
     if (tab === "outstanding") {
-      // invoices: exclude paid; estimates: show only sent
       if (isEst ? inv.status !== "sent" : inv.status === "paid") return false;
     }
     if (tab === "paid") {
-      // invoices: only paid; estimates: show only draft
       if (isEst ? inv.status !== "draft" : inv.status !== "paid") return false;
     }
     if (search && !inv.clientName.toLowerCase().includes(search.toLowerCase()) &&
@@ -72,9 +73,6 @@ function InvoicesContent() {
     byYear[yr].push(inv);
   });
   const years = Object.keys(byYear).sort((a,b) => Number(b)-Number(a));
-
-  const isEst = typeFilter === "estimate";
-  const label = isEst ? "estimate" : "invoice";
 
   // Stats — scoped to current type filter
   const scoped      = typeFilter === "all" ? invoices : invoices.filter(i => i.type === typeFilter);
@@ -159,10 +157,13 @@ function InvoicesContent() {
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: mob ? "14px 10px" : "28px 24px" }}>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : isEst ? "1fr 1fr" : "1fr 1fr 1fr", gap: mob ? 8 : 16, marginBottom: mob ? 16 : 28 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: mob ? 8 : 16, marginBottom: mob ? 16 : 28 }}>
           {(isEst ? [
             { label: "Total Estimado", value: total,  color: "#0f172a", icon: "📊" },
             { label: "Enviados",       value: scoped.filter(i => i.status === "sent").reduce((s,i) => s + i.total, 0), color: "#2563eb", icon: "📤" },
+          ] : mob ? [
+            { label: "Total Invoiced", value: total, color: "#0f172a", icon: "📊" },
+            { label: "Paid",           value: paid,  color: "#16a34a", icon: "✅" },
           ] : [
             { label: "Total Invoiced", value: total,       color: "#0f172a", icon: "📊" },
             { label: "Outstanding",    value: outstanding, color: "#d97706", icon: "⏳" },
@@ -184,21 +185,22 @@ function InvoicesContent() {
         </div>
 
         {/* Filters */}
-        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)", overflow: "hidden" }}>
+        <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
 
           {/* Tab bar + search */}
-          {/* Tab bar + search */}
-          <div style={{ display: "flex", alignItems: "center", padding: mob ? "0 10px" : "0 20px", borderBottom: "1px solid #e2e8f0", gap: 0, overflowX: mob ? "auto" : "visible" }}>
+          <div style={{ display: "flex", alignItems: "center", padding: mob ? "0 10px" : "0 20px", borderBottom: "1px solid #e2e8f0", gap: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" as never }}>
             {(isEst
               ? [["all","Todos"],["outstanding","Enviados"],["paid","Borradores"]] as [Tab,string][]
-              : [["all","All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]
+              : mob
+                ? [["all","Todas"],["paid","Pagadas"]] as [Tab,string][]
+                : [["all","All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]
             ).map(([t,l]) => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ padding: mob ? "12px 10px" : "14px 16px", border: "none", background: "none", cursor: "pointer",
                   fontSize: mob ? 12 : 13, fontWeight: 600, flexShrink: 0,
                   color: tab === t ? "#e63946" : "#64748b",
                   borderBottom: tab === t ? "2px solid #e63946" : "2px solid transparent" }}>
-                {mob ? l.split(" ")[0] : l}
+                {l}
                 <span style={{ marginLeft: 4, background: tab === t ? "#fee2e2" : "#f1f5f9", color: tab === t ? "#e63946" : "#94a3b8",
                   borderRadius: 20, padding: "1px 6px", fontSize: 10, fontWeight: 700 }}>
                   {t === "all" ? scoped.length
