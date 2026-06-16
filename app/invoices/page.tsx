@@ -56,10 +56,14 @@ export default function InvoicesPage() {
   });
   const years = Object.keys(byYear).sort((a,b) => Number(b)-Number(a));
 
-  // Stats
-  const outstanding = invoices.filter(i => i.status !== "paid").reduce((s,i) => s + i.total, 0);
-  const paid        = invoices.filter(i => i.status === "paid").reduce((s,i) => s + i.total, 0);
-  const total       = invoices.reduce((s,i) => s + i.total, 0);
+  const isEst = typeFilter === "estimate";
+  const label = isEst ? "estimate" : "invoice";
+
+  // Stats — scoped to current type filter
+  const scoped      = typeFilter === "all" ? invoices : invoices.filter(i => i.type === typeFilter);
+  const outstanding = scoped.filter(i => i.status !== "paid").reduce((s,i) => s + i.total, 0);
+  const paid        = scoped.filter(i => i.status === "paid").reduce((s,i) => s + i.total, 0);
+  const total       = scoped.reduce((s,i) => s + i.total, 0);
 
   const statusBadge = (inv: Invoice) => {
     if (inv.status === "paid")    return <span style={badge("#dcfce7","#16a34a")}>Paid</span>;
@@ -95,7 +99,7 @@ export default function InvoicesPage() {
           </button>
           <button onClick={() => router.push("/invoices/new")}
             style={{ padding: "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-            + Nueva factura
+            + {isEst ? "Nuevo estimado" : "Nueva factura"}
           </button>
         </div>
       </div>
@@ -105,7 +109,7 @@ export default function InvoicesPage() {
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 28 }}>
           {[
-            { label: "Total Invoiced", value: total,       color: "#0f172a", icon: "📊" },
+            { label: isEst ? "Total Estimated" : "Total Invoiced", value: total,       color: "#0f172a", icon: "📊" },
             { label: "Outstanding",    value: outstanding, color: "#d97706", icon: "⏳" },
             { label: "Paid",           value: paid,        color: "#16a34a", icon: "✅" },
           ].map(s => (
@@ -129,7 +133,7 @@ export default function InvoicesPage() {
 
           {/* Tab bar + search */}
           <div style={{ display: "flex", alignItems: "center", padding: "0 20px", borderBottom: "1px solid #e2e8f0", gap: 0 }}>
-            {([["all","All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]).map(([t,l]) => (
+            {([["all", isEst ? "All Estimates" : "All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]).map(([t,l]) => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ padding: "14px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
                   color: tab === t ? "#e63946" : "#64748b",
@@ -137,7 +141,7 @@ export default function InvoicesPage() {
                 {l}
                 <span style={{ marginLeft: 6, background: tab === t ? "#fee2e2" : "#f1f5f9", color: tab === t ? "#e63946" : "#94a3b8",
                   borderRadius: 20, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>
-                  {t === "all" ? invoices.length : t === "outstanding" ? invoices.filter(i=>i.status!=="paid").length : invoices.filter(i=>i.status==="paid").length}
+                  {t === "all" ? scoped.length : t === "outstanding" ? scoped.filter(i=>i.status!=="paid").length : scoped.filter(i=>i.status==="paid").length}
                 </span>
               </button>
             ))}
@@ -150,7 +154,7 @@ export default function InvoicesPage() {
 
           {/* Table header */}
           <div style={{ display: "grid", gridTemplateColumns: "130px 1fr 130px 140px 40px", padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-            {["Invoice","Client","Date","Balance Due",""].map((h,i) => (
+            {[isEst ? "Estimate" : "Invoice","Client","Date","Balance Due",""].map((h,i) => (
               <span key={i} style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em",
                 textAlign: i >= 3 ? "right" : "left" }}>{h}</span>
             ))}
@@ -162,10 +166,10 @@ export default function InvoicesPage() {
           ) : filtered.length === 0 ? (
             <div style={{ padding: "60px", textAlign: "center" }}>
               <p style={{ fontSize: 36, margin: 0 }}>📄</p>
-              <p style={{ color: "#94a3b8", marginTop: 12 }}>No invoices found</p>
+              <p style={{ color: "#94a3b8", marginTop: 12 }}>No {label}s found</p>
               <button onClick={() => router.push("/invoices/new")}
                 style={{ marginTop: 12, background: "#e63946", color: "#fff", border: "none", borderRadius: 8, padding: "9px 20px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-                Create first invoice
+                {isEst ? "Create first estimate" : "Create first invoice"}
               </button>
             </div>
           ) : years.map(yr => (
@@ -203,11 +207,11 @@ export default function InvoicesPage() {
 
           {/* Footer */}
           <div style={{ padding: "12px 20px", borderTop: "1px solid #e2e8f0", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-            <span style={{ fontSize: 12, color: "#94a3b8" }}>Showing {Math.min(filtered.length, perPage)} of {invoices.filter(i => {
+            <span style={{ fontSize: 12, color: "#94a3b8" }}>Showing {Math.min(filtered.length, perPage)} of {scoped.filter(i => {
               if (tab==="outstanding" && i.status==="paid") return false;
               if (tab==="paid" && i.status!=="paid") return false;
               return true;
-            }).length} invoices</span>
+            }).length} {label}s</span>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <span style={{ fontSize: 12, color: "#94a3b8" }}>Per page:</span>
               {[25,50,100].map(n => (
