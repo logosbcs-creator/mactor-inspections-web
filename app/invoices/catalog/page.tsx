@@ -112,15 +112,16 @@ export default function CatalogPage() {
     load();
   }
 
-  async function deleteService() {
-    if (!selected) return;
-    if (!confirm(`¿Eliminar "${selected.name}"? Esta acción no se puede deshacer.`)) return;
+  async function deleteService(item?: ServiceItem) {
+    const target = item || selected;
+    if (!target) return;
+    if (!confirm(`¿Eliminar "${target.name}"? Esta acción no se puede deshacer.`)) return;
     setDeletingSvc(true);
-    await fetch(`${API}/api/catalog/${selected.id}`, {
+    await fetch(`${API}/api/catalog/${target.id}`, {
       method: "DELETE", headers: { Authorization: `Bearer ${token()}` },
     });
     setDeletingSvc(false);
-    setSelected(null);
+    if (selected?.id === target.id) setSelected(null);
     load();
   }
 
@@ -273,20 +274,20 @@ export default function CatalogPage() {
             ) : (
               <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
                 {/* Table header */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 110px 90px 90px 90px 70px", padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  {["Servicio", "Última vez", "Mín", "Máx", "Promedio", "Usos"].map((h, i) => (
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 80px 80px 80px 60px 80px", padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                  {["Servicio", "Última vez", "Mín", "Máx", "Promedio", "Usos", ""].map((h, i) => (
                     <span key={i} style={{ ...lbl, textAlign: i > 0 ? "right" : "left" }}>{h}</span>
                   ))}
                 </div>
                 {filtered.map((item, i) => (
-                  <div key={item.id} onClick={() => setSelected(selected?.id === item.id ? null : item)}
-                    style={{ display: "grid", gridTemplateColumns: "1fr 110px 90px 90px 90px 70px", padding: "14px 20px",
+                  <div key={item.id}
+                    style={{ display: "grid", gridTemplateColumns: "1fr 100px 80px 80px 80px 60px 80px", padding: "12px 20px",
                       borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                      cursor: "pointer", background: selected?.id === item.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
-                      transition: "background 0.1s" }}
+                      background: selected?.id === item.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
+                      transition: "background 0.1s", alignItems: "center" }}
                     onMouseEnter={e => { if (selected?.id !== item.id) e.currentTarget.style.background = "#f0f9ff"; }}
                     onMouseLeave={e => { if (selected?.id !== item.id) e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"; }}>
-                    <div>
+                    <div style={{ cursor: "pointer" }} onClick={() => setSelected(selected?.id === item.id ? null : item)}>
                       <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                         <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[item.category || ""] || "#64748b", flexShrink: 0 }} />
                         <span style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{item.name}</span>
@@ -298,6 +299,20 @@ export default function CatalogPage() {
                     <span style={{ fontSize: 12, textAlign: "right", color: "#dc2626" }}>${item.maxPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
                     <span style={{ fontSize: 12, textAlign: "right", color: "#7c3aed", fontWeight: 600 }}>${item.avgPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
                     <span style={{ fontSize: 12, textAlign: "right", color: "#64748b" }}>{item.useCount}×</span>
+                    <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                      <button
+                        onClick={e => { e.stopPropagation(); setSelected(item); openEdit(item); }}
+                        title="Editar"
+                        style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 12, color: "#0891b2", fontWeight: 600 }}>
+                        ✏️
+                      </button>
+                      <button
+                        onClick={e => { e.stopPropagation(); deleteService(item); }}
+                        title="Eliminar"
+                        style={{ background: "#fff0f0", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 12, color: "#dc2626", fontWeight: 600 }}>
+                        🗑️
+                      </button>
+                    </div>
                   </div>
                 ))}
 
