@@ -33,36 +33,64 @@ export default function InvoiceLogin() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: "var(--navy,#0a0f1e)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
-      <div style={{ background: "#111827", borderRadius: 16, padding: "40px 36px", width: "100%", maxWidth: 380, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
-        <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <Image src="/mactor-logo.png" alt="MacTor Construction" width={180} height={100} style={{ objectFit: "contain", marginBottom: 12 }} />
-          <p style={{ color: "#9ca3af", fontSize: 13, margin: 0 }}>Sistema de Facturación</p>
+    <div style={{ minHeight: "100dvh", background: "#0a0f1e", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
+      <div style={{ borderRadius: 16, width: "100%", maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,.5)", overflow: "hidden" }}>
+
+        {/* Logo — white background, centered */}
+        <div style={{ background: "#fff", padding: "32px 40px 24px", textAlign: "center" }}>
+          <Image
+            src="/mactor-logo-claro.png"
+            alt="MacTor Construction"
+            width={300}
+            height={85}
+            style={{ objectFit: "contain", display: "block", margin: "0 auto" }}
+          />
+          <p style={{ color: "#94a3b8", fontSize: 12, margin: "12px 0 0", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>
+            Sistema de Facturación
+          </p>
         </div>
 
-        <form onSubmit={handleLogin}>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>Usuario</label>
-            <input
-              type="text" value={username} onChange={e => setUsername(e.target.value)}
-              style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#1f2937", border: "1px solid #374151", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
-              placeholder="julio" autoComplete="username"
-            />
-          </div>
-          <div style={{ marginBottom: 24 }}>
-            <label style={{ display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>Contraseña</label>
-            <input
-              type="password" value={password} onChange={e => setPassword(e.target.value)}
-              style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#1f2937", border: "1px solid #374151", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
-              autoComplete="current-password"
-            />
-          </div>
-          {error && <p style={{ color: "#e63946", fontSize: 13, marginBottom: 16, textAlign: "center" }}>{error}</p>}
-          <button type="submit" disabled={loading}
-            style={{ width: "100%", padding: "13px", borderRadius: 10, background: "#e63946", border: "none", color: "#fff", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}>
-            {loading ? "Entrando..." : "Entrar"}
-          </button>
-        </form>
+        {/* Form — dark background */}
+        <div style={{ background: "#111827", padding: "28px 36px 36px" }}>
+          <form onSubmit={handleLogin}>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>
+                Usuario
+              </label>
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#1f2937", border: "1px solid #374151", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
+                placeholder="julio"
+                autoComplete="username"
+              />
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={{ display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>
+                Contraseña
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#1f2937", border: "1px solid #374151", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
+                autoComplete="current-password"
+              />
+            </div>
+            {error && (
+              <p style={{ color: "#e63946", fontSize: 13, marginBottom: 16, textAlign: "center" }}>{error}</p>
+            )}
+            <button
+              type="submit"
+              disabled={loading}
+              style={{ width: "100%", padding: "13px", borderRadius: 10, background: "#e63946", border: "none", color: "#fff", fontSize: 15, fontWeight: 700, cursor: loading ? "not-allowed" : "pointer", opacity: loading ? 0.7 : 1 }}
+            >
+              {loading ? "Entrando..." : "Entrar"}
+            </button>
+          </form>
+        </div>
+
       </div>
     </div>
   );
