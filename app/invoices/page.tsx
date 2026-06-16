@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
@@ -15,7 +15,7 @@ type Tab = "all" | "outstanding" | "paid";
 
 function token() { return localStorage.getItem("mactor_token") || ""; }
 
-export default function InvoicesPage() {
+function InvoicesContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
@@ -235,5 +235,13 @@ export default function InvoicesPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function InvoicesPage() {
+  return (
+    <Suspense fallback={null}>
+      <InvoicesContent />
+    </Suspense>
   );
 }
