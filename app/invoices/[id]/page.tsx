@@ -187,27 +187,45 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   // ─────────────────────────────────────────────────────────────
   return (
     <div style={{ minHeight:"100dvh", background:"#f8fafc", fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color:"#111" }}>
+      <style>{`
+        @media (max-width: 640px) {
+          .inv-detail-topbar { padding: 10px 12px !important; flex-wrap: wrap; gap: 8px !important; }
+          .inv-detail-logo { display: none !important; }
+          .inv-detail-meta { flex: 1 !important; min-width: 0; }
+          .inv-actions { flex-wrap: wrap !important; gap: 6px !important; width: 100%; }
+          .inv-action-btn { font-size: 12px !important; padding: 7px 10px !important; }
+          .inv-detail-tabs { padding: 0 12px !important; }
+          .inv-detail-content { padding: 16px 12px !important; }
+          .inv-doc { margin: 0 !important; }
+          .inv-doc-inner { padding: 14px 16px !important; }
+          .inv-doc-header { grid-template-columns: 80px 1fr 120px !important; gap: 10px !important; }
+          .inv-doc-logo { width: 70px !important; }
+          .inv-sent-label { display: none !important; }
+        }
+      `}</style>
 
       {/* ── Top bar ── */}
       <div style={{ background:"#fff", borderBottom:"1px solid #e2e8f0" }}>
 
         {/* Row 1: back + logo + invoice # + status + action buttons */}
-        <div style={{ padding:"12px 24px", display:"flex", alignItems:"center", gap:12 }}>
+        <div className="inv-detail-topbar" style={{ padding:"12px 24px", display:"flex", alignItems:"center", gap:12 }}>
           <button onClick={() => router.push("/invoices")}
             style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1 }}>←</button>
-          <Image src="/mactor-logo.png" alt="MacTor" width={90} height={44} style={{ objectFit:"contain" }} />
+          <div className="inv-detail-logo">
+            <Image src="/mactor-logo.png" alt="MacTor" width={90} height={44} style={{ objectFit:"contain" }} />
+          </div>
 
-          <div style={{ display:"flex", alignItems:"center", gap:10, flex:1 }}>
+          <div className="inv-detail-meta" style={{ display:"flex", alignItems:"center", gap:10, flex:1 }}>
             <span style={{ fontWeight:800, fontSize:17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
             <span style={{ fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:20,
               background:(STATUS_COLORS[inv.status]||"#6b7280")+"22", color:STATUS_COLORS[inv.status]||"#6b7280" }}>
               {STATUS_LABELS[inv.status]||inv.status}
             </span>
-            {inv.sentAt && <span style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+            {inv.sentAt && <span className="inv-sent-label" style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
           </div>
 
           {/* Action buttons */}
-          <div style={{ display:"flex", gap:8 }}>
+          <div className="inv-actions" style={{ display:"flex", gap:8 }}>
             {isEst && (
               <button onClick={convertToInvoice} disabled={converting}
                 style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize:13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1 }}>
@@ -245,7 +263,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         </div>
 
         {/* Row 2: tabs */}
-        <div style={{ display:"flex", padding:"0 24px", gap:0 }}>
+        <div className="inv-detail-tabs" style={{ display:"flex", padding:"0 24px", gap:0 }}>
           {(["preview","edit"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               style={{ padding:"10px 20px", border:"none", background:"none", cursor:"pointer", fontSize:13, fontWeight:600, textTransform:"capitalize",
@@ -266,13 +284,15 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         </div>
       )}
 
-      <div style={{ maxWidth:760, margin:"0 auto", padding:"28px 24px" }}>
+      <div className="inv-detail-content" style={{ maxWidth:760, margin:"0 auto", padding:"28px 24px" }}>
 
         {/* ═══════════════ PREVIEW TAB ═══════════════ */}
         {tab === "preview" && (
           <div>
             {/* Invoice document — matches PDF format */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", overflow:"hidden", marginBottom:16 }}>
+            <div className="inv-doc" style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", overflow:"hidden", marginBottom:16 }}>
+              <style>{`.inv-doc-scroll { overflow-x: auto; } @media (max-width:640px) { .inv-doc-inner { min-width: 340px; } }`}</style>
+              <div className="inv-doc-scroll">
 
               {/* Top rule */}
               <div style={{ height:4, background:"#333" }} />
@@ -416,6 +436,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                 </div>
               )}
+            </div>{/* end inv-doc-scroll */}
             </div>
 
             <p style={{ textAlign:"center", fontSize:12, color:"#94a3b8" }}>

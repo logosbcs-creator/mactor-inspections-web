@@ -330,7 +330,7 @@ export default function CatalogPage() {
                           style={{ background: editingSvc ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
                           ✏️
                         </button>
-                        <button onClick={deleteService} disabled={deletingSvc}
+                        <button onClick={() => deleteService()} disabled={deletingSvc}
                           title="Eliminar"
                           style={{ background: "none", border: "1px solid #fee2e2", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#dc2626" }}>
                           🗑️
