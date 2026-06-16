@@ -17,7 +17,9 @@ export default function ImportPage() {
     setError(""); setResult(null);
     let parsed: any[];
     try {
-      parsed = JSON.parse(json);
+      // Strip markdown code fences that ChatGPT adds (```json ... ``` or ``` ... ```)
+      const clean = json.trim().replace(/^```[a-z]*\n?/i, "").replace(/```\s*$/i, "").trim();
+      parsed = JSON.parse(clean);
       if (!Array.isArray(parsed)) throw new Error("Debe ser un arreglo JSON [ ... ]");
     } catch (e: any) {
       setError("JSON inválido: " + e.message); return;
@@ -82,7 +84,7 @@ export default function ImportPage() {
           />
           {json && (
             <p style={{ margin: "8px 0 0", fontSize: 11, color: "#6b7280" }}>
-              {(() => { try { const a = JSON.parse(json); return Array.isArray(a) ? `✓ ${a.length} factura(s) detectada(s)` : "⚠ No es un arreglo"; } catch { return "⚠ JSON inválido"; } })()}
+              {(() => { try { const c = json.trim().replace(/^```[a-z]*\n?/i,"").replace(/```\s*$/i,"").trim(); const a = JSON.parse(c); return Array.isArray(a) ? `✓ ${a.length} factura(s) detectada(s)` : "⚠ No es un arreglo"; } catch { return "⚠ JSON inválido"; } })()}
             </p>
           )}
         </div>
