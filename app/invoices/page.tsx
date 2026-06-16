@@ -40,9 +40,15 @@ function InvoicesContent() {
 
   // Filter
   const filtered = invoices.filter(inv => {
-    if (tab === "outstanding" && inv.status === "paid") return false;
-    if (tab === "paid"        && inv.status !== "paid") return false;
-    if (typeFilter !== "all"  && inv.type !== typeFilter) return false;
+    if (typeFilter !== "all" && inv.type !== typeFilter) return false;
+    if (tab === "outstanding") {
+      // invoices: exclude paid; estimates: show only sent
+      if (isEst ? inv.status !== "sent" : inv.status === "paid") return false;
+    }
+    if (tab === "paid") {
+      // invoices: only paid; estimates: show only draft
+      if (isEst ? inv.status !== "draft" : inv.status !== "paid") return false;
+    }
     if (search && !inv.clientName.toLowerCase().includes(search.toLowerCase()) &&
         !inv.invoiceNumber.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
@@ -116,12 +122,15 @@ function InvoicesContent() {
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "28px 24px" }}>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 16, marginBottom: 28 }}>
-          {[
-            { label: isEst ? "Total Estimated" : "Total Invoiced", value: total,       color: "#0f172a", icon: "📊" },
+        <div style={{ display: "grid", gridTemplateColumns: isEst ? "1fr 1fr" : "1fr 1fr 1fr", gap: 16, marginBottom: 28 }}>
+          {(isEst ? [
+            { label: "Total Estimado", value: total,  color: "#0f172a", icon: "📊" },
+            { label: "Enviados",       value: scoped.filter(i => i.status === "sent").reduce((s,i) => s + i.total, 0), color: "#2563eb", icon: "📤" },
+          ] : [
+            { label: "Total Invoiced", value: total,       color: "#0f172a", icon: "📊" },
             { label: "Outstanding",    value: outstanding, color: "#d97706", icon: "⏳" },
             { label: "Paid",           value: paid,        color: "#16a34a", icon: "✅" },
-          ].map(s => (
+          ]).map(s => (
             <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: "20px 24px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
@@ -142,7 +151,10 @@ function InvoicesContent() {
 
           {/* Tab bar + search */}
           <div style={{ display: "flex", alignItems: "center", padding: "0 20px", borderBottom: "1px solid #e2e8f0", gap: 0 }}>
-            {([["all", isEst ? "All Estimates" : "All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]).map(([t,l]) => (
+            {(isEst
+              ? [["all","Todos"],["outstanding","Enviados"],["paid","Borradores"]] as [Tab,string][]
+              : [["all","All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]
+            ).map(([t,l]) => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ padding: "14px 16px", border: "none", background: "none", cursor: "pointer", fontSize: 13, fontWeight: 600,
                   color: tab === t ? "#e63946" : "#64748b",
@@ -150,7 +162,9 @@ function InvoicesContent() {
                 {l}
                 <span style={{ marginLeft: 6, background: tab === t ? "#fee2e2" : "#f1f5f9", color: tab === t ? "#e63946" : "#94a3b8",
                   borderRadius: 20, padding: "1px 7px", fontSize: 10, fontWeight: 700 }}>
-                  {t === "all" ? scoped.length : t === "outstanding" ? scoped.filter(i=>i.status!=="paid").length : scoped.filter(i=>i.status==="paid").length}
+                  {t === "all" ? scoped.length
+                    : t === "outstanding" ? scoped.filter(i => isEst ? i.status === "sent" : i.status !== "paid").length
+                    : scoped.filter(i => isEst ? i.status === "draft" : i.status === "paid").length}
                 </span>
               </button>
             ))}
@@ -163,7 +177,7 @@ function InvoicesContent() {
 
           {/* Table header */}
           <div style={{ display: "grid", gridTemplateColumns: "130px 1fr 130px 140px 40px", padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-            {[isEst ? "Estimate" : "Invoice","Client","Date","Balance Due",""].map((h,i) => (
+            {[isEst ? "Estimate" : "Invoice", "Client", "Date", isEst ? "Total" : "Balance Due", ""].map((h,i) => (
               <span key={i} style={{ fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em",
                 textAlign: i >= 3 ? "right" : "left" }}>{h}</span>
             ))}
@@ -203,7 +217,7 @@ function InvoicesContent() {
                   <span style={{ fontSize: 13, color: "#0f172a", fontWeight: 500 }}>{inv.clientName}</span>
                   <span style={{ fontSize: 13, color: "#64748b" }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>
                   <div style={{ textAlign: "right" }}>
-                    {inv.status === "paid"
+                    {!isEst && inv.status === "paid"
                       ? <span style={{ ...badge("#dcfce7","#16a34a"), fontSize: 12 }}>$0.00 Paid</span>
                       : <span style={{ fontSize: 13, fontWeight: 700, color: "#0f172a" }}>${inv.total.toLocaleString("en-CA",{minimumFractionDigits:2})}</span>
                     }

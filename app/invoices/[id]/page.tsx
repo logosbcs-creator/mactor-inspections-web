@@ -20,7 +20,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const router    = useRouter();
   const [inv,     setInv]     = useState<any>(null);
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
-  const [sending, setSending] = useState(false);
+  const [sending,    setSending]    = useState(false);
+  const [converting, setConverting] = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [msg,       setMsg]       = useState("");
   const [uploading, setUploading] = useState(false);
@@ -159,6 +160,22 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   function openPDF() { window.open(`${API}/api/invoices/${id}/pdf?token=${token()}`, "_blank"); }
 
+  async function convertToInvoice() {
+    if (!confirm("¿Crear una invoice a partir de este estimado?")) return;
+    setConverting(true);
+    const r = await fetch(`${API}/api/invoices/${id}/convert`, {
+      method: "POST", headers: { Authorization: `Bearer ${token()}` },
+    });
+    if (r.ok) {
+      const inv = await r.json();
+      router.push(`/invoices/${inv.id}`);
+    } else {
+      setMsg("❌ Error al convertir");
+      setConverting(false);
+      setTimeout(() => setMsg(""), 3000);
+    }
+  }
+
   if (!inv) return (
     <div style={{ minHeight:"100dvh", background:"#f8fafc", display:"flex", alignItems:"center", justifyContent:"center", color:"#94a3b8", fontFamily:"system-ui,sans-serif" }}>
       Loading...
@@ -191,13 +208,19 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Action buttons */}
           <div style={{ display:"flex", gap:8 }}>
-            {inv.status !== "paid" && (
+            {isEst && (
+              <button onClick={convertToInvoice} disabled={converting}
+                style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize:13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1 }}>
+                {converting ? "Creando..." : "🧾 Convertir a Invoice"}
+              </button>
+            )}
+            {!isEst && inv.status !== "paid" && (
               <button onClick={markPaid}
                 style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #16a34a", background:"#dcfce7", color:"#16a34a", fontSize:13, fontWeight:700, cursor:"pointer" }}>
                 ✓ Mark Paid
               </button>
             )}
-            {inv.status === "paid" && (
+            {!isEst && inv.status === "paid" && (
               <button onClick={markUnpaid}
                 style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize:13, fontWeight:600, cursor:"pointer" }}>
                 ↩ Mark Unpaid
@@ -210,7 +233,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             {inv.clientEmail ? (
               <button onClick={send} disabled={sending}
                 style={{ padding:"8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize:13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1 }}>
-                {sending ? "Sending..." : "✉ Email Invoice"}
+                {sending ? "Sending..." : isEst ? "✉ Email Estimate" : "✉ Email Invoice"}
               </button>
             ) : (
               <button onClick={() => setTab("edit")}
@@ -280,16 +303,18 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   <p style={{ margin:"0 0 8px", fontSize:11, fontWeight:700, color:"#1a1a1a" }}>
                     {new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"2-digit",day:"2-digit",year:"numeric"})}
                   </p>
-                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#666", textTransform:"uppercase" }}>BALANCE DUE</p>
-                  <p style={{ margin:0, fontSize:13, fontWeight:800, color:"#1a1a1a" }}>
-                    CAD ${inv.status==="paid" ? "0.00" : Number(inv.total).toFixed(2)}
-                  </p>
+                  {!isEst && <>
+                    <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#666", textTransform:"uppercase" }}>BALANCE DUE</p>
+                    <p style={{ margin:0, fontSize:13, fontWeight:800, color:"#1a1a1a" }}>
+                      CAD ${inv.status==="paid" ? "0.00" : Number(inv.total).toFixed(2)}
+                    </p>
+                  </>}
                 </div>
               </div>
 
               {/* Bill To */}
               <div style={{ padding:"16px 28px 14px", borderBottom:"1px solid #e8e8e8" }}>
-                <p style={{ margin:"0 0 6px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase", letterSpacing:".06em" }}>BILL TO</p>
+                <p style={{ margin:"0 0 6px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase", letterSpacing:".06em" }}>{isEst ? "ESTIMATE FOR" : "BILL TO"}</p>
                 <p style={{ margin:"0 0 3px", fontSize:14, fontWeight:700, color:"#1a1a1a" }}>{inv.clientName}</p>
                 {inv.clientAddress && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientAddress}</p>}
                 {inv.clientPhone   && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientPhone}</p>}
@@ -321,39 +346,49 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Payment Info + Totals */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", padding:"20px 28px", gap:24, borderTop:"1px solid #e8e8e8" }}>
-                {/* Payment info left */}
-                <div>
-                  <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Payment Info</p>
-                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>PAYPAL</p>
-                  <p style={{ margin:"0 0 10px", fontSize:12, color:"#2563eb" }}>payments@mactor.ca</p>
-                  <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>BY CHEQUE</p>
-                  <p style={{ margin:0, fontSize:12, color:"#444" }}>Mactor Construction or Julio Cesar Macias Aguilar</p>
-                </div>
-                {/* Totals right */}
-                <div>
+              <div style={{ display:"grid", gridTemplateColumns: isEst ? "1fr" : "1fr 1fr", padding:"20px 28px", gap:24, borderTop:"1px solid #e8e8e8" }}>
+                {/* Payment info — invoices only */}
+                {!isEst && (
+                  <div>
+                    <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Payment Info</p>
+                    <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>PAYPAL</p>
+                    <p style={{ margin:"0 0 10px", fontSize:12, color:"#2563eb" }}>payments@mactor.ca</p>
+                    <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>BY CHEQUE</p>
+                    <p style={{ margin:0, fontSize:12, color:"#444" }}>Mactor Construction or Julio Cesar Macias Aguilar</p>
+                  </div>
+                )}
+                {/* Totals */}
+                <div style={ isEst ? { maxWidth:320, marginLeft:"auto" } : {}}>
                   {[["Subtotal", inv.subtotal], ["HST (13%)", inv.hst]].map(([l,v]) => (
                     <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
                       <span style={{ fontSize:12, color:"#666" }}>{l}</span>
                       <span style={{ fontSize:12, color:"#1a1a1a" }}>${Number(v).toFixed(2)}</span>
                     </div>
                   ))}
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
-                    <span style={{ fontSize:12, fontWeight:700, color:"#1a1a1a" }}>TOTAL</span>
-                    <span style={{ fontSize:12, fontWeight:700, color:"#1a1a1a" }}>${Number(inv.total).toFixed(2)}</span>
-                  </div>
-                  {inv.status === "paid" && inv.paidAt && (
-                    <div style={{ display:"flex", justifyContent:"space-between", marginBottom:4 }}>
-                      <span style={{ fontSize:11, color:"#666" }}>Payment</span>
-                      <span style={{ fontSize:11, color:"#1a1a1a" }}>-${Number(inv.total).toFixed(2)}</span>
-                    </div>
-                  )}
                   <div style={{ borderTop:"1px solid #ccc", paddingTop:7, marginTop:4, display:"flex", justifyContent:"space-between" }}>
-                    <span style={{ fontSize:13, fontWeight:800, color:"#1a1a1a" }}>BALANCE DUE</span>
+                    <span style={{ fontSize:13, fontWeight:800, color:"#1a1a1a" }}>TOTAL</span>
                     <span style={{ fontSize:14, fontWeight:800, color:"#1a1a1a" }}>
-                      CAD ${inv.status==="paid" ? "0.00" : Number(inv.total).toFixed(2)}
+                      CAD ${Number(inv.total).toFixed(2)}
                     </span>
                   </div>
+                  {!isEst && inv.status === "paid" && inv.paidAt && (
+                    <>
+                      <div style={{ display:"flex", justifyContent:"space-between", marginTop:6 }}>
+                        <span style={{ fontSize:11, color:"#666" }}>Payment</span>
+                        <span style={{ fontSize:11, color:"#1a1a1a" }}>-${Number(inv.total).toFixed(2)}</span>
+                      </div>
+                      <div style={{ borderTop:"1px solid #ccc", paddingTop:7, marginTop:4, display:"flex", justifyContent:"space-between" }}>
+                        <span style={{ fontSize:13, fontWeight:800, color:"#1a1a1a" }}>BALANCE DUE</span>
+                        <span style={{ fontSize:14, fontWeight:800, color:"#1a1a1a" }}>CAD $0.00</span>
+                      </div>
+                    </>
+                  )}
+                  {!isEst && inv.status !== "paid" && (
+                    <div style={{ borderTop:"1px solid #ccc", paddingTop:7, marginTop:4, display:"flex", justifyContent:"space-between" }}>
+                      <span style={{ fontSize:13, fontWeight:800, color:"#1a1a1a" }}>BALANCE DUE</span>
+                      <span style={{ fontSize:14, fontWeight:800, color:"#1a1a1a" }}>CAD ${Number(inv.total).toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
               </div>
 
