@@ -29,6 +29,7 @@ export default function CatalogPage() {
   const [catFilter, setCatFilter] = useState("all");
   const [selected, setSelected] = useState<ServiceItem | null>(null);
   const [loading,  setLoading]  = useState(true);
+  const [backfilling, setBackfilling] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -47,6 +48,23 @@ export default function CatalogPage() {
     setLoading(false);
   }
 
+  async function runBackfill() {
+    setBackfilling(true);
+    try {
+      const r = await fetch(`${API}/api/catalog/backfill`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token()}` },
+      });
+      const data = await r.json();
+      alert(`Catálogo actualizado: ${data.processed} servicios procesados, ${data.skipped} omitidos.`);
+      load();
+    } catch {
+      alert("Error al rellenar el catálogo");
+    } finally {
+      setBackfilling(false);
+    }
+  }
+
   const filtered = items.filter(s => {
     if (catFilter !== "all" && s.category !== catFilter) return false;
     if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -62,10 +80,14 @@ export default function CatalogPage() {
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 24px", display: "flex", alignItems: "center", gap: 16 }}>
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: "16px 0" }}>←</button>
         <Image src="/mactor-logo.png" alt="MacTor" width={100} height={48} style={{ objectFit: "contain" }} />
-        <div>
+        <div style={{ flex: 1 }}>
           <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Catálogo de Servicios</h1>
           <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{items.length} servicios · aprende de estimados históricos</p>
         </div>
+        <button onClick={runBackfill} disabled={backfilling}
+          style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: backfilling ? "#f1f5f9" : "#fff", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: "#7c3aed", opacity: backfilling ? 0.6 : 1 }}>
+          {backfilling ? "Procesando..." : "🔄 Rellenar catálogo"}
+        </button>
       </div>
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px" }}>

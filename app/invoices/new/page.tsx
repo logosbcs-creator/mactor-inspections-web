@@ -1,11 +1,12 @@
 "use client";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
 interface LineItem { description: string; notes: string; rate: number; qty: number; amount: number; }
+interface ClientSuggestion { id: string; name: string; email: string | null; phone: string | null; address: string | null; invoiceCount: number; totalInvoiced: number; }
 const emptyItem = (): LineItem => ({ description: "", notes: "", rate: 0, qty: 1, amount: 0 });
 function token() { return localStorage.getItem("mactor_token") || ""; }
 
@@ -32,6 +33,54 @@ export default function NewInvoicePage() {
   const [photos, setPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  // Client autocomplete
+  const [suggestions, setSuggestions] = useState<ClientSuggestion[]>([]);
+  const [showSugg,    setShowSugg]    = useState(false);
+  const [clientFromCatalog, setClientFromCatalog] = useState(false);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+
+  const searchClients = useCallback(async (q: string) => {
+    if (q.length < 2) { setSuggestions([]); setShowSugg(false); return; }
+    const r = await fetch(`${API}/api/clients?q=${encodeURIComponent(q)}`, {
+      headers: { Authorization: `Bearer ${token()}` },
+    });
+    if (!r.ok) return;
+    const data: ClientSuggestion[] = await r.json();
+    setSuggestions(data.slice(0, 6));
+    setShowSugg(data.length > 0);
+  }, []);
+
+  function onNameChange(val: string) {
+    setClient(p => ({ ...p, name: val }));
+    setClientFromCatalog(false);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => searchClients(val), 250);
+  }
+
+  function selectClient(c: ClientSuggestion) {
+    setClient({
+      name:    c.name,
+      email:   c.email    || "",
+      phone:   c.phone    || "",
+      address: c.address  || "",
+    });
+    setClientFromCatalog(true);
+    setShowSugg(false);
+    setSuggestions([]);
+  }
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (nameInputRef.current && !nameInputRef.current.closest(".client-autocomplete")?.contains(e.target as Node)) {
+        setShowSugg(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
 
   function updateItem(i: number, field: keyof LineItem, val: string | number) {
     setItems(prev => {
@@ -123,11 +172,56 @@ export default function NewInvoicePage() {
 
         {/* Client */}
         <div style={card}>
-          <p style={{ ...lbl, marginBottom: 14 }}>Cliente</p>
+          <p style={{ ...lbl, marginBottom: 14 }}>
+            Cliente {clientFromCatalog && <span style={{ background: "#dcfce7", color: "#16a34a", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginLeft: 6 }}>Del catálogo</span>}
+          </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-            <div style={{ gridColumn: "1/-1" }}>
+            <div style={{ gridColumn: "1/-1" }} className="client-autocomplete">
               <label style={lbl}>Nombre *</label>
-              <input style={inp} value={client.name} onChange={e => setClient(p => ({ ...p, name: e.target.value }))} placeholder="Nombre del cliente" />
+              <div style={{ position: "relative" }}>
+                <input
+                  ref={nameInputRef}
+                  style={inp}
+                  value={client.name}
+                  onChange={e => onNameChange(e.target.value)}
+                  onFocus={() => suggestions.length > 0 && setShowSugg(true)}
+                  placeholder="Nombre del cliente"
+                  autoComplete="off"
+                />
+                {showSugg && suggestions.length > 0 && (
+                  <div style={{
+                    position: "absolute", top: "100%", left: 0, right: 0, zIndex: 100,
+                    background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10,
+                    boxShadow: "0 8px 24px rgba(0,0,0,.12)", marginTop: 4, overflow: "hidden",
+                  }}>
+                    {suggestions.map((c, i) => (
+                      <div key={c.id}
+                        onMouseDown={() => selectClient(c)}
+                        style={{
+                          padding: "10px 14px", cursor: "pointer",
+                          borderBottom: i < suggestions.length - 1 ? "1px solid #f1f5f9" : "none",
+                          background: "#fff", transition: "background 0.1s",
+                          display: "flex", justifyContent: "space-between", alignItems: "center",
+                        }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "#f0f9ff")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+                      >
+                        <div>
+                          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{c.name}</p>
+                          {(c.email || c.phone) && (
+                            <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+                              {[c.email, c.phone].filter(Boolean).join(" · ")}
+                            </p>
+                          )}
+                        </div>
+                        <span style={{ fontSize: 10, color: "#94a3b8", marginLeft: 12 }}>
+                          {c.invoiceCount > 0 ? `${c.invoiceCount} fact.` : "nuevo"}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label style={lbl}>Email</label>

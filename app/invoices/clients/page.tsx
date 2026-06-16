@@ -243,10 +243,15 @@ export default function ClientsPage() {
                 <p style={{ ...lbl, marginBottom: 8 }}>Historial ({selected.history.length})</p>
                 <div style={{ display: "flex", flexDirection: "column", gap: 6, maxHeight: 300, overflowY: "auto" }}>
                   {[...selected.history].reverse().map((h, i) => (
-                    <div key={i} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0" }}>
+                    <div key={i}
+                      onClick={() => router.push(`/invoices?q=${encodeURIComponent(h.number)}`)}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", transition: "background 0.1s" }}
+                      onMouseEnter={e => (e.currentTarget.style.background = "#e0f2fe")}
+                      onMouseLeave={e => (e.currentTarget.style.background = "#f8fafc")}
+                    >
                       <span style={{ fontSize: 14 }}>{h.type === "invoice" ? "📄" : "📋"}</span>
                       <div style={{ flex: 1 }}>
-                        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0f172a" }}>{h.number}</p>
+                        <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0891b2" }}>{h.number}</p>
                         <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{h.date}</p>
                       </div>
                       <div style={{ textAlign: "right" }}>

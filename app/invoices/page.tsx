@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
@@ -17,10 +17,11 @@ function token() { return localStorage.getItem("mactor_token") || ""; }
 
 export default function InvoicesPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [tab,      setTab]      = useState<Tab>("all");
   const [typeFilter, setTypeFilter] = useState<"all"|"invoice"|"estimate">("all");
-  const [search,   setSearch]   = useState("");
+  const [search,   setSearch]   = useState(searchParams.get("q") || "");
   const [loading,  setLoading]  = useState(true);
   const [perPage,  setPerPage]  = useState(50);
 

@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3002";
 
 export default function InvoiceLogin() {
   const router = useRouter();
@@ -14,7 +14,8 @@ export default function InvoiceLogin() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
-    setLoading(true); setError("");
+    setLoading(true);
+    setError("");
     try {
       const r = await fetch(`${API}/api/auth/login`, {
         method: "POST",
@@ -22,7 +23,10 @@ export default function InvoiceLogin() {
         body: JSON.stringify({ username, password }),
       });
       const data = await r.json();
-      if (!r.ok) { setError("Usuario o contraseña incorrectos"); return; }
+      if (!r.ok) {
+        setError("Usuario o contraseña incorrectos");
+        return;
+      }
       localStorage.setItem("mactor_token", data.token);
       router.push("/invoices");
     } catch {
@@ -32,11 +36,20 @@ export default function InvoiceLogin() {
     }
   }
 
+  const fieldStyle: React.CSSProperties = {
+    width: "100%", padding: "12px 14px", borderRadius: 10,
+    background: "#1f2937", border: "1px solid #374151", color: "#fff",
+    fontSize: 15, outline: "none", boxSizing: "border-box",
+  };
+  const labelStyle: React.CSSProperties = {
+    display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600,
+    marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em",
+  };
+
   return (
     <div style={{ minHeight: "100dvh", background: "#0a0f1e", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div style={{ borderRadius: 16, width: "100%", maxWidth: 400, boxShadow: "0 20px 60px rgba(0,0,0,.5)", overflow: "hidden" }}>
 
-        {/* Logo — white background, centered */}
         <div style={{ background: "#fff", padding: "32px 40px 24px", textAlign: "center" }}>
           <Image
             src="/mactor-logo-claro.png"
@@ -50,31 +63,26 @@ export default function InvoiceLogin() {
           </p>
         </div>
 
-        {/* Form — dark background */}
         <div style={{ background: "#111827", padding: "28px 36px 36px" }}>
           <form onSubmit={handleLogin}>
             <div style={{ marginBottom: 16 }}>
-              <label style={{ display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>
-                Usuario
-              </label>
+              <label style={labelStyle}>Usuario</label>
               <input
                 type="text"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#1f2937", border: "1px solid #374151", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
+                style={fieldStyle}
                 placeholder="julio"
                 autoComplete="username"
               />
             </div>
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: "block", color: "#9ca3af", fontSize: 12, fontWeight: 600, marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em" }}>
-                Contraseña
-              </label>
+              <label style={labelStyle}>Contraseña</label>
               <input
                 type="password"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
-                style={{ width: "100%", padding: "12px 14px", borderRadius: 10, background: "#1f2937", border: "1px solid #374151", color: "#fff", fontSize: 15, outline: "none", boxSizing: "border-box" }}
+                style={fieldStyle}
                 autoComplete="current-password"
               />
             </div>
