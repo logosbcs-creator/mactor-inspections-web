@@ -3,15 +3,91 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
+const INVOICE_PROMPT = `You are extracting invoice data from PDF files for MacTor Construction.
+
+For EACH invoice PDF, output a JSON object with this EXACT structure:
+{
+  "invoiceNumber": "INV0001",
+  "type": "invoice",
+  "invoiceDate": "YYYY-MM-DD",
+  "status": "paid",
+  "clientName": "Full Name",
+  "clientEmail": "email or null",
+  "clientPhone": "phone or null",
+  "clientAddress": "full address",
+  "lineItems": [
+    { "description": "Work description", "notes": "detail or null", "rate": 1000.00, "qty": 1, "amount": 1000.00 }
+  ],
+  "subtotal": 1000.00,
+  "hst": 130.00,
+  "total": 1130.00,
+  "notes": "any notes at the bottom or null"
+}
+
+Rules:
+- status must be: "paid", "sent", "draft", or "overdue"
+- If the invoice shows payment received → status = "paid"
+- invoiceDate format: YYYY-MM-DD
+- All amounts as numbers (no $ signs)
+- Return a JSON array [...] wrapping ALL invoices`;
+
+const ESTIMATE_PROMPT = `You are extracting estimate data from PDF files for MacTor Construction.
+
+For EACH estimate PDF, output a JSON object with this EXACT structure:
+{
+  "invoiceNumber": "EST0377",
+  "type": "estimate",
+  "invoiceDate": "YYYY-MM-DD",
+  "status": "sent",
+  "clientName": "Full Name",
+  "clientEmail": "email or null",
+  "clientPhone": "phone or null",
+  "clientAddress": "full address",
+  "lineItems": [
+    {
+      "description": "Option 1 – Clean & Preserve",
+      "notes": "Brief summary of this option",
+      "rate": 2950.00,
+      "qty": 1,
+      "amount": 2950.00,
+      "subItems": [
+        { "name": "Masonry Cleaning & Sealing", "price": 650, "unit": "lump sum", "description": "Full scope description from PDF" },
+        { "name": "Drainage Gravel System", "price": 750, "unit": "70 lf", "description": "Full scope description from PDF" },
+        { "name": "Landscape Restoration", "price": 1150, "unit": "lump sum", "description": "Full scope description from PDF" },
+        { "name": "Cleanup & Disposal", "price": 400, "unit": "lump sum", "description": "Full scope description" }
+      ]
+    }
+  ],
+  "subtotal": 2950.00,
+  "hst": 383.50,
+  "total": 3333.50,
+  "notes": "any notes or null"
+}
+
+CRITICAL RULES:
+- Each OPTION in the estimate = one lineItem (rate = option total, qty = 1)
+- subItems MUST be extracted from the "- Service Name: $price" breakdown within each option
+- If the PDF shows $0.00 totals, calculate from the actual option prices shown
+- unit examples: "lump sum", "70 lf", "sqft", "per unit"
+- Return a JSON array [...] wrapping ALL estimates`;
+
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
 
 export default function ImportPage() {
   const router  = useRouter();
+  const [mode,   setMode]   = useState<"invoice"|"estimate">("invoice");
   const [json,  setJson]   = useState("");
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error,  setError]  = useState("");
+  const [copied, setCopied] = useState(false);
+
+  function copyPrompt() {
+    navigator.clipboard.writeText(mode === "invoice" ? INVOICE_PROMPT : ESTIMATE_PROMPT);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
 
   async function handleImport() {
     setError(""); setResult(null);
@@ -55,15 +131,39 @@ export default function ImportPage() {
 
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "24px 20px" }}>
 
-        {/* Instructions */}
+        {/* Mode toggle */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+          {(["invoice","estimate"] as const).map(m => (
+            <button key={m} onClick={() => { setMode(m); setResult(null); setError(""); setJson(""); }}
+              style={{ flex: 1, padding: "11px", borderRadius: 10,
+                border: `2px solid ${mode===m?"#e63946":"#374151"}`,
+                background: mode===m?"#e63946":"transparent",
+                color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
+              {m === "invoice" ? "📄 Importar Facturas" : "📋 Importar Estimados"}
+            </button>
+          ))}
+        </div>
+
+        {/* Prompt section */}
         <div style={{ background: "#1e3a5f", borderRadius: 12, padding: "16px 20px", marginBottom: 20, border: "1px solid #2563eb33" }}>
-          <p style={{ margin: "0 0 8px", fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>📋 Cómo usar</p>
-          <ol style={{ margin: 0, paddingLeft: 18, fontSize: 12, color: "#93c5fd", lineHeight: 1.8 }}>
-            <li>Dale los PDFs a ChatGPT con el prompt que te di</li>
-            <li>ChatGPT devuelve un JSON — cópialo todo</li>
-            <li>Pégalo aquí abajo</li>
-            <li>Clic en "Importar" — listo</li>
-          </ol>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>
+              📋 Prompt para ChatGPT — {mode === "invoice" ? "Facturas" : "Estimados"}
+            </p>
+            <button onClick={copyPrompt}
+              style={{ background: copied?"#16a34a":"#2563eb", color:"#fff", border:"none", borderRadius:8, padding:"5px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+              {copied ? "✓ Copiado" : "Copiar prompt"}
+            </button>
+          </div>
+          <pre style={{ margin: 0, fontSize: 11, color: "#93c5fd", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto",
+            background: "#0f2040", borderRadius: 8, padding: "10px 12px" }}>
+            {(mode === "invoice" ? INVOICE_PROMPT : ESTIMATE_PROMPT).trim()}
+          </pre>
+          {mode === "estimate" && (
+            <p style={{ margin: "10px 0 0", fontSize: 11, color: "#fbbf24" }}>
+              ⭐ Los estimados con <strong>subItems</strong> alimentan automáticamente el catálogo de precios
+            </p>
+          )}
         </div>
 
         {/* JSON input */}
@@ -122,10 +222,18 @@ export default function ImportPage() {
               </div>
             )}
             {result.created > 0 && (
-              <button onClick={() => router.push("/invoices")}
-                style={{ marginTop: 16, background: "#16a34a", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-                Ver facturas importadas →
-              </button>
+              <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <button onClick={() => router.push("/invoices")}
+                  style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                  Ver {mode === "estimate" ? "estimados" : "facturas"} importados →
+                </button>
+                {mode === "estimate" && (
+                  <button onClick={() => router.push("/invoices/catalog")}
+                    style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                    Ver catálogo de precios →
+                  </button>
+                )}
+              </div>
             )}
           </div>
         )}

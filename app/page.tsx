@@ -209,8 +209,8 @@ export default function LandingPage() {
 
       {/* ── Service type selector — MAIN CHOICE ── */}
       <div style={{ marginBottom: "20px" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px" }}>
-          {m.whatDoYouNeed.toUpperCase()}
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "13px", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 700 }}>
+          ▸ {m.whatDoYouNeed.toUpperCase()}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
           {([
@@ -252,8 +252,8 @@ export default function LandingPage() {
 
       {/* ── Property type — secondary choice ── */}
       <div style={{ marginBottom: "24px" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", letterSpacing: "2px", marginBottom: "12px" }}>
-          {m.propertyLabel.toUpperCase()}
+        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "13px", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 700 }}>
+          ▸ {m.propertyLabel.toUpperCase()}
         </p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
           {([

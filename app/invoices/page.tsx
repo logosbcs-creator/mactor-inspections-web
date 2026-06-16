@@ -93,6 +93,10 @@ export default function InvoicesPage() {
           </button>
         ))}
         <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
+          <button onClick={() => router.push("/invoices/catalog")}
+            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#7c3aed" }}>
+            🗂️ Catálogo
+          </button>
           <button onClick={() => router.push("/invoices/import")}
             style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#374151" }}>
             📥 Importar
