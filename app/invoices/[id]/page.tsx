@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 
@@ -21,13 +21,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [inv,     setInv]     = useState<any>(null);
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
   const [sending, setSending] = useState(false);
-  const [saving,  setSaving]  = useState(false);
-  const [msg,     setMsg]     = useState("");
+  const [saving,    setSaving]    = useState(false);
+  const [msg,       setMsg]       = useState("");
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
 
   // Edit form state
   const [editClient,  setEditClient]  = useState({ name:"", email:"", phone:"", address:"" });
   const [editItems,   setEditItems]   = useState<LineItem[]>([]);
   const [editNotes,   setEditNotes]   = useState("");
+  const [editPhotos,  setEditPhotos]  = useState<string[]>([]);
   const [editDate,    setEditDate]    = useState("");
   const [editDue,     setEditDue]     = useState("");
   const [editStatus,  setEditStatus]  = useState("");
@@ -46,6 +49,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditClient({ name: d.clientName||"", email: d.clientEmail||"", phone: d.clientPhone||"", address: d.clientAddress||"" });
     setEditItems(d.lineItems || []);
     setEditNotes(d.notes || "");
+    setEditPhotos(d.photos || []);
     setEditDate(d.invoiceDate ? d.invoiceDate.split("T")[0] : "");
     setEditDue(d.dueDate || "On Receipt");
     setEditStatus(d.status || "draft");
@@ -89,6 +93,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         clientAddress: editClient.address,
         lineItems:     editItems,
         notes:         editNotes,
+        photos:        editPhotos,
         invoiceDate:   editDate,
         dueDate:       editDue,
         status:        editStatus,
@@ -104,6 +109,26 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     }
     setSaving(false);
     setTimeout(() => setMsg(""), 3000);
+  }
+
+  // ── Photo upload ─────────────────────────────────────────────
+  async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setUploading(true);
+    try {
+      const urls = await Promise.all(files.map(async file => {
+        const fd = new FormData();
+        fd.append("photo", file);
+        const r = await fetch(`${API}/api/invoices/upload-photo`, {
+          method: "POST", headers: { Authorization: `Bearer ${token()}` }, body: fd,
+        });
+        const d = await r.json();
+        return d.url as string;
+      }));
+      setEditPhotos(prev => [...prev, ...urls.filter(Boolean)]);
+    } catch { setMsg("❌ Error subiendo fotos"); }
+    finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
   }
 
   // ── Actions ───────────────────────────────────────────────────
@@ -443,6 +468,41 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={3}
                 placeholder="Additional notes for the client..."
                 style={{ ...inputSt, width:"100%", resize:"vertical", margin:0, boxSizing:"border-box" }} />
+            </div>
+
+            {/* Photos */}
+            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
+              <input ref={fileRef} type="file" accept="image/*" multiple style={{ display:"none" }} onChange={handlePhotoUpload} />
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
+                <span style={{ ...labelSt, margin:0 }}>Photos — PDF attachment ({editPhotos.length})</span>
+                <button onClick={() => fileRef.current?.click()} disabled={uploading}
+                  style={{ background: uploading?"#f1f5f9":"#fef2f2", color: uploading?"#94a3b8":"#e63946",
+                    border:"none", borderRadius:8, padding:"6px 14px", fontSize:12, fontWeight:700, cursor: uploading?"not-allowed":"pointer" }}>
+                  {uploading ? "Uploading..." : "📷 Add photos"}
+                </button>
+              </div>
+              {editPhotos.length > 0 ? (
+                <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
+                  {editPhotos.map((url, i) => (
+                    <div key={i} style={{ position:"relative", borderRadius:8, overflow:"hidden", aspectRatio:"4/3", background:"#f1f5f9" }}>
+                      <Image src={url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
+                      <button onClick={() => setEditPhotos(p => p.filter((_, j) => j !== i))}
+                        style={{ position:"absolute", top:4, right:4, background:"rgba(0,0,0,.65)", border:"none",
+                          color:"#fff", borderRadius:"50%", width:22, height:22, cursor:"pointer", fontSize:14, lineHeight:"22px", textAlign:"center" }}>
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div onClick={() => fileRef.current?.click()}
+                  style={{ border:"2px dashed #e2e8f0", borderRadius:10, padding:"28px", textAlign:"center", cursor:"pointer", background:"#fafafa" }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor="#e63946")}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor="#e2e8f0")}>
+                  <p style={{ margin:0, fontSize:26 }}>📷</p>
+                  <p style={{ margin:"6px 0 0", fontSize:13, color:"#94a3b8" }}>Click to add photos — they appear at the end of the PDF</p>
+                </div>
+              )}
             </div>
 
             {/* Save */}
