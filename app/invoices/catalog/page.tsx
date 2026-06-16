@@ -37,10 +37,15 @@ export default function CatalogPage() {
   const [editSvcForm, setEditSvcForm] = useState({ name: "", category: "General", unit: "lump sum", lastPrice: "", description: "" });
   const [savingSvc,  setSavingSvc]  = useState(false);
   const [deletingSvc, setDeletingSvc] = useState(false);
+  const [mob, setMob] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
     load();
+    const check = () => setMob(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   async function load() {
@@ -132,25 +137,28 @@ export default function CatalogPage() {
   });
 
   const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em" };
+  const tableCols = mob ? "1fr 80px 64px" : "1fr 100px 80px 80px 80px 60px 80px";
 
   return (
     <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
 
       {/* Nav */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 24px", display: "flex", alignItems: "center", gap: 16 }}>
-        <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: "16px 0" }}>←</button>
-        <Image src="/mactor-logo.png" alt="MacTor" width={100} height={48} style={{ objectFit: "contain" }} />
-        <div style={{ flex: 1 }}>
-          <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Catálogo de Servicios</h1>
-          <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{items.length} servicios · aprende de estimados históricos</p>
+      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, flexWrap: "nowrap", overflow: "hidden" }}>
+        <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
+        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={100} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h1 style={{ margin: 0, fontSize: mob ? 13 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Servicios</h1>
+          {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{items.length} servicios</p>}
         </div>
-        <button onClick={runBackfill} disabled={backfilling}
-          style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: backfilling ? "#f1f5f9" : "#fff", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: "#7c3aed", opacity: backfilling ? 0.6 : 1 }}>
-          {backfilling ? "Procesando..." : "🔄 Rellenar catálogo"}
-        </button>
+        {!mob && (
+          <button onClick={runBackfill} disabled={backfilling}
+            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: backfilling ? "#f1f5f9" : "#fff", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: "#7c3aed", opacity: backfilling ? 0.6 : 1, whiteSpace: "nowrap", flexShrink: 0 }}>
+            {backfilling ? "Procesando..." : "🔄 Rellenar"}
+          </button>
+        )}
         <button onClick={() => setShowNew(true)}
-          style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-          + Nuevo servicio
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          + {mob ? "Nuevo" : "Nuevo servicio"}
         </button>
       </div>
 
@@ -158,7 +166,7 @@ export default function CatalogPage() {
       {showNew && (
         <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
           onClick={e => e.target === e.currentTarget && setShowNew(false)}>
-          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)" }}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)", maxHeight: "90dvh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Nuevo Servicio</h2>
               <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
@@ -214,49 +222,70 @@ export default function CatalogPage() {
         </div>
       )}
 
-      <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px" }}>
+      <div style={{ maxWidth: 1100, margin: "0 auto", padding: mob ? "12px 10px" : "24px" }}>
 
         {/* Stats row */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12, marginBottom: 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4, 1fr)", gap: mob ? 8 : 12, marginBottom: mob ? 14 : 24 }}>
           {[
             { label: "Servicios",    value: items.length,                    color: "#0f172a" },
             { label: "Categorías",   value: cats.length,                     color: "#7c3aed" },
-            { label: "Más usado",    value: items[0]?.name?.split(" ").slice(0,2).join(" ") || "—", color: "#e63946", isText: true },
+            { label: mob ? "Top" : "Más usado", value: items[0]?.name?.split(" ").slice(0,2).join(" ") || "—", color: "#e63946", isText: true },
             { label: "Precio prom.", value: items.length ? `$${(items.reduce((s,i)=>s+i.avgPrice,0)/items.length).toFixed(0)}` : "—", color: "#16a34a", isText: true },
           ].map(s => (
-            <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: "16px 20px", border: "1px solid #e2e8f0" }}>
-              <p style={{ ...lbl, margin: "0 0 6px" }}>{s.label}</p>
-              <p style={{ margin: 0, fontSize: s.isText ? 14 : 22, fontWeight: 800, color: s.color }}>{s.value}</p>
+            <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: "1px solid #e2e8f0" }}>
+              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 10 : 11 }}>{s.label}</p>
+              <p style={{ margin: 0, fontSize: s.isText ? (mob ? 12 : 14) : (mob ? 18 : 22), fontWeight: 800, color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "220px 1fr", gap: 16 }}>
-
-          {/* Sidebar — categories */}
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "16px", height: "fit-content" }}>
-            <p style={{ ...lbl, marginBottom: 12 }}>Categorías</p>
+        {/* Category pills on mobile — full-width horizontal scroll */}
+        {mob && (
+          <div style={{ display: "flex", gap: 6, overflowX: "auto", WebkitOverflowScrolling: "touch" as never, marginBottom: 12, paddingBottom: 2 }}>
             {[{ category: "all", count: items.length }, ...cats].map(c => (
               <button key={c.category} onClick={() => setCatFilter(c.category)}
-                style={{ width: "100%", textAlign: "left", padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer", marginBottom: 2,
-                  background: catFilter === c.category ? "#fef2f2" : "transparent",
-                  color: catFilter === c.category ? "#e63946" : "#374151", fontSize: 13, fontWeight: catFilter === c.category ? 700 : 400,
-                  display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  {c.category !== "all" && (
-                    <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[c.category] || "#64748b", display: "inline-block" }} />
-                  )}
-                  {c.category === "all" ? "Todos" : c.category}
-                </span>
-                <span style={{ fontSize: 11, background: "#f1f5f9", borderRadius: 10, padding: "1px 7px", color: "#64748b" }}>{c.count}</span>
+                style={{ padding: "5px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: catFilter === c.category ? "#fef2f2" : "#fff",
+                  color: catFilter === c.category ? "#e63946" : "#374151", fontSize: 12, fontWeight: catFilter === c.category ? 700 : 500,
+                  whiteSpace: "nowrap", cursor: "pointer", flexShrink: 0,
+                  display: "flex", alignItems: "center", gap: 5 }}>
+                {c.category !== "all" && (
+                  <span style={{ width: 7, height: 7, borderRadius: "50%", background: CATEGORY_COLORS[c.category] || "#64748b", display: "inline-block", flexShrink: 0 }} />
+                )}
+                {c.category === "all" ? "Todos" : c.category}
+                <span style={{ fontSize: 10, color: "#94a3b8" }}>{c.count}</span>
               </button>
             ))}
           </div>
+        )}
+
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "220px 1fr", gap: 16 }}>
+
+          {/* Sidebar — categories (desktop only) */}
+          {!mob && (
+            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", padding: "16px", height: "fit-content" }}>
+              <p style={{ ...lbl, marginBottom: 12 }}>Categorías</p>
+              {[{ category: "all", count: items.length }, ...cats].map(c => (
+                <button key={c.category} onClick={() => setCatFilter(c.category)}
+                  style={{ width: "100%", textAlign: "left", padding: "8px 10px", borderRadius: 8, border: "none", cursor: "pointer", marginBottom: 2,
+                    background: catFilter === c.category ? "#fef2f2" : "transparent",
+                    color: catFilter === c.category ? "#e63946" : "#374151", fontSize: 13, fontWeight: catFilter === c.category ? 700 : 400,
+                    display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    {c.category !== "all" && (
+                      <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[c.category] || "#64748b", display: "inline-block" }} />
+                    )}
+                    {c.category === "all" ? "Todos" : c.category}
+                  </span>
+                  <span style={{ fontSize: 11, background: "#f1f5f9", borderRadius: 10, padding: "1px 7px", color: "#64748b" }}>{c.count}</span>
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Main content */}
           <div>
             {/* Search */}
-            <div style={{ marginBottom: 16 }}>
+            <div style={{ marginBottom: 12 }}>
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Buscar servicio..."
                 style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: "1px solid #e2e8f0", fontSize: 14, outline: "none", boxSizing: "border-box", background: "#fff" }} />
@@ -274,130 +303,136 @@ export default function CatalogPage() {
             ) : (
               <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
                 {/* Table header */}
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 100px 80px 80px 80px 60px 80px", padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
-                  {["Servicio", "Última vez", "Mín", "Máx", "Promedio", "Usos", ""].map((h, i) => (
-                    <span key={i} style={{ ...lbl, textAlign: i > 0 ? "right" : "left" }}>{h}</span>
-                  ))}
+                <div style={{ display: "grid", gridTemplateColumns: tableCols, padding: mob ? "8px 12px" : "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+                  <span style={{ ...lbl }}>Servicio</span>
+                  <span style={{ ...lbl, textAlign: "right" }}>Precio</span>
+                  {!mob && <span style={{ ...lbl, textAlign: "right" }}>Mín</span>}
+                  {!mob && <span style={{ ...lbl, textAlign: "right" }}>Máx</span>}
+                  {!mob && <span style={{ ...lbl, textAlign: "right" }}>Promedio</span>}
+                  {!mob && <span style={{ ...lbl, textAlign: "right" }}>Usos</span>}
+                  <span style={{ ...lbl, textAlign: "right" }}></span>
                 </div>
                 {filtered.map((item, i) => (
-                  <div key={item.id}
-                    style={{ display: "grid", gridTemplateColumns: "1fr 100px 80px 80px 80px 60px 80px", padding: "12px 20px",
-                      borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                      background: selected?.id === item.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
-                      transition: "background 0.1s", alignItems: "center" }}
-                    onMouseEnter={e => { if (selected?.id !== item.id) e.currentTarget.style.background = "#f0f9ff"; }}
-                    onMouseLeave={e => { if (selected?.id !== item.id) e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"; }}>
-                    <div style={{ cursor: "pointer" }} onClick={() => setSelected(selected?.id === item.id ? null : item)}>
-                      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                        <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[item.category || ""] || "#64748b", flexShrink: 0 }} />
-                        <span style={{ fontSize: 13, fontWeight: 600, color: "#0f172a" }}>{item.name}</span>
+                  <div key={item.id}>
+                    <div
+                      style={{ display: "grid", gridTemplateColumns: tableCols, padding: mob ? "10px 12px" : "12px 20px",
+                        borderBottom: "1px solid #f1f5f9",
+                        background: selected?.id === item.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
+                        transition: "background 0.1s", alignItems: "center" }}
+                      onMouseEnter={e => { if (selected?.id !== item.id) e.currentTarget.style.background = "#f0f9ff"; }}
+                      onMouseLeave={e => { if (selected?.id !== item.id) e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"; }}>
+                      <div style={{ cursor: "pointer", minWidth: 0 }} onClick={() => setSelected(selected?.id === item.id ? null : item)}>
+                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                          <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[item.category || ""] || "#64748b", flexShrink: 0 }} />
+                          <span style={{ fontSize: mob ? 12 : 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
+                        </div>
+                        {!mob && item.category && <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 16 }}>{item.category} {item.unit ? `· ${item.unit}` : ""}</span>}
                       </div>
-                      {item.category && <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 16 }}>{item.category} {item.unit ? `· ${item.unit}` : ""}</span>}
-                    </div>
-                    <span style={{ fontSize: 13, fontWeight: 600, textAlign: "right", color: "#0f172a" }}>${item.lastPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                    <span style={{ fontSize: 12, textAlign: "right", color: "#16a34a" }}>${item.minPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                    <span style={{ fontSize: 12, textAlign: "right", color: "#dc2626" }}>${item.maxPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                    <span style={{ fontSize: 12, textAlign: "right", color: "#7c3aed", fontWeight: 600 }}>${item.avgPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                    <span style={{ fontSize: 12, textAlign: "right", color: "#64748b" }}>{item.useCount}×</span>
-                    <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
-                      <button
-                        onClick={e => { e.stopPropagation(); setSelected(item); openEdit(item); }}
-                        title="Editar"
-                        style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 12, color: "#0891b2", fontWeight: 600 }}>
-                        ✏️
-                      </button>
-                      <button
-                        onClick={e => { e.stopPropagation(); deleteService(item); }}
-                        title="Eliminar"
-                        style={{ background: "#fff0f0", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 8px", cursor: "pointer", fontSize: 12, color: "#dc2626", fontWeight: 600 }}>
-                        🗑️
-                      </button>
-                    </div>
-                  </div>
-                ))}
-
-                {/* Price history / edit panel */}
-                {selected && (
-                  <div style={{ borderTop: "2px solid #e63946", background: "#fff9f9", padding: "20px 24px" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                      <div>
-                        <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0f172a" }}>{selected.name}</p>
-                        {selected.description && !editingSvc && <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>{selected.description}</p>}
-                      </div>
-                      <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
-                        <button onClick={() => editingSvc ? setEditingSvc(false) : openEdit(selected)}
+                      <span style={{ fontSize: mob ? 12 : 13, fontWeight: 700, textAlign: "right", color: "#0f172a" }}>${item.lastPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
+                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#16a34a" }}>${item.minPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
+                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#dc2626" }}>${item.maxPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
+                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#7c3aed", fontWeight: 600 }}>${item.avgPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
+                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#64748b" }}>{item.useCount}×</span>}
+                      <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
+                        <button
+                          onClick={e => { e.stopPropagation(); setSelected(item); openEdit(item); }}
                           title="Editar"
-                          style={{ background: editingSvc ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
+                          style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: "#0891b2" }}>
                           ✏️
                         </button>
-                        <button onClick={() => deleteService()} disabled={deletingSvc}
+                        <button
+                          onClick={e => { e.stopPropagation(); deleteService(item); }}
                           title="Eliminar"
-                          style={{ background: "none", border: "1px solid #fee2e2", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#dc2626" }}>
+                          style={{ background: "#fff0f0", border: "1px solid #fecaca", borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: "#dc2626" }}>
                           🗑️
                         </button>
-                        <button onClick={() => { setSelected(null); setEditingSvc(false); }}
-                          style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8", marginLeft: 2 }}>×</button>
                       </div>
                     </div>
 
-                    {editingSvc ? (
-                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                        {[
-                          { label: "Nombre",      key: "name",        type: "text",   placeholder: "Nombre del servicio" },
-                          { label: "Precio ($)",  key: "lastPrice",   type: "number", placeholder: "0.00" },
-                          { label: "Descripción", key: "description", type: "text",   placeholder: "Descripción opcional" },
-                        ].map(f => (
-                          <div key={f.key} style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                            <span style={{ ...lbl, minWidth: 80, margin: 0 }}>{f.label}</span>
-                            <input type={f.type}
-                              style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
-                              value={(editSvcForm as Record<string,string>)[f.key]}
-                              onChange={e => setEditSvcForm(p => ({ ...p, [f.key]: e.target.value }))}
-                              placeholder={f.placeholder} />
+                    {/* Price history / edit panel — inline on mobile */}
+                    {selected?.id === item.id && (
+                      <div style={{ borderTop: "2px solid #e63946", background: "#fff9f9", padding: mob ? "14px 12px" : "20px 24px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 14, gap: 8 }}>
+                          <div style={{ minWidth: 0, flex: 1 }}>
+                            <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "#0f172a", wordBreak: "break-word" }}>{selected.name}</p>
+                            {selected.description && !editingSvc && <p style={{ margin: "4px 0 0", fontSize: 12, color: "#64748b" }}>{selected.description}</p>}
                           </div>
-                        ))}
-                        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                          <span style={{ ...lbl, minWidth: 80, margin: 0 }}>Categoría</span>
-                          <select style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
-                            value={editSvcForm.category} onChange={e => setEditSvcForm(p => ({ ...p, category: e.target.value }))}>
-                            {["General","Masonry","Drainage","Landscaping","Cleanup","Foundation","Coating","Fencing","Roofing","Windows & Doors","Concrete","Flooring","Drywall","Spray & Coating","Eaves & Gutters","Insulation","Decking"].map(c => <option key={c}>{c}</option>)}
-                          </select>
+                          <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
+                            <button onClick={() => editingSvc ? setEditingSvc(false) : openEdit(selected)}
+                              title="Editar"
+                              style={{ background: editingSvc ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
+                              ✏️
+                            </button>
+                            <button onClick={() => deleteService()} disabled={deletingSvc}
+                              title="Eliminar"
+                              style={{ background: "none", border: "1px solid #fee2e2", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#dc2626" }}>
+                              🗑️
+                            </button>
+                            <button onClick={() => { setSelected(null); setEditingSvc(false); }}
+                              style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8", marginLeft: 2 }}>×</button>
+                          </div>
                         </div>
-                        <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                          <span style={{ ...lbl, minWidth: 80, margin: 0 }}>Unidad</span>
-                          <select style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
-                            value={editSvcForm.unit} onChange={e => setEditSvcForm(p => ({ ...p, unit: e.target.value }))}>
-                            {["lump sum","sqft","lf","hr","unit","bag","load","each"].map(u => <option key={u}>{u}</option>)}
-                          </select>
-                        </div>
-                        <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
-                          <button onClick={saveService} disabled={savingSvc}
-                            style={{ flex: 1, padding: "9px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
-                            {savingSvc ? "Guardando..." : "Guardar cambios"}
-                          </button>
-                          <button onClick={() => setEditingSvc(false)}
-                            style={{ padding: "9px 14px", background: "#f1f5f9", border: "none", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
-                            Cancelar
-                          </button>
-                        </div>
-                      </div>
-                    ) : (
-                      <>
-                        <p style={{ ...lbl, marginBottom: 8 }}>Historial de precios</p>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                          {[...selected.priceHistory].reverse().map((h, i) => (
-                            <div key={i} style={{ display: "flex", alignItems: "center", gap: 16, padding: "8px 12px", background: "#fff", borderRadius: 8, border: "1px solid #fee2e2" }}>
-                              <span style={{ fontSize: 12, color: "#94a3b8", minWidth: 90 }}>{h.date}</span>
-                              <span style={{ fontSize: 14, fontWeight: 700, color: "#e63946", minWidth: 80 }}>${Number(h.price).toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                              <span style={{ fontSize: 12, color: "#374151" }}>{h.estimateNumber}</span>
-                              <span style={{ fontSize: 12, color: "#64748b" }}>— {h.clientName}</span>
+
+                        {editingSvc ? (
+                          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                            {[
+                              { label: "Nombre",      key: "name",        type: "text",   placeholder: "Nombre del servicio" },
+                              { label: "Precio ($)",  key: "lastPrice",   type: "number", placeholder: "0.00" },
+                              { label: "Descripción", key: "description", type: "text",   placeholder: "Descripción opcional" },
+                            ].map(f => (
+                              <div key={f.key} style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                                <span style={{ ...lbl, minWidth: 72, margin: 0 }}>{f.label}</span>
+                                <input type={f.type}
+                                  style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a", minWidth: 0 }}
+                                  value={(editSvcForm as Record<string,string>)[f.key]}
+                                  onChange={e => setEditSvcForm(p => ({ ...p, [f.key]: e.target.value }))}
+                                  placeholder={f.placeholder} />
+                              </div>
+                            ))}
+                            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                              <span style={{ ...lbl, minWidth: 72, margin: 0 }}>Categoría</span>
+                              <select style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                                value={editSvcForm.category} onChange={e => setEditSvcForm(p => ({ ...p, category: e.target.value }))}>
+                                {["General","Masonry","Drainage","Landscaping","Cleanup","Foundation","Coating","Fencing","Roofing","Windows & Doors","Concrete","Flooring","Drywall","Spray & Coating","Eaves & Gutters","Insulation","Decking"].map(c => <option key={c}>{c}</option>)}
+                              </select>
                             </div>
-                          ))}
-                        </div>
-                      </>
+                            <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                              <span style={{ ...lbl, minWidth: 72, margin: 0 }}>Unidad</span>
+                              <select style={{ flex: 1, padding: "7px 10px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                                value={editSvcForm.unit} onChange={e => setEditSvcForm(p => ({ ...p, unit: e.target.value }))}>
+                                {["lump sum","sqft","lf","hr","unit","bag","load","each"].map(u => <option key={u}>{u}</option>)}
+                              </select>
+                            </div>
+                            <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                              <button onClick={saveService} disabled={savingSvc}
+                                style={{ flex: 1, padding: "9px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                                {savingSvc ? "Guardando..." : "Guardar cambios"}
+                              </button>
+                              <button onClick={() => setEditingSvc(false)}
+                                style={{ padding: "9px 14px", background: "#f1f5f9", border: "none", borderRadius: 8, fontSize: 13, cursor: "pointer" }}>
+                                Cancelar
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p style={{ ...lbl, marginBottom: 8 }}>Historial de precios</p>
+                            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                              {[...selected.priceHistory].reverse().map((h, idx) => (
+                                <div key={idx} style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#fff", borderRadius: 8, border: "1px solid #fee2e2", flexWrap: "wrap" }}>
+                                  <span style={{ fontSize: 11, color: "#94a3b8" }}>{h.date}</span>
+                                  <span style={{ fontSize: 14, fontWeight: 700, color: "#e63946" }}>${Number(h.price).toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
+                                  <span style={{ fontSize: 12, color: "#374151" }}>{h.estimateNumber}</span>
+                                  <span style={{ fontSize: 12, color: "#64748b" }}>— {h.clientName}</span>
+                                </div>
+                              ))}
+                            </div>
+                          </>
+                        )}
+                      </div>
                     )}
                   </div>
-                )}
+                ))}
               </div>
             )}
           </div>

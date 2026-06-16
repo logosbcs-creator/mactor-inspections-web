@@ -215,12 +215,6 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           <div style={{ display:"flex", gap: mob ? 5 : 8, flexWrap: mob ? "wrap" : "nowrap", width: mob ? "100%" : "auto" }}>
             {isEst && (
               <button onClick={convertToInvoice} disabled={converting}
-                style={{ padding:"8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize:13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1 }}>
-                {converting ? "Creando..." : "🧾 Convertir a Invoice"}
-              </button>
-            )}
-            {isEst && (
-              <button onClick={convertToInvoice} disabled={converting}
                 style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize: mob ? 12 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
                 {converting ? "Creando..." : "🧾 " + (mob ? "Invoice" : "Convertir a Invoice")}
               </button>
@@ -510,7 +504,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </div>
 
               {/* Header */}
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
+              <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 70px 50px 70px 28px" : "1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
                 {["Description","Rate","Qty","Amount",""].map(h => (
                   <span key={h} style={{ fontSize:10, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".04em" }}>{h}</span>
                 ))}
@@ -518,7 +512,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
               {editItems.map((item, i) => (
                 <div key={i} style={{ border:"1px solid #f1f5f9", borderRadius:8, padding:"12px", marginBottom:10, background:"#fafafa" }}>
-                  <div style={{ display:"grid", gridTemplateColumns:"1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
+                  <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 70px 50px 70px 28px" : "1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
                     <input value={item.description} onChange={e => updateItem(i,"description",e.target.value)}
                       placeholder="Description" style={{ ...inputSt, margin:0 }} />
                     <input type="number" value={item.rate} onChange={e => updateItem(i,"rate",parseFloat(e.target.value)||0)}
