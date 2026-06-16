@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -35,9 +36,8 @@ export default function InvoiceLogin() {
     <div style={{ minHeight: "100dvh", background: "var(--navy,#0a0f1e)", display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}>
       <div style={{ background: "#111827", borderRadius: 16, padding: "40px 36px", width: "100%", maxWidth: 380, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
         <div style={{ textAlign: "center", marginBottom: 32 }}>
-          <div style={{ fontSize: 32, marginBottom: 8 }}>🏗️</div>
-          <h1 style={{ color: "#fff", fontSize: 22, fontWeight: 700, margin: 0 }}>MACTOR</h1>
-          <p style={{ color: "#9ca3af", fontSize: 13, margin: "4px 0 0" }}>Sistema de Facturación</p>
+          <Image src="/mactor-logo.png" alt="MacTor Construction" width={180} height={100} style={{ objectFit: "contain", marginBottom: 12 }} />
+          <p style={{ color: "#9ca3af", fontSize: 13, margin: 0 }}>Sistema de Facturación</p>
         </div>
 
         <form onSubmit={handleLogin}>

@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -76,9 +77,8 @@ export default function InvoicesPage() {
 
       {/* Top nav */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 24px", display: "flex", alignItems: "center", gap: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 0", marginRight: 32 }}>
-          <span style={{ fontSize: 20 }}>🏗️</span>
-          <span style={{ fontWeight: 800, fontSize: 15, color: "#0f172a" }}>MACTOR</span>
+        <div style={{ display: "flex", alignItems: "center", padding: "8px 0", marginRight: 32 }}>
+          <Image src="/mactor-logo.png" alt="MacTor Construction" width={110} height={52} style={{ objectFit: "contain" }} />
         </div>
         {(["Invoices","Estimates"] as const).map(t => (
           <button key={t} onClick={() => setTypeFilter(t === "Invoices" ? "invoice" : "estimate")}

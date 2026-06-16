@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, use } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -148,10 +149,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       {/* ── Top bar ── */}
       <div style={{ background:"#fff", borderBottom:"1px solid #e2e8f0" }}>
 
-        {/* Row 1: back + invoice # + status + action buttons */}
+        {/* Row 1: back + logo + invoice # + status + action buttons */}
         <div style={{ padding:"12px 24px", display:"flex", alignItems:"center", gap:12 }}>
           <button onClick={() => router.push("/invoices")}
             style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1 }}>←</button>
+          <Image src="/mactor-logo.png" alt="MacTor" width={90} height={44} style={{ objectFit:"contain" }} />
 
           <div style={{ display:"flex", alignItems:"center", gap:10, flex:1 }}>
             <span style={{ fontWeight:800, fontSize:17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
