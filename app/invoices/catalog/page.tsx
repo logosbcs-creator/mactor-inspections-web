@@ -30,6 +30,9 @@ export default function CatalogPage() {
   const [selected, setSelected] = useState<ServiceItem | null>(null);
   const [loading,  setLoading]  = useState(true);
   const [backfilling, setBackfilling] = useState(false);
+  const [showNew,  setShowNew]  = useState(false);
+  const [newSvc,   setNewSvc]   = useState({ name: "", price: "", unit: "lump sum", category: "General", description: "" });
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -65,6 +68,26 @@ export default function CatalogPage() {
     }
   }
 
+  async function createService() {
+    if (!newSvc.name.trim() || !newSvc.price) return;
+    setCreating(true);
+    try {
+      const r = await fetch(`${API}/api/catalog`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+        body: JSON.stringify({ ...newSvc, price: Number(newSvc.price) }),
+      });
+      const data = await r.json();
+      if (!r.ok) { alert(data.error || "Error al crear servicio"); return; }
+      setShowNew(false);
+      setNewSvc({ name: "", price: "", unit: "lump sum", category: "General", description: "" });
+      await load();
+      setSelected(data);
+    } finally {
+      setCreating(false);
+    }
+  }
+
   const filtered = items.filter(s => {
     if (catFilter !== "all" && s.category !== catFilter) return false;
     if (search && !s.name.toLowerCase().includes(search.toLowerCase())) return false;
@@ -88,7 +111,71 @@ export default function CatalogPage() {
           style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: backfilling ? "#f1f5f9" : "#fff", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: "#7c3aed", opacity: backfilling ? 0.6 : 1 }}>
           {backfilling ? "Procesando..." : "🔄 Rellenar catálogo"}
         </button>
+        <button onClick={() => setShowNew(true)}
+          style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+          + Nuevo servicio
+        </button>
       </div>
+
+      {/* New service modal */}
+      {showNew && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+          onClick={e => e.target === e.currentTarget && setShowNew(false)}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Nuevo Servicio</h2>
+              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div>
+                <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Nombre *</label>
+                <input style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" as const, color: "#0f172a" }}
+                  value={newSvc.name} onChange={e => setNewSvc(p => ({ ...p, name: e.target.value }))}
+                  placeholder="Ej: Masonry Cleaning & Sealing" />
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+                <div>
+                  <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Precio ($) *</label>
+                  <input type="number" min="0" step="0.01"
+                    style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" as const, color: "#0f172a" }}
+                    value={newSvc.price} onChange={e => setNewSvc(p => ({ ...p, price: e.target.value }))}
+                    placeholder="0.00" />
+                </div>
+                <div>
+                  <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Unidad</label>
+                  <select style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                    value={newSvc.unit} onChange={e => setNewSvc(p => ({ ...p, unit: e.target.value }))}>
+                    {["lump sum","sqft","lf","hr","unit","bag","load","each"].map(u => <option key={u}>{u}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div>
+                <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Categoría</label>
+                <select style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", background: "#fff", color: "#0f172a" }}
+                  value={newSvc.category} onChange={e => setNewSvc(p => ({ ...p, category: e.target.value }))}>
+                  {["General","Masonry","Drainage","Landscaping","Cleanup","Foundation","Coating","Fencing","Roofing","Windows & Doors","Concrete","Flooring","Drywall","Spray & Coating","Eaves & Gutters","Insulation","Decking"].map(c => <option key={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Descripción</label>
+                <textarea style={{ width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box" as const, minHeight: 60, resize: "vertical", color: "#0f172a" }}
+                  value={newSvc.description} onChange={e => setNewSvc(p => ({ ...p, description: e.target.value }))}
+                  placeholder="Descripción opcional del servicio..." />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+              <button onClick={createService} disabled={creating || !newSvc.name.trim() || !newSvc.price}
+                style={{ flex: 1, padding: "11px", background: "#e63946", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: creating ? "not-allowed" : "pointer", opacity: creating ? 0.7 : 1 }}>
+                {creating ? "Guardando..." : "Crear servicio"}
+              </button>
+              <button onClick={() => setShowNew(false)}
+                style={{ padding: "11px 18px", background: "#f1f5f9", border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: "#64748b" }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: "24px" }}>
 

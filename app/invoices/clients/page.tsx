@@ -36,6 +36,9 @@ export default function ClientsPage() {
   const [notes,    setNotes]    = useState("");
   const [loading,  setLoading]  = useState(true);
   const [saving,   setSaving]   = useState(false);
+  const [showNew,  setShowNew]  = useState(false);
+  const [newClient, setNewClient] = useState({ name: "", email: "", phone: "", address: "", notes: "" });
+  const [creating, setCreating] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -63,6 +66,27 @@ export default function ClientsPage() {
     load();
   }
 
+  async function createClient() {
+    if (!newClient.name.trim()) return;
+    setCreating(true);
+    try {
+      const r = await fetch(`${API}/api/clients`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+        body: JSON.stringify(newClient),
+      });
+      const data = await r.json();
+      if (!r.ok) { alert(data.error || "Error al crear cliente"); return; }
+      setShowNew(false);
+      setNewClient({ name: "", email: "", phone: "", address: "", notes: "" });
+      await load();
+      setSelected(data);
+      setNotes(data.notes || "");
+    } finally {
+      setCreating(false);
+    }
+  }
+
   function select(c: Client) {
     setSelected(c); setNotes(c.notes || ""); setEditing(false);
   }
@@ -83,11 +107,61 @@ export default function ClientsPage() {
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "0 24px", display: "flex", alignItems: "center", gap: 16 }}>
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: "16px 0" }}>←</button>
         <Image src="/mactor-logo.png" alt="MacTor" width={100} height={48} style={{ objectFit: "contain" }} />
-        <div>
+        <div style={{ flex: 1 }}>
           <h1 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: "#0f172a" }}>Catálogo de Clientes</h1>
           <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{clients.length} clientes · se alimenta automáticamente</p>
         </div>
+        <button onClick={() => setShowNew(true)}
+          style={{ padding: "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+          + Nuevo cliente
+        </button>
       </div>
+
+      {/* New client modal */}
+      {showNew && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+          onClick={e => e.target === e.currentTarget && setShowNew(false)}>
+          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, padding: 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Nuevo Cliente</h2>
+              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {[
+                { label: "Nombre *", key: "name", placeholder: "Nombre del cliente" },
+                { label: "Email",    key: "email", placeholder: "email@ejemplo.com" },
+                { label: "Teléfono", key: "phone", placeholder: "416-000-0000" },
+                { label: "Dirección", key: "address", placeholder: "123 Main St, Toronto ON" },
+              ].map(f => (
+                <div key={f.key}>
+                  <label style={{ ...lbl, display: "block", marginBottom: 4 }}>{f.label}</label>
+                  <input style={inp} value={(newClient as Record<string,string>)[f.key]}
+                    onChange={e => setNewClient(p => ({ ...p, [f.key]: e.target.value }))}
+                    placeholder={f.placeholder}
+                    onKeyDown={e => e.key === "Enter" && f.key === "name" && createClient()} />
+                </div>
+              ))}
+              <div>
+                <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Notas</label>
+                <textarea style={{ ...inp, minHeight: 60, resize: "vertical" } as React.CSSProperties}
+                  value={newClient.notes}
+                  onChange={e => setNewClient(p => ({ ...p, notes: e.target.value }))}
+                  placeholder="Notas opcionales..." />
+              </div>
+            </div>
+            <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
+              <button onClick={createClient} disabled={creating || !newClient.name.trim()}
+                style={{ flex: 1, padding: "11px", background: "#e63946", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: creating ? "not-allowed" : "pointer", opacity: creating ? 0.7 : 1 }}>
+                {creating ? "Guardando..." : "Crear cliente"}
+              </button>
+              <button onClick={() => setShowNew(false)}
+                style={{ padding: "11px 18px", background: "#f1f5f9", border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: "#64748b" }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px" }}>
 
