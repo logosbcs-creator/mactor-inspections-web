@@ -36,12 +36,10 @@ export default function StatusPage({ params }: { params: Promise<{ id: string }>
 
       <div style={{ padding: "18px 20px", borderRadius: "16px", background: "var(--navy-800)", border: "1px solid var(--border)", marginBottom: "32px", width: "100%", maxWidth: "340px" }}>
         {[
-          { icon: "📋", text: t.statusSteps[0] },
-          { icon: "📧", text: t.statusSteps[1] },
-          { icon: "✏️", text: t.statusSteps[2] },
-          { icon: "📞", text: t.statusSteps[3] },
+          { icon: "✏️", text: t.statusSteps[0] },
+          { icon: "📞", text: t.statusSteps[1] },
         ].map((item, i) => (
-          <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: i < 3 ? "1px solid var(--border)" : "none" }}>
+          <div key={i} style={{ display: "flex", alignItems: "center", gap: "12px", padding: "8px 0", borderBottom: i < 1 ? "1px solid var(--border)" : "none" }}>
             <span style={{ fontSize: "1.2rem" }}>{item.icon}</span>
             <span style={{ fontSize: "0.85rem", color: "var(--muted)", textAlign: "left" }}>{item.text}</span>
           </div>

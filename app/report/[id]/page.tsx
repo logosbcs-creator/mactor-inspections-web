@@ -180,10 +180,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
               sub={m.newProjectReportSub}
             />
           ) : (
-            <MacTorBubble
-              text={m.reportGreeting(allDefects.length)}
-              sub={allDefects.length === 0 ? m.reportNoIssues : undefined}
-            />
+            <MacTorBubble text={m.reportGreeting(allDefects.length)} />
           )}
 
           {/* Critical alert banner (repair only) */}
@@ -335,7 +332,6 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
                   type="text"
                   value={followUpAnswers[i] || ""}
                   onChange={e => setFollowUpAnswers(prev => { const next = [...prev]; next[i] = e.target.value; return next; })}
-                  placeholder={m.answerHint}
                   style={inputStyle}
                 />
               </div>
@@ -383,7 +379,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
           {isNewProject ? (
           <MacTorBubble text={m.projectEstimateReady} sub={m.projectEstimateSub} />
         ) : (
-          <MacTorBubble text={m.estimateTitle} sub={m.estimateText} />
+          <MacTorBubble text={m.estimateText} />
         )}
 
           {/* Summary card */}
@@ -453,7 +449,7 @@ export default function ReportPage({ params }: { params: Promise<{ id: string }>
       </header>
 
       <div style={{ flex: 1, padding: "24px 20px", overflowY: "auto" }}>
-        <MacTorBubble text={m.contactTitle} sub={m.contactIntro} />
+        <MacTorBubble text={m.contactIntro} />
 
         <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
           {[

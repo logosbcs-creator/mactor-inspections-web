@@ -459,7 +459,7 @@ const en: MacTorScript = {
   criticalAlert:  '⚠ This needs immediate attention.',
 
   followupTitle: 'A couple more questions',
-  followupIntro: "To give you a more accurate estimate, I have a few quick questions about what you're seeing.",
+  followupIntro: "This helps me give you a more accurate estimate.",
   followupSkip:  'Skip — just give me the estimate',
   followupNext:  'Done →',
   answerHint:    'Optional — the more you tell me, the better the estimate',
@@ -589,7 +589,7 @@ const es: MacTorScript = {
   criticalAlert:  '⚠ Esto necesita atención inmediata.',
 
   followupTitle: 'Unas preguntas más',
-  followupIntro: 'Para darte un estimado más preciso, tengo unas preguntas rápidas sobre lo que estás viendo.',
+  followupIntro: 'Esto me ayuda a darte un estimado más preciso.',
   followupSkip:  'Omitir — solo dame el estimado',
   followupNext:  'Listo →',
   answerHint:    'Opcional — mientras más me digas, mejor el estimado',
@@ -717,7 +717,7 @@ const zh: MacTorScript = {
   criticalAlert:  '⚠ 这需要立即处理。',
 
   followupTitle: '还有几个问题',
-  followupIntro: '为了给您提供更准确的估价，我有几个简单的问题。',
+  followupIntro: '这有助于我为您提供更准确的估价。',
   followupSkip:  '跳过——直接给我估价',
   followupNext:  '完成 →',
   answerHint:    '可选——信息越多，估价越准确',
@@ -847,7 +847,7 @@ const hi: MacTorScript = {
   criticalAlert:  '⚠ इसे तुरंत ध्यान देने की जरूरत है।',
 
   followupTitle: 'कुछ और सवाल',
-  followupIntro: 'अधिक सटीक अनुमान के लिए, मेरे पास कुछ त्वरित सवाल हैं।',
+  followupIntro: 'इससे मुझे आपको अधिक सटीक अनुमान देने में मदद मिलेगी।',
   followupSkip:  'छोड़ें — सीधे अनुमान दें',
   followupNext:  'हो गया →',
   answerHint:    'वैकल्पिक — जितना बताएंगे, उतना बेहतर अनुमान',
@@ -977,7 +977,7 @@ const tl: MacTorScript = {
   criticalAlert:  '⚠ Kailangan ito ng agarang pansin.',
 
   followupTitle: 'Ilang tanong pa',
-  followupIntro: 'Para sa mas tumpak na tantya, mayroon akong ilang mabilis na tanong.',
+  followupIntro: 'Makakatulong ito para magbigay ako ng mas tumpak na tantya.',
   followupSkip:  'Laktawan — bigyan mo na ako ng tantya',
   followupNext:  'Tapos na →',
   answerHint:    'Opsyonal — mas maraming impormasyon, mas tumpak ang tantya',

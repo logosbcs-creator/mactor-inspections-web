@@ -487,13 +487,6 @@ export default function InspectionPage({ params }: { params: Promise<{ id: strin
             {allDone ? m.reportCTA(totalDefects) : m.partialCTA}
           </button>
         )}
-
-        {photos.length === 0 && (
-          <div style={{ textAlign: "center", padding: "32px 20px", color: "var(--muted)" }}>
-            <p style={{ fontSize: "2.5rem", marginBottom: "12px" }}>{catDef.icon}</p>
-            <p style={{ fontSize: "0.9rem", lineHeight: 1.6 }}>{catDef.photoHint[lang]}</p>
-          </div>
-        )}
       </div>
     </main>
   );

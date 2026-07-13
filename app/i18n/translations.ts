@@ -191,8 +191,6 @@ const en: Strings = {
   costEstimateByEmail: 'cost estimate by email',
   statusAfter: 'within the next few hours.',
   statusSteps: [
-    'Report saved in our system',
-    'You will receive the estimate by email',
     'MacTor will review the pricing before sending',
     'If you accept, we will call you to schedule',
   ],
@@ -287,8 +285,6 @@ const es: Strings = {
   costEstimateByEmail: 'estimado de costo por email',
   statusAfter: 'en las próximas horas.',
   statusSteps: [
-    'Reporte guardado en nuestro sistema',
-    'Recibirás el estimado por email',
     'MacTor revisará los precios antes de enviarte',
     'Si aceptas, te llamamos para agendar',
   ],
@@ -383,8 +379,6 @@ const zh: Strings = {
   costEstimateByEmail: '费用估算',
   statusAfter: '（几小时内）。',
   statusSteps: [
-    '报告已保存在我们的系统中',
-    '您将通过电子邮件收到估算',
     'MacTor将在发送前审核价格',
     '如果您接受，我们将致电安排',
   ],
@@ -479,8 +473,6 @@ const hi: Strings = {
   costEstimateByEmail: 'ईमेल से लागत अनुमान',
   statusAfter: 'कुछ घंटों में भेजेगी।',
   statusSteps: [
-    'रिपोर्ट हमारे सिस्टम में सहेजी गई',
-    'आपको ईमेल पर अनुमान मिलेगा',
     'MacTor कीमतों की समीक्षा करेगा',
     'स्वीकृति पर हम शेड्यूल के लिए कॉल करेंगे',
   ],
@@ -575,8 +567,6 @@ const tl: Strings = {
   costEstimateByEmail: 'tantya ng gastos sa email',
   statusAfter: 'sa loob ng ilang oras.',
   statusSteps: [
-    'Nai-save ang ulat sa aming sistema',
-    'Makakatanggap ka ng tantya sa email',
     'Susuriin ng MacTor ang mga presyo bago magpadala',
     'Kung tatanggap ka, tatawagan ka namin para mag-iskedyul',
   ],
