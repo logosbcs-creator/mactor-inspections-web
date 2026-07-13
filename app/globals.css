@@ -246,7 +246,8 @@ html, body {
   max-width: 100%;
   object-fit: contain;
   object-position: center top;
-  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.35));
+  mix-blend-mode: multiply;
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.35)) contrast(1.08) brightness(1.12);
 }
 
 .hero-speech-bubble {
