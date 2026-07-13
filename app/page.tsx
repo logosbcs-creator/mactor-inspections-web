@@ -196,8 +196,18 @@ export default function LandingPage() {
 
         {/* Header */}
         <div style={{ paddingTop: "28px", paddingBottom: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-mactor.png" alt="Inspector MacTor · FixMyProperty GTA" className="header-logo" />
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <LogoMark size="sm" />
+            <div>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "9px", letterSpacing: "2px", color: "var(--gold)", margin: 0 }}>
+                FIXMYPROPERTY · GTA
+              </p>
+              <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 900, letterSpacing: "-0.3px" }}>
+                <span style={{ fontWeight: 300, color: "var(--muted)" }}>Inspector </span>
+                <span style={{ color: "var(--white)" }}>MacTor</span>
+              </h1>
+            </div>
+          </div>
           <button type="button" className="lang-chip" onClick={() => setShowLangPicker(true)}>
             <span>{currentLangMeta.flag}</span>
             <span>{currentLangMeta.name}</span>
