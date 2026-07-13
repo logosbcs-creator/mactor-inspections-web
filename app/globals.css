@@ -229,7 +229,7 @@ html, body {
   position: relative;
   border-radius: 24px;
   overflow: hidden;
-  min-height: 380px;
+  min-height: 560px;
   display: flex;
   align-items: flex-end;
   margin-bottom: 28px;
@@ -263,7 +263,7 @@ html, body {
 .hero-banner-copy {
   position: relative;
   z-index: 1;
-  padding: 28px 20px;
+  padding: 20px 20px 36px;
   max-width: 480px;
 }
 
@@ -275,8 +275,8 @@ html, body {
 }
 
 .icon-img {
-  width: 56px;
-  height: 56px;
+  width: 84px;
+  height: 84px;
   object-fit: cover;
   object-position: center 52%;
 }
@@ -305,8 +305,8 @@ html, body {
 }
 
 @media (min-width: 860px) {
-  .hero-banner { min-height: 520px; margin-bottom: 40px; }
-  .hero-banner-copy { padding: 48px 56px; max-width: 560px; }
+  .hero-banner { min-height: 640px; margin-bottom: 40px; }
+  .hero-banner-copy { padding: 56px; max-width: 580px; }
   .hero-panel { padding: 32px 40px; }
   .hero-features-row { grid-template-columns: repeat(4, 1fr); }
 }

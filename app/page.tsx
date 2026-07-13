@@ -242,12 +242,15 @@ export default function LandingPage() {
               </span>
             </h2>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
-              {heroBadges.map(b => (
-                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "20px", background: "rgba(10,15,30,0.6)", border: "1px solid var(--border)" }}>
-                  <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={15} /></span>
-                  <span style={{ fontSize: "0.8rem", color: "var(--white)", fontWeight: 600 }}>{b.label}</span>
-                </div>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "14px" }}>
+              {heroBadges.map((b, i) => (
+                <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                  {i > 0 && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--muted)", flexShrink: 0 }} />}
+                  <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={19} /></span>
+                    <span style={{ fontSize: "1rem", color: "var(--white)", fontWeight: 500 }}>{b.label}</span>
+                  </span>
+                </span>
               ))}
             </div>
           </div>
@@ -270,10 +273,10 @@ export default function LandingPage() {
                 <button key={opt.id} type="button" onClick={() => setServiceType(opt.id)}
                   style={{
                     ...btnReset, position: "relative",
-                    padding: "24px 12px 20px",
+                    padding: "28px 12px 24px",
                     borderRadius: "20px",
-                    minHeight: "150px",
-                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px",
+                    minHeight: "196px",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px",
                     background: active
                       ? "linear-gradient(160deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06))"
                       : "var(--navy-800)",
@@ -291,7 +294,7 @@ export default function LandingPage() {
                     </span>
                   )}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 72, height: 72 }} />
+                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 104, height: 104 }} />
                   <span style={{
                     fontWeight: 800, fontSize: "1.15rem",
                     color: active ? "var(--gold-light)" : "var(--white)",
@@ -320,13 +323,13 @@ export default function LandingPage() {
               return (
                 <button key={opt.id} type="button" onClick={() => setPropertyType(opt.id)}
                   style={{
-                    ...btnReset, padding: "16px 10px", borderRadius: "16px", textAlign: "center",
+                    ...btnReset, padding: "22px 10px", borderRadius: "16px", textAlign: "center",
                     background: active ? "rgba(45,212,191,0.1)" : "var(--navy-800)",
                     border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
-                    display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: "10px",
                   }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 52, height: 52 }} />
+                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 68, height: 68 }} />
                   <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "1rem" }}>
                     {active ? "✓ " : ""}{opt.label}
                   </span>
