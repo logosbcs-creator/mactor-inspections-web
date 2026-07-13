@@ -225,28 +225,47 @@ html, body {
   padding: 0 20px;
 }
 
-.hero-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  align-items: center;
-  gap: 8px;
+.hero-banner {
+  position: relative;
+  border-radius: 24px;
+  overflow: hidden;
+  min-height: 380px;
+  display: flex;
+  align-items: flex-end;
   margin-bottom: 28px;
+  background: var(--navy-800);
+  border: 1px solid var(--border);
 }
 
-.hero-photo-wrap {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  order: -1;
+.hero-banner-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
 }
 
 .hero-photo {
-  height: 210px;
+  position: absolute;
+  right: -10px;
+  bottom: 0;
+  height: 100%;
   width: auto;
-  max-width: 100%;
+  max-width: none;
   object-fit: contain;
-  object-position: center top;
-  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.45));
+  object-position: right bottom;
+}
+
+.hero-banner-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, var(--navy) 0%, rgba(10,15,30,0.55) 45%, rgba(10,15,30,0.85) 100%),
+              linear-gradient(90deg, var(--navy) 0%, rgba(10,15,30,0.55) 60%, rgba(10,15,30,0.15) 100%);
+}
+
+.hero-banner-copy {
+  position: relative;
+  z-index: 1;
+  padding: 28px 20px;
+  max-width: 480px;
 }
 
 .header-logo {
@@ -261,20 +280,6 @@ html, body {
   height: 56px;
   object-fit: cover;
   object-position: center 52%;
-}
-
-.hero-speech-bubble {
-  position: absolute;
-  top: 6px;
-  left: 50%;
-  transform: translateX(-58%);
-  max-width: 200px;
-  background: var(--navy-800);
-  border: 1px solid var(--border-gold);
-  border-radius: 14px 14px 14px 4px;
-  padding: 10px 12px;
-  z-index: 1;
-  display: none;
 }
 
 .hero-panel {
@@ -301,14 +306,8 @@ html, body {
 }
 
 @media (min-width: 860px) {
-  .hero-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 40px;
-    margin-bottom: 40px;
-  }
-  .hero-photo-wrap { order: 0; }
-  .hero-photo { height: 420px; }
-  .hero-speech-bubble { display: block; top: -10px; left: -30px; transform: none; }
+  .hero-banner { min-height: 520px; margin-bottom: 40px; }
+  .hero-banner-copy { padding: 48px 56px; max-width: 560px; }
   .hero-panel { padding: 32px 40px; }
   .hero-features-row { grid-template-columns: repeat(4, 1fr); }
 }

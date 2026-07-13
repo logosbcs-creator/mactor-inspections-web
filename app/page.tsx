@@ -215,9 +215,15 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* ── Hero: headline + photo ── */}
-        <div className="hero-grid">
-          <div className="fade-up-1">
+        {/* ── Hero: photo as background, copy overlaid on top ── */}
+        <div className="hero-banner">
+          <div className="hero-banner-bg">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/inspector-hero.png" alt="" aria-hidden="true" className="hero-photo" />
+            <div className="hero-banner-overlay" />
+          </div>
+
+          <div className="hero-banner-copy fade-up-1">
             <div style={{
               display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px",
               borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
@@ -242,20 +248,12 @@ export default function LandingPage() {
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
               {heroBadges.map(b => (
-                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "20px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
+                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "20px", background: "rgba(10,15,30,0.6)", border: "1px solid var(--border)" }}>
                   <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={15} /></span>
                   <span style={{ fontSize: "0.8rem", color: "var(--white)", fontWeight: 600 }}>{b.label}</span>
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="hero-photo-wrap fade-up-2">
-            <div className="hero-speech-bubble">
-              <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.85rem", color: "var(--white)", lineHeight: 1.4 }}>{m.heroSpeechBubble}</p>
-            </div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/inspector-hero.png" alt="Inspector MacTor" className="hero-photo" />
           </div>
         </div>
 
