@@ -257,8 +257,7 @@ html, body {
 .hero-banner-overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, var(--navy) 0%, rgba(10,15,30,0.55) 45%, rgba(10,15,30,0.85) 100%),
-              linear-gradient(90deg, var(--navy) 0%, rgba(10,15,30,0.55) 60%, rgba(10,15,30,0.15) 100%);
+  background: linear-gradient(115deg, var(--navy) 0%, rgba(10,15,30,0.9) 30%, rgba(10,15,30,0.45) 58%, rgba(10,15,30,0.08) 85%);
 }
 
 .hero-banner-copy {
