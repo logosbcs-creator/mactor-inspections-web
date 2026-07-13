@@ -234,9 +234,9 @@ html, body {
 
 .hero-avatar {
   flex-shrink: 0;
-  width: 76px;
-  height: 76px;
-  border-radius: 50%;
+  width: 128px;
+  height: 156px;
+  border-radius: 20px;
   overflow: hidden;
   background: linear-gradient(180deg, var(--navy-700) 0%, var(--navy) 100%);
   border: 2px solid var(--border-gold);
@@ -246,7 +246,7 @@ html, body {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 14%;
+  object-position: center 8%;
 }
 
 .hero-trust-row {
@@ -295,8 +295,8 @@ html, body {
 }
 
 @media (min-width: 860px) {
-  .hero-compact { padding: 12px 0 28px; gap: 24px; }
-  .hero-avatar { width: 104px; height: 104px; }
+  .hero-compact { padding: 12px 0 28px; gap: 28px; }
+  .hero-avatar { width: 164px; height: 200px; }
   .hero-panel { padding: 32px 40px; }
   .hero-features-row { grid-template-columns: repeat(4, 1fr); }
 }
