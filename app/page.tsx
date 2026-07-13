@@ -235,16 +235,12 @@ export default function LandingPage() {
               </span>
             </div>
 
-            <h2 style={{ margin: "0 0 14px", fontSize: "clamp(1.9rem, 4.6vw + 0.6rem, 3rem)", fontWeight: 900, lineHeight: 1.08, letterSpacing: "-0.5px", color: "var(--white)" }}>
+            <h2 style={{ margin: "0 0 20px", fontSize: "clamp(1.9rem, 4.6vw + 0.6rem, 3rem)", fontWeight: 900, lineHeight: 1.08, letterSpacing: "-0.5px", color: "var(--white)" }}>
               {m.heroHeadlinePre}{" "}
               <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
                 {m.heroHeadlineHighlight}
               </span>
             </h2>
-
-            <p style={{ margin: "0 0 22px", fontSize: "clamp(0.95rem, 0.5vw + 0.85rem, 1.15rem)", color: "var(--muted)", lineHeight: 1.55, maxWidth: "460px" }}>
-              {m.heroSubtitle}
-            </p>
 
             <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
               {heroBadges.map(b => (
@@ -261,11 +257,8 @@ export default function LandingPage() {
         <div className="hero-panel fade-up-3">
 
           {/* Service type */}
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "4px", fontWeight: 700, textAlign: "center" }}>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center" }}>
             {m.heroStepLabel(1)}
-          </p>
-          <p style={{ margin: "0 0 16px", fontSize: "1.2rem", fontWeight: 800, color: "var(--white)", textAlign: "center" }}>
-            {m.whatDoYouNeed}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "28px" }}>
             {([
@@ -298,16 +291,13 @@ export default function LandingPage() {
                     </span>
                   )}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 60, height: 60 }} />
+                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 72, height: 72 }} />
                   <span style={{
-                    fontWeight: 800, fontSize: "1.05rem",
+                    fontWeight: 800, fontSize: "1.15rem",
                     color: active ? "var(--gold-light)" : "var(--white)",
                     letterSpacing: "-0.2px",
                   }}>
                     {active ? "✓ " : ""}{opt.label}
-                  </span>
-                  <span style={{ fontSize: "0.78rem", color: "var(--muted)", lineHeight: 1.4, textAlign: "center" }}>
-                    {opt.desc}
                   </span>
                 </button>
               );
@@ -336,11 +326,10 @@ export default function LandingPage() {
                     display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
                   }}>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 44, height: 44 }} />
-                  <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "0.95rem" }}>
+                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 52, height: 52 }} />
+                  <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "1rem" }}>
                     {active ? "✓ " : ""}{opt.label}
                   </span>
-                  <span style={{ fontSize: "0.75rem", color: "var(--muted)", lineHeight: 1.4 }}>{opt.desc}</span>
                 </button>
               );
             })}
