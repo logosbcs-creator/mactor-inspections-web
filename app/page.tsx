@@ -104,6 +104,23 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
   );
 }
 
+// ─── Hero icons (inline SVG, teal accent) ─────────────────────────────────────
+type IconName = "check" | "bolt" | "pin" | "lock" | "chip" | "clock" | "badge";
+
+function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
+  const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
+  switch (name) {
+    case "check": return <svg {...common}><circle cx="12" cy="12" r="9" /><path d="M8.5 12.5l2.4 2.4L16 9.8" /></svg>;
+    case "bolt":  return <svg {...common}><path d="M13 3 5 14h6l-1 7 8-11h-6l1-7Z" /></svg>;
+    case "pin":   return <svg {...common}><path d="M12 22s7-7.4 7-12.5A7 7 0 0 0 5 9.5C5 14.6 12 22 12 22Z" /><circle cx="12" cy="9.5" r="2.4" /></svg>;
+    case "lock":  return <svg {...common}><rect x="5" y="11" width="14" height="9" rx="2" /><path d="M8 11V7.5a4 4 0 0 1 8 0V11" /></svg>;
+    case "chip":  return <svg {...common}><rect x="7" y="7" width="10" height="10" rx="1.5" /><path d="M9.5 3.5V7M14.5 3.5V7M9.5 17v3.5M14.5 17v3.5M3.5 9.5H7M3.5 14.5H7M17 9.5h3.5M17 14.5h3.5" /></svg>;
+    case "clock": return <svg {...common}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.2 2" /></svg>;
+    case "badge": return <svg {...common}><path d="M12 2l2.4 4.2L19 7l-2 4 2 4-4.6.8L12 20l-2.4-4.2L5 15l2-4-2-4 4.6-.8L12 2Z" /><path d="M9.5 12.3l1.8 1.8 3.2-3.6" /></svg>;
+    default: return null;
+  }
+}
+
 // ─── Main Landing Page ────────────────────────────────────────────────────────
 export default function LandingPage() {
   const router = useRouter();
@@ -152,15 +169,33 @@ export default function LandingPage() {
     }
   };
 
+  const heroStep = !serviceType ? 1 : !propertyType ? 2 : 3;
+  const heroBadges = [
+    { icon: "check" as IconName, label: m.heroBadgeFree },
+    { icon: "bolt"  as IconName, label: m.heroBadgeInstant },
+    { icon: "pin"   as IconName, label: m.heroBadgeLocation },
+  ];
+  const heroFeatures = [
+    { icon: "lock" as IconName, title: m.heroFeature1Title, desc: m.heroFeature1Desc },
+    { icon: "chip" as IconName, title: m.heroFeature2Title, desc: m.heroFeature2Desc },
+    { icon: "clock" as IconName, title: m.heroFeature3Title, desc: m.heroFeature3Desc },
+    { icon: "badge" as IconName, title: m.heroFeature4Title, desc: m.heroFeature4Desc },
+  ];
+  const heroSteps = [
+    { n: 1, label: m.heroStepService },
+    { n: 2, label: m.heroStepProperty },
+    { n: 3, label: m.heroStepPhotos },
+  ];
+
   return (
     <main style={{
-      minHeight: "100dvh", display: "flex", flexDirection: "column", padding: "0 20px",
+      minHeight: "100dvh", display: "flex", flexDirection: "column",
       backgroundImage: "radial-gradient(ellipse at 50% 0%, rgba(59,130,246,0.07) 0%, transparent 60%)",
     }}>
+      <div className="hero-container">
 
-      {/* Compact header */}
-      <div style={{ paddingTop: "44px", paddingBottom: "20px" }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {/* Header */}
+        <div style={{ paddingTop: "28px", paddingBottom: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
             <LogoMark size="sm" />
             <div>
@@ -176,131 +211,210 @@ export default function LandingPage() {
           <button type="button" className="lang-chip" onClick={() => setShowLangPicker(true)}>
             <span>{currentLangMeta.flag}</span>
             <span>{currentLangMeta.name}</span>
+            <span aria-hidden="true">⌄</span>
           </button>
         </div>
-      </div>
 
-      {/* MacTor intro card */}
-      <div style={{
-        position: "relative", overflow: "hidden",
-        borderRadius: "16px", minHeight: "110px",
-        background: "rgba(245,158,11,0.05)", border: "1px solid rgba(245,158,11,0.2)",
-        marginBottom: "24px",
-      }}>
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/mactor.png" alt="" aria-hidden="true"
-          style={{
-            position: "absolute", right: "-4px", top: "-8px",
-            height: "165px", width: "auto", objectFit: "contain",
-            objectPosition: "center top", pointerEvents: "none",
-          }} />
-        <div style={{ padding: "16px", paddingRight: "110px" }}>
-          <p style={{ margin: 0, fontSize: "0.65rem", fontFamily: "'Space Mono',monospace", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "5px" }}>
-            INSPECTOR MACTOR · {m.free.toUpperCase()} INSPECTION
-          </p>
-          <p style={{ margin: 0, fontSize: "1rem", fontWeight: 700, color: "var(--white)", lineHeight: 1.4 }}>
-            {serviceType ? (serviceType === "repair" ? m.repairContextMsg : m.newProjectContextMsg) : m.welcomeTagline}
-          </p>
-          <p style={{ margin: "4px 0 0", fontSize: "0.78rem", color: "var(--muted)" }}>
-            {m.subtitle}
-          </p>
+        {/* ── Hero: headline + photo ── */}
+        <div className="hero-grid">
+          <div className="fade-up-1">
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px",
+              borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
+              marginBottom: "18px",
+            }}>
+              <span style={{ color: "var(--teal)" }}>✦</span>
+              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
+                {m.heroEyebrow.toUpperCase()}
+              </span>
+            </div>
+
+            <h2 style={{ margin: "0 0 14px", fontSize: "clamp(1.9rem, 4.6vw + 0.6rem, 3rem)", fontWeight: 900, lineHeight: 1.08, letterSpacing: "-0.5px", color: "var(--white)" }}>
+              {m.heroHeadlinePre}{" "}
+              <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+                {m.heroHeadlineHighlight}
+              </span>
+            </h2>
+
+            <p style={{ margin: "0 0 22px", fontSize: "clamp(0.95rem, 0.5vw + 0.85rem, 1.15rem)", color: "var(--muted)", lineHeight: 1.55, maxWidth: "460px" }}>
+              {m.heroSubtitle}
+            </p>
+
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "10px" }}>
+              {heroBadges.map(b => (
+                <div key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px", padding: "6px 12px", borderRadius: "20px", background: "var(--navy-800)", border: "1px solid var(--border)" }}>
+                  <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={15} /></span>
+                  <span style={{ fontSize: "0.8rem", color: "var(--white)", fontWeight: 600 }}>{b.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="hero-photo-wrap fade-up-2">
+            <div className="hero-speech-bubble">
+              <p style={{ margin: 0, fontStyle: "italic", fontSize: "0.85rem", color: "var(--white)", lineHeight: 1.4 }}>{m.heroSpeechBubble}</p>
+            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/inspector-hero.png" alt="Inspector MacTor" className="hero-photo" />
+          </div>
         </div>
-      </div>
 
-      {/* ── Service type selector — MAIN CHOICE ── */}
-      <div style={{ marginBottom: "20px" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "13px", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 700 }}>
-          ▸ {m.whatDoYouNeed.toUpperCase()}
+        {/* ── Steps panel ── */}
+        <div className="hero-panel fade-up-3">
+
+          {/* Service type */}
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "4px", fontWeight: 700, textAlign: "center" }}>
+            {m.heroStepLabel(1)}
+          </p>
+          <p style={{ margin: "0 0 16px", fontSize: "1.2rem", fontWeight: 800, color: "var(--white)", textAlign: "center" }}>
+            {m.whatDoYouNeed}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "28px" }}>
+            {([
+              { id: "repair" as ServiceType,      icon: "🔧", label: m.serviceRepairLabel,     desc: m.serviceRepairDesc,     popular: true  },
+              { id: "new_project" as ServiceType, icon: "🏗️", label: m.serviceNewProjectLabel, desc: m.serviceNewProjectDesc, popular: false },
+            ]).map(opt => {
+              const active = serviceType === opt.id;
+              return (
+                <button key={opt.id} type="button" onClick={() => setServiceType(opt.id)}
+                  style={{
+                    ...btnReset, position: "relative",
+                    padding: "24px 12px 20px",
+                    borderRadius: "20px",
+                    minHeight: "150px",
+                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px",
+                    background: active
+                      ? "linear-gradient(160deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06))"
+                      : "var(--navy-800)",
+                    border: active ? "2px solid var(--gold)" : "1.5px solid var(--border)",
+                    boxShadow: active ? "0 0 0 3px rgba(245,158,11,0.12)" : "none",
+                    transition: "all 0.15s",
+                  }}>
+                  {opt.popular && (
+                    <span style={{
+                      position: "absolute", top: "10px", left: "10px",
+                      fontFamily: "'Space Mono',monospace", fontSize: "9px", fontWeight: 700, letterSpacing: "0.5px",
+                      color: "#0a0f1e", background: "var(--gold-light)", padding: "3px 8px", borderRadius: "6px",
+                    }}>
+                      POPULAR
+                    </span>
+                  )}
+                  <span style={{ fontSize: "2.6rem", lineHeight: 1 }}>{opt.icon}</span>
+                  <span style={{
+                    fontWeight: 800, fontSize: "1.05rem",
+                    color: active ? "var(--gold-light)" : "var(--white)",
+                    letterSpacing: "-0.2px",
+                  }}>
+                    {active ? "✓ " : ""}{opt.label}
+                  </span>
+                  <span style={{ fontSize: "0.78rem", color: "var(--muted)", lineHeight: 1.4, textAlign: "center" }}>
+                    {opt.desc}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Property type */}
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "4px", fontWeight: 700, textAlign: "center" }}>
+            {m.heroStepLabel(2)}
+          </p>
+          <p style={{ margin: "0 0 16px", fontSize: "1.2rem", fontWeight: 800, color: "var(--white)", textAlign: "center" }}>
+            {m.propertyLabel}
+          </p>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "28px" }}>
+            {([
+              { id: "residential" as const, label: m.residential, icon: "🏠", desc: m.residentialDesc },
+              { id: "commercial"  as const, label: m.commercial,  icon: "🏢", desc: m.commercialDesc  },
+            ]).map(opt => {
+              const active = propertyType === opt.id;
+              return (
+                <button key={opt.id} type="button" onClick={() => setPropertyType(opt.id)}
+                  style={{
+                    ...btnReset, padding: "16px 10px", borderRadius: "16px", textAlign: "center",
+                    background: active ? "rgba(45,212,191,0.1)" : "var(--navy-800)",
+                    border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
+                    display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
+                  }}>
+                  <span style={{ fontSize: "1.7rem" }}>{opt.icon}</span>
+                  <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "0.95rem" }}>
+                    {active ? "✓ " : ""}{opt.label}
+                  </span>
+                  <span style={{ fontSize: "0.75rem", color: "var(--muted)", lineHeight: 1.4 }}>{opt.desc}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Step indicator */}
+          <div className="hero-steps-row">
+            {heroSteps.map((s, i) => {
+              const state = s.n < heroStep ? "done" : s.n === heroStep ? "active" : "upcoming";
+              return (
+                <div key={s.n} style={{ display: "flex", alignItems: "center", flex: i < heroSteps.length - 1 ? 1 : "0 0 auto" }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
+                    <div style={{
+                      width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                      fontWeight: 800, fontSize: "0.85rem", fontFamily: "'Space Mono',monospace", flexShrink: 0,
+                      background: state === "upcoming" ? "var(--navy-800)" : "rgba(245,158,11,0.15)",
+                      border: `2px solid ${state === "upcoming" ? "var(--border)" : "var(--gold)"}`,
+                      color: state === "upcoming" ? "var(--muted)" : "var(--gold-light)",
+                    }}>
+                      {state === "done" ? "✓" : s.n}
+                    </div>
+                    <span style={{ fontSize: "0.68rem", color: state === "upcoming" ? "var(--muted)" : "var(--gold-light)", fontWeight: state === "active" ? 700 : 500, whiteSpace: "nowrap" }}>
+                      {s.label}
+                    </span>
+                  </div>
+                  {i < heroSteps.length - 1 && (
+                    <div style={{ flex: 1, height: 2, margin: "0 6px 20px", background: s.n < heroStep ? "var(--gold)" : "var(--border)" }} />
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* CTA */}
+          <button type="button" onClick={start} disabled={!canStart}
+            style={{
+              ...btnReset,
+              background: canStart ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-800)",
+              color: canStart ? "#0a0f1e" : "var(--muted)",
+              padding: "18px", borderRadius: "18px", fontWeight: 800, fontSize: "1.1rem",
+              width: "100%", minHeight: "64px", marginTop: "24px",
+              opacity: canStart ? 1 : 0.45,
+              display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px",
+              boxShadow: canStart ? "0 4px 20px rgba(245,158,11,0.3)" : "none",
+              border: canStart ? "none" : "1px solid var(--border)",
+            }}>
+            {loading ? (
+              <span style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "currentColor" }} />{m.starting}
+              </span>
+            ) : (
+              <>
+                <span>{m.heroCtaMain} →</span>
+                <span style={{ fontSize: "0.72rem", fontWeight: 500, opacity: 0.75 }}>{m.heroCtaSub}</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* ── Trust features row ── */}
+        <div className="hero-features-row">
+          {heroFeatures.map(f => (
+            <div key={f.title} style={{ display: "flex", flexDirection: "column", alignItems: "center", textAlign: "center", gap: "8px", padding: "16px 10px" }}>
+              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={f.icon} size={22} /></span>
+              <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--white)" }}>{f.title}</span>
+              <span style={{ fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.4 }}>{f.desc}</span>
+            </div>
+          ))}
+        </div>
+
+        <p style={{ textAlign: "center", fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", padding: "8px 0 28px" }}>
+          FixMyProperty · MacTor Maintenance · GTA Toronto © 2026
         </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
-          {([
-            { id: "repair" as ServiceType,      icon: "🔧", label: m.serviceRepairLabel,     desc: m.serviceRepairDesc     },
-            { id: "new_project" as ServiceType, icon: "🏗️", label: m.serviceNewProjectLabel, desc: m.serviceNewProjectDesc },
-          ]).map(opt => {
-            const active = serviceType === opt.id;
-            return (
-              <button key={opt.id} type="button" onClick={() => setServiceType(opt.id)}
-                style={{
-                  ...btnReset,
-                  padding: "24px 12px 20px",
-                  borderRadius: "20px",
-                  minHeight: "150px",
-                  display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "10px",
-                  background: active
-                    ? "linear-gradient(160deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06))"
-                    : "var(--navy-800)",
-                  border: active ? "2px solid var(--gold)" : "1.5px solid var(--border)",
-                  boxShadow: active ? "0 0 0 3px rgba(245,158,11,0.12)" : "none",
-                  transition: "all 0.15s",
-                }}>
-                <span style={{ fontSize: "2.6rem", lineHeight: 1 }}>{opt.icon}</span>
-                <span style={{
-                  fontWeight: 800, fontSize: "1rem",
-                  color: active ? "var(--gold-light)" : "var(--white)",
-                  letterSpacing: "-0.2px",
-                }}>
-                  {active ? "✓ " : ""}{opt.label}
-                </span>
-                <span style={{ fontSize: "0.72rem", color: "var(--muted)", lineHeight: 1.4, textAlign: "center" }}>
-                  {opt.desc}
-                </span>
-              </button>
-            );
-          })}
-        </div>
       </div>
-
-      {/* ── Property type — secondary choice ── */}
-      <div style={{ marginBottom: "24px" }}>
-        <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "13px", color: "var(--gold)", letterSpacing: "1.5px", marginBottom: "12px", fontWeight: 700 }}>
-          ▸ {m.propertyLabel.toUpperCase()}
-        </p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-          {([
-            { id: "residential" as const, label: m.residential, icon: "🏠", desc: m.residentialDesc },
-            { id: "commercial"  as const, label: m.commercial,  icon: "🏢", desc: m.commercialDesc  },
-          ]).map(opt => {
-            const active = propertyType === opt.id;
-            return (
-              <button key={opt.id} type="button" onClick={() => setPropertyType(opt.id)}
-                style={{
-                  ...btnReset, padding: "14px 10px", borderRadius: "16px", textAlign: "center",
-                  background: active ? "rgba(59,130,246,0.12)" : "var(--navy-800)",
-                  border: active ? "2px solid rgba(59,130,246,0.6)" : "1.5px solid var(--border)",
-                  display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
-                }}>
-                <span style={{ fontSize: "1.6rem" }}>{opt.icon}</span>
-                <span style={{ fontWeight: 700, color: active ? "#93c5fd" : "var(--white)", fontSize: "0.9rem" }}>
-                  {active ? "✓ " : ""}{opt.label}
-                </span>
-                <span style={{ fontSize: "0.7rem", color: "var(--muted)", lineHeight: 1.4 }}>{opt.desc}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* CTA */}
-      <button type="button" onClick={start} disabled={!canStart}
-        style={{
-          ...btnReset,
-          background: canStart ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-800)",
-          color: canStart ? "#0a0f1e" : "var(--muted)",
-          padding: "20px", borderRadius: "18px", fontWeight: 800, fontSize: "1.1rem",
-          width: "100%", minHeight: "64px", marginBottom: "28px",
-          opacity: canStart ? 1 : 0.45,
-          display: "flex", alignItems: "center", justifyContent: "center", gap: "10px",
-          boxShadow: canStart ? "0 4px 20px rgba(245,158,11,0.3)" : "none",
-          border: canStart ? "none" : "1px solid var(--border)",
-        }}>
-        {loading ? (
-          <><span className="pulse-dot" style={{ width: 10, height: 10, borderRadius: "50%", background: "currentColor" }} />{m.starting}</>
-        ) : m.startBtn}
-      </button>
-
-      <p style={{ textAlign: "center", fontFamily: "'Space Mono',monospace", fontSize: "10px", color: "var(--muted)", paddingBottom: "24px" }}>
-        FixMyProperty · MacTor Maintenance · GTA Toronto © 2026
-      </p>
     </main>
   );
 }

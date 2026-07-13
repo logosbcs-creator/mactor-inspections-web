@@ -355,6 +355,30 @@ export interface MacTorScript {
   skip:    string;
   confirm: string;
   free:    string;
+
+  // Hero (landing v2)
+  heroEyebrow:          string;
+  heroHeadlinePre:      string;
+  heroHeadlineHighlight: string;
+  heroSubtitle:         string;
+  heroBadgeFree:        string;
+  heroBadgeInstant:     string;
+  heroBadgeLocation:    string;
+  heroSpeechBubble:     string;
+  heroStepLabel:        (n: number) => string;
+  heroStepService:      string;
+  heroStepProperty:     string;
+  heroStepPhotos:       string;
+  heroCtaMain:          string;
+  heroCtaSub:           string;
+  heroFeature1Title:    string;
+  heroFeature1Desc:     string;
+  heroFeature2Title:    string;
+  heroFeature2Desc:     string;
+  heroFeature3Title:    string;
+  heroFeature3Desc:     string;
+  heroFeature4Title:    string;
+  heroFeature4Desc:     string;
 }
 
 // ─── English ──────────────────────────────────────────────────────────────────
@@ -460,6 +484,29 @@ const en: MacTorScript = {
   skip:    'Skip',
   confirm: 'Confirm',
   free:    'Free',
+
+  heroEyebrow:           'Free AI Property Inspection',
+  heroHeadlinePre:       "What's wrong with your",
+  heroHeadlineHighlight: 'property?',
+  heroSubtitle:          'Upload a photo and get an AI inspection in under 60 seconds.',
+  heroBadgeFree:         '100% Free',
+  heroBadgeInstant:      'Instant Results',
+  heroBadgeLocation:     'GTA Toronto',
+  heroSpeechBubble:      "Hi, I'm Inspector MacTor. I'll help you inspect it!",
+  heroStepLabel:         (n) => `Step ${n} of 3`,
+  heroStepService:       'Choose service',
+  heroStepProperty:      'Property type',
+  heroStepPhotos:        'Upload photos',
+  heroCtaMain:           'Start Free AI Inspection',
+  heroCtaSub:            'Takes less than 60 seconds',
+  heroFeature1Title:     'Private & Secure',
+  heroFeature1Desc:      'Your photos are safe and never shared',
+  heroFeature2Title:     'AI Powered',
+  heroFeature2Desc:      'Advanced AI + expert construction knowledge',
+  heroFeature3Title:     'Instant Results',
+  heroFeature3Desc:      'Get your inspection in seconds',
+  heroFeature4Title:     'Trusted Local',
+  heroFeature4Desc:      'Built by MacTor for GTA homeowners',
 };
 
 // ─── Spanish ──────────────────────────────────────────────────────────────────
@@ -565,6 +612,29 @@ const es: MacTorScript = {
   skip:    'Omitir',
   confirm: 'Confirmar',
   free:    'Gratis',
+
+  heroEyebrow:           'Inspección Gratis con IA',
+  heroHeadlinePre:       '¿Qué le pasa a tu',
+  heroHeadlineHighlight: 'propiedad?',
+  heroSubtitle:          'Sube una foto y recibe una inspección con IA en menos de 60 segundos.',
+  heroBadgeFree:         '100% Gratis',
+  heroBadgeInstant:      'Resultados al instante',
+  heroBadgeLocation:     'GTA Toronto',
+  heroSpeechBubble:      'Hola, soy el Inspector MacTor. ¡Te ayudo a inspeccionarla!',
+  heroStepLabel:         (n) => `Paso ${n} de 3`,
+  heroStepService:       'Elige el servicio',
+  heroStepProperty:      'Tipo de propiedad',
+  heroStepPhotos:        'Sube fotos',
+  heroCtaMain:           'Comenzar Inspección Gratis con IA',
+  heroCtaSub:            'Toma menos de 60 segundos',
+  heroFeature1Title:     'Privado y Seguro',
+  heroFeature1Desc:      'Tus fotos están seguras y nunca se comparten',
+  heroFeature2Title:     'Con IA',
+  heroFeature2Desc:      'IA avanzada + conocimiento experto en construcción',
+  heroFeature3Title:     'Resultados al Instante',
+  heroFeature3Desc:      'Recibe tu inspección en segundos',
+  heroFeature4Title:     'Confianza Local',
+  heroFeature4Desc:      'Hecho por MacTor para propietarios del GTA',
 };
 
 // ─── Chinese (Simplified) ─────────────────────────────────────────────────────
@@ -668,6 +738,29 @@ const zh: MacTorScript = {
   skip:    '跳过',
   confirm: '确认',
   free:    '免费',
+
+  heroEyebrow:           '免费AI房产检测',
+  heroHeadlinePre:       '您的房产',
+  heroHeadlineHighlight: '出了什么问题？',
+  heroSubtitle:          '上传照片，60秒内获得AI检测结果。',
+  heroBadgeFree:         '100% 免费',
+  heroBadgeInstant:      '即时结果',
+  heroBadgeLocation:     '大多伦多地区',
+  heroSpeechBubble:      '您好，我是Inspector MacTor，我来帮您检测！',
+  heroStepLabel:         (n) => `第 ${n} 步，共 3 步`,
+  heroStepService:       '选择服务',
+  heroStepProperty:      '物业类型',
+  heroStepPhotos:        '上传照片',
+  heroCtaMain:           '开始免费AI检测',
+  heroCtaSub:            '不到60秒即可完成',
+  heroFeature1Title:     '私密安全',
+  heroFeature1Desc:      '您的照片安全存储，绝不外泄',
+  heroFeature2Title:     'AI驱动',
+  heroFeature2Desc:      '先进AI + 专业建筑知识',
+  heroFeature3Title:     '即时结果',
+  heroFeature3Desc:      '几秒钟内获得检测结果',
+  heroFeature4Title:     '本地信赖',
+  heroFeature4Desc:      'MacTor为大多伦多地区业主打造',
 };
 
 // ─── Hindi ────────────────────────────────────────────────────────────────────
@@ -773,6 +866,29 @@ const hi: MacTorScript = {
   skip:    'छोड़ें',
   confirm: 'पुष्टि करें',
   free:    'मुफ्त',
+
+  heroEyebrow:           'मुफ्त AI संपत्ति निरीक्षण',
+  heroHeadlinePre:       'आपकी संपत्ति में',
+  heroHeadlineHighlight: 'क्या समस्या है?',
+  heroSubtitle:          'एक फोटो अपलोड करें और 60 सेकंड से कम में AI निरीक्षण पाएं।',
+  heroBadgeFree:         '100% मुफ्त',
+  heroBadgeInstant:      'तुरंत परिणाम',
+  heroBadgeLocation:     'GTA टोरंटो',
+  heroSpeechBubble:      'नमस्ते, मैं Inspector MacTor हूं। मैं आपकी मदद करूंगा!',
+  heroStepLabel:         (n) => `चरण ${n} / 3`,
+  heroStepService:       'सेवा चुनें',
+  heroStepProperty:      'संपत्ति का प्रकार',
+  heroStepPhotos:        'फोटो अपलोड करें',
+  heroCtaMain:           'मुफ्त AI निरीक्षण शुरू करें',
+  heroCtaSub:            '60 सेकंड से भी कम समय लगता है',
+  heroFeature1Title:     'निजी और सुरक्षित',
+  heroFeature1Desc:      'आपकी फोटो सुरक्षित हैं और कभी साझा नहीं होतीं',
+  heroFeature2Title:     'AI-संचालित',
+  heroFeature2Desc:      'उन्नत AI + विशेषज्ञ निर्माण ज्ञान',
+  heroFeature3Title:     'तुरंत परिणाम',
+  heroFeature3Desc:      'सेकंडों में अपना निरीक्षण पाएं',
+  heroFeature4Title:     'स्थानीय भरोसा',
+  heroFeature4Desc:      'GTA के घर मालिकों के लिए MacTor द्वारा निर्मित',
 };
 
 // ─── Filipino (Tagalog) ───────────────────────────────────────────────────────
@@ -878,6 +994,29 @@ const tl: MacTorScript = {
   skip:    'Laktawan',
   confirm: 'Kumpirmahin',
   free:    'Libre',
+
+  heroEyebrow:           'Libreng AI Property Inspection',
+  heroHeadlinePre:       'Ano ang problema ng iyong',
+  heroHeadlineHighlight: 'ari-arian?',
+  heroSubtitle:          'Mag-upload ng larawan at makakuha ng AI inspection sa loob ng 60 segundo.',
+  heroBadgeFree:         '100% Libre',
+  heroBadgeInstant:      'Instant na Resulta',
+  heroBadgeLocation:     'GTA Toronto',
+  heroSpeechBubble:      'Kumusta, ako si Inspector MacTor. Tutulungan kitang suriin ito!',
+  heroStepLabel:         (n) => `Hakbang ${n} sa 3`,
+  heroStepService:       'Pumili ng serbisyo',
+  heroStepProperty:      'Uri ng ari-arian',
+  heroStepPhotos:        'Mag-upload ng larawan',
+  heroCtaMain:           'Simulan ang Libreng AI Inspection',
+  heroCtaSub:            'Mas mababa sa 60 segundo lang',
+  heroFeature1Title:     'Pribado at Ligtas',
+  heroFeature1Desc:      'Ligtas ang iyong mga larawan at hindi ibabahagi',
+  heroFeature2Title:     'May AI',
+  heroFeature2Desc:      'Advanced AI + eksperto sa konstruksiyon',
+  heroFeature3Title:     'Instant na Resulta',
+  heroFeature3Desc:      'Makuha ang inspection sa segundo lang',
+  heroFeature4Title:     'Pinagkakatiwalaan Lokal',
+  heroFeature4Desc:      'Ginawa ng MacTor para sa mga may-ari sa GTA',
 };
 
 /** M[lang] — MacTor script in the user's language */
