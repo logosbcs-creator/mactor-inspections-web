@@ -195,65 +195,59 @@ export default function LandingPage() {
       <div className="hero-container">
 
         {/* Header */}
-        <div style={{ paddingTop: "28px", paddingBottom: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div style={{ paddingTop: "24px", paddingBottom: "8px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
             <LogoMark size="sm" />
-            <div>
-              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "9px", letterSpacing: "2px", color: "var(--gold)", margin: 0 }}>
+            <div style={{ minWidth: 0 }}>
+              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "9px", letterSpacing: "2px", color: "var(--gold)", margin: 0, whiteSpace: "nowrap" }}>
                 FIXMYPROPERTY · GTA
               </p>
-              <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 900, letterSpacing: "-0.3px" }}>
+              <h1 style={{ margin: 0, fontSize: "1rem", fontWeight: 900, letterSpacing: "-0.3px", whiteSpace: "nowrap" }}>
                 <span style={{ fontWeight: 300, color: "var(--muted)" }}>Inspector </span>
                 <span style={{ color: "var(--white)" }}>MacTor</span>
               </h1>
             </div>
           </div>
-          <button type="button" className="lang-chip" onClick={() => setShowLangPicker(true)}>
+          <button type="button" className="lang-chip" onClick={() => setShowLangPicker(true)} style={{ flexShrink: 0 }}>
             <span>{currentLangMeta.flag}</span>
             <span>{currentLangMeta.name}</span>
             <span aria-hidden="true">⌄</span>
           </button>
         </div>
 
-        {/* ── Hero: photo as background, copy overlaid on top ── */}
-        <div className="hero-banner">
-          <div className="hero-banner-bg">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/inspector-hero.png" alt="" aria-hidden="true" className="hero-photo" />
-            <div className="hero-banner-overlay" />
+        {/* ── Hero: headline first, then a clean framed photo, then trust row ── */}
+        <div className="hero-copy fade-up-1">
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: "6px", padding: "7px 16px",
+            borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
+            marginBottom: "20px",
+          }}>
+            <span style={{ color: "var(--teal)" }}>✦</span>
+            <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
+              {m.heroEyebrow.toUpperCase()}
+            </span>
           </div>
 
-          <div className="hero-banner-copy fade-up-1">
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px",
-              borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
-              marginBottom: "18px",
-            }}>
-              <span style={{ color: "var(--teal)" }}>✦</span>
-              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
-                {m.heroEyebrow.toUpperCase()}
-              </span>
-            </div>
+          <h2 style={{ margin: 0, fontSize: "clamp(2.3rem, 8vw, 3.6rem)", fontWeight: 900, lineHeight: 1.03, letterSpacing: "-1px", color: "var(--white)" }}>
+            {m.heroHeadlinePre}{" "}
+            <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+              {m.heroHeadlineHighlight}
+            </span>
+          </h2>
+        </div>
 
-            <h2 style={{ margin: "0 0 20px", fontSize: "clamp(1.9rem, 4.6vw + 0.6rem, 3rem)", fontWeight: 900, lineHeight: 1.08, letterSpacing: "-0.5px", color: "var(--white)" }}>
-              {m.heroHeadlinePre}{" "}
-              <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-                {m.heroHeadlineHighlight}
-              </span>
-            </h2>
+        <div className="hero-photo-card fade-up-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/inspector-hero.png" alt="Inspector MacTor" className="hero-photo-clean" />
+        </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "14px" }}>
-              {heroBadges.map((b, i) => (
-                <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-                  {i > 0 && <span style={{ width: 4, height: 4, borderRadius: "50%", background: "var(--muted)", flexShrink: 0 }} />}
-                  <span style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={19} /></span>
-                    <span style={{ fontSize: "1rem", color: "var(--white)", fontWeight: 500 }}>{b.label}</span>
-                  </span>
-                </span>
-              ))}
-            </div>
-          </div>
+        <div className="hero-trust-row fade-up-3">
+          {heroBadges.map(b => (
+            <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={19} /></span>
+              <span style={{ fontSize: "1rem", color: "var(--white)", fontWeight: 500 }}>{b.label}</span>
+            </span>
+          ))}
         </div>
 
         {/* ── Steps panel ── */}

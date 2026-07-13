@@ -225,46 +225,41 @@ html, body {
   padding: 0 20px;
 }
 
-.hero-banner {
+.hero-copy {
+  text-align: center;
+  padding: 8px 4px 28px;
+}
+
+.hero-photo-card {
   position: relative;
-  border-radius: 24px;
+  border-radius: 28px;
   overflow: hidden;
-  min-height: 560px;
+  background: linear-gradient(180deg, var(--navy-800) 0%, var(--navy) 100%);
+  border: 1px solid var(--border);
+  min-height: 300px;
   display: flex;
   align-items: flex-end;
-  margin-bottom: 28px;
-  background: var(--navy-800);
-  border: 1px solid var(--border);
+  justify-content: center;
+  margin-bottom: 24px;
 }
 
-.hero-banner-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-}
-
-.hero-photo {
-  position: absolute;
-  right: -10px;
-  bottom: 0;
+.hero-photo-clean {
   height: 100%;
+  max-height: 420px;
   width: auto;
-  max-width: none;
+  max-width: 92%;
   object-fit: contain;
-  object-position: right bottom;
+  object-position: bottom center;
+  filter: drop-shadow(0 24px 32px rgba(0,0,0,0.4));
 }
 
-.hero-banner-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, var(--navy) 0%, rgba(10,15,30,0.9) 30%, rgba(10,15,30,0.45) 58%, rgba(10,15,30,0.08) 85%);
-}
-
-.hero-banner-copy {
-  position: relative;
-  z-index: 1;
-  padding: 20px 20px 36px;
-  max-width: 480px;
+.hero-trust-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 12px 28px;
+  margin-bottom: 28px;
 }
 
 .header-logo {
@@ -305,8 +300,9 @@ html, body {
 }
 
 @media (min-width: 860px) {
-  .hero-banner { min-height: 640px; margin-bottom: 40px; }
-  .hero-banner-copy { padding: 56px; max-width: 580px; }
+  .hero-copy { padding: 16px 4px 36px; }
+  .hero-photo-card { min-height: 460px; margin-bottom: 32px; }
+  .hero-photo-clean { max-height: 560px; }
   .hero-panel { padding: 32px 40px; }
   .hero-features-row { grid-template-columns: repeat(4, 1fr); }
 }
