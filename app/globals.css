@@ -238,7 +238,6 @@ html, body {
   display: flex;
   justify-content: center;
   order: -1;
-  background: var(--navy);
 }
 
 .hero-photo {
@@ -247,8 +246,21 @@ html, body {
   max-width: 100%;
   object-fit: contain;
   object-position: center top;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.35)) contrast(1.08) brightness(1.12);
+  filter: drop-shadow(0 12px 24px rgba(0,0,0,0.45));
+}
+
+.header-logo {
+  height: 34px;
+  width: auto;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.icon-img {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  object-position: center 52%;
 }
 
 .hero-speech-bubble {

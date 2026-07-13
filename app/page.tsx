@@ -196,18 +196,8 @@ export default function LandingPage() {
 
         {/* Header */}
         <div style={{ paddingTop: "28px", paddingBottom: "8px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <LogoMark size="sm" />
-            <div>
-              <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "9px", letterSpacing: "2px", color: "var(--gold)", margin: 0 }}>
-                FIXMYPROPERTY · GTA
-              </p>
-              <h1 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 900, letterSpacing: "-0.3px" }}>
-                <span style={{ fontWeight: 300, color: "var(--muted)" }}>Inspector </span>
-                <span style={{ color: "var(--white)" }}>MacTor</span>
-              </h1>
-            </div>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-mactor.png" alt="Inspector MacTor · FixMyProperty GTA" className="header-logo" />
           <button type="button" className="lang-chip" onClick={() => setShowLangPicker(true)}>
             <span>{currentLangMeta.flag}</span>
             <span>{currentLangMeta.name}</span>
@@ -271,8 +261,8 @@ export default function LandingPage() {
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "28px" }}>
             {([
-              { id: "repair" as ServiceType,      icon: "🔧", label: m.serviceRepairLabel,     desc: m.serviceRepairDesc,     popular: true  },
-              { id: "new_project" as ServiceType, icon: "🏗️", label: m.serviceNewProjectLabel, desc: m.serviceNewProjectDesc, popular: false },
+              { id: "repair" as ServiceType,      icon: "/icon-repair.png",      label: m.serviceRepairLabel,     desc: m.serviceRepairDesc,     popular: true  },
+              { id: "new_project" as ServiceType, icon: "/icon-new-project.png", label: m.serviceNewProjectLabel, desc: m.serviceNewProjectDesc, popular: false },
             ]).map(opt => {
               const active = serviceType === opt.id;
               return (
@@ -299,7 +289,8 @@ export default function LandingPage() {
                       POPULAR
                     </span>
                   )}
-                  <span style={{ fontSize: "2.6rem", lineHeight: 1 }}>{opt.icon}</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 60, height: 60 }} />
                   <span style={{
                     fontWeight: 800, fontSize: "1.05rem",
                     color: active ? "var(--gold-light)" : "var(--white)",
@@ -324,8 +315,8 @@ export default function LandingPage() {
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "28px" }}>
             {([
-              { id: "residential" as const, label: m.residential, icon: "🏠", desc: m.residentialDesc },
-              { id: "commercial"  as const, label: m.commercial,  icon: "🏢", desc: m.commercialDesc  },
+              { id: "residential" as const, label: m.residential, icon: "/icon-residential.png", desc: m.residentialDesc },
+              { id: "commercial"  as const, label: m.commercial,  icon: "/icon-commercial.png", desc: m.commercialDesc  },
             ]).map(opt => {
               const active = propertyType === opt.id;
               return (
@@ -336,7 +327,8 @@ export default function LandingPage() {
                     border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: "6px",
                   }}>
-                  <span style={{ fontSize: "1.7rem" }}>{opt.icon}</span>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 44, height: 44 }} />
                   <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "0.95rem" }}>
                     {active ? "✓ " : ""}{opt.label}
                   </span>
