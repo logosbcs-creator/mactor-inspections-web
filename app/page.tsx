@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { Fragment, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { LANGUAGES, type Lang, getSavedLang, saveLang, getLangFromUrl } from "./i18n/translations";
 import { M } from "./inspector-mactor/character";
@@ -215,38 +215,37 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* ── Hero: compact avatar + headline row, everything above the fold ── */}
-        <div className="hero-compact fade-up-1">
-          <div className="hero-avatar">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/inspector-hero.png" alt="Inspector MacTor" className="hero-avatar-img" />
+        {/* ── Hero: headline, glowing centered photo, trust row ── */}
+        <div className="hero-copy fade-up-1">
+          <div style={{
+            display: "inline-flex", alignItems: "center", gap: "6px", padding: "6px 14px",
+            borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
+            marginBottom: "16px",
+          }}>
+            <span style={{ color: "var(--teal)" }}>✦</span>
+            <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
+              {m.heroEyebrow.toUpperCase()}
+            </span>
           </div>
-          <div>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: "6px", padding: "5px 12px",
-              borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
-              marginBottom: "10px",
-            }}>
-              <span style={{ color: "var(--teal)" }}>✦</span>
-              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
-                {m.heroEyebrow.toUpperCase()}
-              </span>
-            </div>
 
-            <h2 style={{ margin: 0, fontSize: "clamp(1.9rem, 8vw, 2.6rem)", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-0.8px", color: "var(--white)" }}>
-              {m.heroHeadlinePre}{" "}
-              <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-                {m.heroHeadlineHighlight}
-              </span>
-            </h2>
-          </div>
+          <h2 style={{ margin: 0, fontSize: "clamp(2.1rem, 9vw, 3.2rem)", fontWeight: 900, lineHeight: 1.02, letterSpacing: "-1px", color: "var(--white)", textTransform: "uppercase" }}>
+            {m.heroHeadlinePre}{" "}
+            <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+              {m.heroHeadlineHighlight}
+            </span>
+          </h2>
+        </div>
+
+        <div className="hero-photo-glow fade-up-2">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/inspector-hero.png" alt="Inspector MacTor" />
         </div>
 
         <div className="hero-trust-row fade-up-3">
           {heroBadges.map(b => (
-            <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={16} /></span>
-              <span style={{ fontSize: "0.85rem", color: "var(--white)", fontWeight: 500 }}>{b.label}</span>
+            <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
+              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={17} /></span>
+              <span style={{ fontSize: "0.85rem", color: "var(--white)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.3px" }}>{b.label}</span>
             </span>
           ))}
         </div>
@@ -255,13 +254,23 @@ export default function LandingPage() {
         <div className="hero-panel fade-up-3">
 
           {/* Service type */}
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center" }}>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center", textTransform: "uppercase" }}>
             {m.heroStepLabel(1)}
           </p>
+
+          <div className="hero-progress-dots">
+            {heroSteps.map((s, i) => (
+              <Fragment key={s.n}>
+                <span className={`hero-progress-dot${s.n <= heroStep ? " active" : ""}`} />
+                {i < heroSteps.length - 1 && <span className="hero-progress-line" />}
+              </Fragment>
+            ))}
+          </div>
+
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "28px" }}>
             {([
-              { id: "repair" as ServiceType,      icon: "/icon-repair.png",      label: m.serviceRepairLabel,     desc: m.serviceRepairDesc,     popular: true  },
-              { id: "new_project" as ServiceType, icon: "/icon-new-project.png", label: m.serviceNewProjectLabel, desc: m.serviceNewProjectDesc, popular: false },
+              { id: "repair" as ServiceType,      icon: "/icon-repair.png",      label: m.serviceRepairLabel },
+              { id: "new_project" as ServiceType, icon: "/icon-new-project.png", label: m.serviceNewProjectLabel },
             ]).map(opt => {
               const active = serviceType === opt.id;
               return (
@@ -272,30 +281,20 @@ export default function LandingPage() {
                     borderRadius: "20px",
                     minHeight: "196px",
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px",
-                    background: active
-                      ? "linear-gradient(160deg, rgba(245,158,11,0.18), rgba(245,158,11,0.06))"
-                      : "var(--navy-800)",
-                    border: active ? "2px solid var(--gold)" : "1.5px solid var(--border)",
-                    boxShadow: active ? "0 0 0 3px rgba(245,158,11,0.12)" : "none",
+                    background: active ? "rgba(45,212,191,0.1)" : "var(--navy-800)",
+                    border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
+                    boxShadow: active ? "0 0 0 3px rgba(45,212,191,0.12)" : "none",
                     transition: "all 0.15s",
                   }}>
-                  {opt.popular && (
-                    <span style={{
-                      position: "absolute", top: "10px", left: "10px",
-                      fontFamily: "'Space Mono',monospace", fontSize: "9px", fontWeight: 700, letterSpacing: "0.5px",
-                      color: "#0a0f1e", background: "var(--gold-light)", padding: "3px 8px", borderRadius: "6px",
-                    }}>
-                      POPULAR
-                    </span>
-                  )}
+                  {active && <span className="card-check-badge"><Icon name="check" size={14} /></span>}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={opt.icon} alt="" className="icon-img" style={{ width: 104, height: 104 }} />
                   <span style={{
-                    fontWeight: 800, fontSize: "1.15rem",
-                    color: active ? "var(--gold-light)" : "var(--white)",
-                    letterSpacing: "-0.2px",
+                    fontWeight: 800, fontSize: "1.1rem", textTransform: "uppercase",
+                    color: active ? "var(--teal)" : "var(--white)",
+                    letterSpacing: "0px",
                   }}>
-                    {active ? "✓ " : ""}{opt.label}
+                    {opt.label}
                   </span>
                 </button>
               );
@@ -303,73 +302,47 @@ export default function LandingPage() {
           </div>
 
           {/* Property type */}
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "4px", fontWeight: 700, textAlign: "center" }}>
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center", textTransform: "uppercase" }}>
             {m.heroStepLabel(2)}
-          </p>
-          <p style={{ margin: "0 0 16px", fontSize: "1.2rem", fontWeight: 800, color: "var(--white)", textAlign: "center" }}>
-            {m.propertyLabel}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "28px" }}>
             {([
-              { id: "residential" as const, label: m.residential, icon: "/icon-residential.png", desc: m.residentialDesc },
-              { id: "commercial"  as const, label: m.commercial,  icon: "/icon-commercial.png", desc: m.commercialDesc  },
+              { id: "residential" as const, label: m.residential, icon: "/icon-residential.png" },
+              { id: "commercial"  as const, label: m.commercial,  icon: "/icon-commercial.png" },
             ]).map(opt => {
               const active = propertyType === opt.id;
               return (
                 <button key={opt.id} type="button" onClick={() => setPropertyType(opt.id)}
                   style={{
-                    ...btnReset, padding: "22px 10px", borderRadius: "16px", textAlign: "center",
+                    ...btnReset, position: "relative", padding: "22px 10px", borderRadius: "16px", textAlign: "center",
                     background: active ? "rgba(45,212,191,0.1)" : "var(--navy-800)",
                     border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: "10px",
                   }}>
+                  {active && <span className="card-check-badge"><Icon name="check" size={14} /></span>}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={opt.icon} alt="" className="icon-img" style={{ width: 68, height: 68 }} />
-                  <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "1rem" }}>
-                    {active ? "✓ " : ""}{opt.label}
+                  <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "1rem", textTransform: "uppercase" }}>
+                    {opt.label}
                   </span>
                 </button>
               );
             })}
           </div>
 
-          {/* Step indicator */}
-          <div className="hero-steps-row">
-            {heroSteps.map((s, i) => {
-              const state = s.n < heroStep ? "done" : s.n === heroStep ? "active" : "upcoming";
-              return (
-                <div key={s.n} style={{ display: "flex", alignItems: "center", flex: i < heroSteps.length - 1 ? 1 : "0 0 auto" }}>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "6px" }}>
-                    <div style={{
-                      width: 30, height: 30, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-                      fontWeight: 800, fontSize: "0.85rem", fontFamily: "'Space Mono',monospace", flexShrink: 0,
-                      background: state === "upcoming" ? "var(--navy-800)" : "rgba(245,158,11,0.15)",
-                      border: `2px solid ${state === "upcoming" ? "var(--border)" : "var(--gold)"}`,
-                      color: state === "upcoming" ? "var(--muted)" : "var(--gold-light)",
-                    }}>
-                      {state === "done" ? "✓" : s.n}
-                    </div>
-                    <span style={{ fontSize: "0.68rem", color: state === "upcoming" ? "var(--muted)" : "var(--gold-light)", fontWeight: state === "active" ? 700 : 500, whiteSpace: "nowrap" }}>
-                      {s.label}
-                    </span>
-                  </div>
-                  {i < heroSteps.length - 1 && (
-                    <div style={{ flex: 1, height: 2, margin: "0 6px 20px", background: s.n < heroStep ? "var(--gold)" : "var(--border)" }} />
-                  )}
-                </div>
-              );
-            })}
-          </div>
+          {/* Step 3 label */}
+          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center", textTransform: "uppercase" }}>
+            {m.heroStepLabel(3)}
+          </p>
 
           {/* CTA */}
           <button type="button" onClick={start} disabled={!canStart}
             style={{
               ...btnReset,
-              background: canStart ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-800)",
+              background: canStart ? "linear-gradient(135deg,#f59e0b,#d97706)" : "var(--navy-700)",
               color: canStart ? "#0a0f1e" : "var(--muted)",
               padding: "18px", borderRadius: "18px", fontWeight: 800, fontSize: "1.1rem",
-              width: "100%", minHeight: "64px", marginTop: "24px",
-              opacity: canStart ? 1 : 0.45,
+              width: "100%", minHeight: "64px",
               display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "2px",
               boxShadow: canStart ? "0 4px 20px rgba(245,158,11,0.3)" : "none",
               border: canStart ? "none" : "1px solid var(--border)",
@@ -381,10 +354,15 @@ export default function LandingPage() {
             ) : (
               <>
                 <span>{m.heroCtaMain} →</span>
-                <span style={{ fontSize: "0.72rem", fontWeight: 500, opacity: 0.75 }}>{m.heroCtaSub}</span>
+                {canStart && <span style={{ fontSize: "0.72rem", fontWeight: 500, opacity: 0.75 }}>{m.heroCtaSub}</span>}
               </>
             )}
           </button>
+          {!canStart && !loading && (
+            <p style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", margin: "12px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>
+              <Icon name="lock" size={13} /> {m.heroLockedHint}
+            </p>
+          )}
         </div>
 
         {/* ── Trust features row ── */}
