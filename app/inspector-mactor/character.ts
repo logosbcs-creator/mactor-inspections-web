@@ -379,6 +379,7 @@ export interface MacTorScript {
   heroFeature3Desc:     string;
   heroFeature4Title:    string;
   heroFeature4Desc:     string;
+  heroScrollCue:        string;
 }
 
 // ─── English ──────────────────────────────────────────────────────────────────
@@ -507,6 +508,7 @@ const en: MacTorScript = {
   heroFeature3Desc:      'Get your inspection in seconds',
   heroFeature4Title:     'Trusted Local',
   heroFeature4Desc:      'Built by MacTor for GTA homeowners',
+  heroScrollCue:         'Start your free estimate below',
 };
 
 // ─── Spanish ──────────────────────────────────────────────────────────────────
@@ -635,6 +637,7 @@ const es: MacTorScript = {
   heroFeature3Desc:      'Recibe tu inspección en segundos',
   heroFeature4Title:     'Confianza Local',
   heroFeature4Desc:      'Hecho por MacTor para propietarios del GTA',
+  heroScrollCue:         'Comienza tu estimado gratis abajo',
 };
 
 // ─── Chinese (Simplified) ─────────────────────────────────────────────────────
@@ -761,6 +764,7 @@ const zh: MacTorScript = {
   heroFeature3Desc:      '几秒钟内获得检测结果',
   heroFeature4Title:     '本地信赖',
   heroFeature4Desc:      'MacTor为大多伦多地区业主打造',
+  heroScrollCue:         '向下开始免费估算',
 };
 
 // ─── Hindi ────────────────────────────────────────────────────────────────────
@@ -889,6 +893,7 @@ const hi: MacTorScript = {
   heroFeature3Desc:      'सेकंडों में अपना निरीक्षण पाएं',
   heroFeature4Title:     'स्थानीय भरोसा',
   heroFeature4Desc:      'GTA के घर मालिकों के लिए MacTor द्वारा निर्मित',
+  heroScrollCue:         'नीचे अपना मुफ्त अनुमान शुरू करें',
 };
 
 // ─── Filipino (Tagalog) ───────────────────────────────────────────────────────
@@ -1017,6 +1022,7 @@ const tl: MacTorScript = {
   heroFeature3Desc:      'Makuha ang inspection sa segundo lang',
   heroFeature4Title:     'Pinagkakatiwalaan Lokal',
   heroFeature4Desc:      'Ginawa ng MacTor para sa mga may-ari sa GTA',
+  heroScrollCue:         'Simulan ang libreng tantya sa ibaba',
 };
 
 /** M[lang] — MacTor script in the user's language */

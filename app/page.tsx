@@ -250,6 +250,13 @@ export default function LandingPage() {
           ))}
         </div>
 
+        <div className="hero-scroll-cue">
+          <span>{m.heroScrollCue}</span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 4v15M5 12l7 7 7-7" />
+          </svg>
+        </div>
+
         {/* ── Steps panel ── */}
         <div className="hero-panel fade-up-3">
 
