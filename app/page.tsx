@@ -215,46 +215,40 @@ export default function LandingPage() {
           </button>
         </div>
 
-        {/* ── Hero: headline first, then a clean framed photo, then trust row ── */}
-        <div className="hero-copy fade-up-1">
-          <div style={{
-            display: "inline-flex", alignItems: "center", gap: "6px", padding: "7px 16px",
-            borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
-            marginBottom: "20px",
-          }}>
-            <span style={{ color: "var(--teal)" }}>✦</span>
-            <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "11px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
-              {m.heroEyebrow.toUpperCase()}
-            </span>
+        {/* ── Hero: compact avatar + headline row, everything above the fold ── */}
+        <div className="hero-compact fade-up-1">
+          <div className="hero-avatar">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/inspector-hero.png" alt="Inspector MacTor" className="hero-avatar-img" />
           </div>
+          <div>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: "6px", padding: "5px 12px",
+              borderRadius: "20px", background: "var(--teal-dim)", border: "1px solid rgba(45,212,191,0.35)",
+              marginBottom: "10px",
+            }}>
+              <span style={{ color: "var(--teal)" }}>✦</span>
+              <span style={{ fontFamily: "'Space Mono',monospace", fontSize: "10px", letterSpacing: "1px", color: "var(--teal)", fontWeight: 700 }}>
+                {m.heroEyebrow.toUpperCase()}
+              </span>
+            </div>
 
-          <h2 style={{ margin: 0, fontSize: "clamp(2.3rem, 8vw, 3.6rem)", fontWeight: 900, lineHeight: 1.03, letterSpacing: "-1px", color: "var(--white)" }}>
-            {m.heroHeadlinePre}{" "}
-            <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
-              {m.heroHeadlineHighlight}
-            </span>
-          </h2>
-        </div>
-
-        <div className="hero-photo-card fade-up-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/inspector-hero.png" alt="Inspector MacTor" className="hero-photo-clean" />
+            <h2 style={{ margin: 0, fontSize: "clamp(1.9rem, 8vw, 2.6rem)", fontWeight: 900, lineHeight: 1.05, letterSpacing: "-0.8px", color: "var(--white)" }}>
+              {m.heroHeadlinePre}{" "}
+              <span style={{ background: "linear-gradient(135deg,#fcd34d,#f59e0b)", WebkitBackgroundClip: "text", backgroundClip: "text", color: "transparent" }}>
+                {m.heroHeadlineHighlight}
+              </span>
+            </h2>
+          </div>
         </div>
 
         <div className="hero-trust-row fade-up-3">
           {heroBadges.map(b => (
-            <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={19} /></span>
-              <span style={{ fontSize: "1rem", color: "var(--white)", fontWeight: 500 }}>{b.label}</span>
+            <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={16} /></span>
+              <span style={{ fontSize: "0.85rem", color: "var(--white)", fontWeight: 500 }}>{b.label}</span>
             </span>
           ))}
-        </div>
-
-        <div className="hero-scroll-cue">
-          <span>{m.heroScrollCue}</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M12 4v15M5 12l7 7 7-7" />
-          </svg>
         </div>
 
         {/* ── Steps panel ── */}
