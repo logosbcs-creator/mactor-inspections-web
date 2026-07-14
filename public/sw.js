@@ -2,7 +2,7 @@
 // Strategy: API calls are ALWAYS network-only (live data).
 // App shell (HTML/JS/CSS/images) uses cache-first after first load.
 
-const CACHE = 'mactor-v3';
+const CACHE = 'mactor-v4';
 const SHELL = [
   '/invoices',
   '/invoices/login',
