@@ -292,9 +292,9 @@ html, body {
 }
 
 .hero-progress-dot.active {
-  background: var(--teal);
-  border-color: var(--teal);
-  box-shadow: 0 0 0 4px var(--teal-dim);
+  background: var(--gold);
+  border-color: var(--gold);
+  box-shadow: 0 0 0 4px rgba(245,158,11,0.2);
 }
 
 .hero-progress-line {
@@ -304,6 +304,10 @@ html, body {
   margin: 0 8px;
 }
 
+.hero-progress-line.active {
+  background: var(--gold);
+}
+
 .card-check-badge {
   position: absolute;
   top: 10px;
@@ -311,7 +315,7 @@ html, body {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--teal);
+  background: var(--gold);
   color: #0a0f1e;
   display: flex;
   align-items: center;

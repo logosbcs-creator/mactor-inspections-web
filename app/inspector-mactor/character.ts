@@ -390,7 +390,7 @@ const en: MacTorScript = {
 
   welcomeTagline:         "Hi! How can we help you today?",
   whatDoYouNeed:          "What do you need?",
-  serviceRepairLabel:     "Repair",
+  serviceRepairLabel:     "Repair Something",
   serviceRepairDesc:      "Fix a problem or damage",
   serviceNewProjectLabel: "New project",
   serviceNewProjectDesc:  "Build, install, or renovate",
@@ -510,7 +510,7 @@ const en: MacTorScript = {
   heroFeature4Title:     'Trusted Local',
   heroFeature4Desc:      'Built by MacTor for GTA homeowners',
   heroScrollCue:         'Start your free estimate below',
-  heroLockedHint:        'Complete the selections above to continue',
+  heroLockedHint:        'No signup required',
 };
 
 // ─── Spanish ──────────────────────────────────────────────────────────────────
@@ -520,7 +520,7 @@ const es: MacTorScript = {
 
   welcomeTagline:         '¡Hola! ¿En qué podemos ayudarte hoy?',
   whatDoYouNeed:          '¿Qué necesitas?',
-  serviceRepairLabel:     'Reparación',
+  serviceRepairLabel:     'Reparar Algo',
   serviceRepairDesc:      'Arreglar un problema o daño',
   serviceNewProjectLabel: 'Nuevo proyecto',
   serviceNewProjectDesc:  'Construir, instalar o renovar',
@@ -640,7 +640,7 @@ const es: MacTorScript = {
   heroFeature4Title:     'Confianza Local',
   heroFeature4Desc:      'Hecho por MacTor para propietarios del GTA',
   heroScrollCue:         'Comienza tu estimado gratis abajo',
-  heroLockedHint:        'Completa las selecciones de arriba para continuar',
+  heroLockedHint:        'No necesitas registrarte',
 };
 
 // ─── Chinese (Simplified) ─────────────────────────────────────────────────────
@@ -650,7 +650,7 @@ const zh: MacTorScript = {
 
   welcomeTagline:         '您好！今天我们能帮您什么？',
   whatDoYouNeed:          '您需要什么？',
-  serviceRepairLabel:     '维修',
+  serviceRepairLabel:     '维修问题',
   serviceRepairDesc:      '修复问题或损坏',
   serviceNewProjectLabel: '新项目',
   serviceNewProjectDesc:  '建造、安装或翻新',
@@ -768,7 +768,7 @@ const zh: MacTorScript = {
   heroFeature4Title:     '本地信赖',
   heroFeature4Desc:      'MacTor为大多伦多地区业主打造',
   heroScrollCue:         '向下开始免费估算',
-  heroLockedHint:        '请先完成上方的选择以继续',
+  heroLockedHint:        '无需注册',
 };
 
 // ─── Hindi ────────────────────────────────────────────────────────────────────
@@ -778,7 +778,7 @@ const hi: MacTorScript = {
 
   welcomeTagline:         'नमस्ते! आज हम आपकी कैसे मदद कर सकते हैं?',
   whatDoYouNeed:          'आपको क्या चाहिए?',
-  serviceRepairLabel:     'मरम्मत',
+  serviceRepairLabel:     'कुछ ठीक करवाएं',
   serviceRepairDesc:      'किसी समस्या या नुकसान को ठीक करें',
   serviceNewProjectLabel: 'नया प्रोजेक्ट',
   serviceNewProjectDesc:  'निर्माण, स्थापना या नवीनीकरण',
@@ -898,7 +898,7 @@ const hi: MacTorScript = {
   heroFeature4Title:     'स्थानीय भरोसा',
   heroFeature4Desc:      'GTA के घर मालिकों के लिए MacTor द्वारा निर्मित',
   heroScrollCue:         'नीचे अपना मुफ्त अनुमान शुरू करें',
-  heroLockedHint:        'जारी रखने के लिए ऊपर की चयन पूरी करें',
+  heroLockedHint:        'साइन अप की ज़रूरत नहीं',
 };
 
 // ─── Filipino (Tagalog) ───────────────────────────────────────────────────────
@@ -908,7 +908,7 @@ const tl: MacTorScript = {
 
   welcomeTagline:         'Kumusta! Paano namin kayo matutulungan ngayon?',
   whatDoYouNeed:          'Ano ang kailangan mo?',
-  serviceRepairLabel:     'Pagkukumpuni',
+  serviceRepairLabel:     'Magpakumpuni',
   serviceRepairDesc:      'Ayusin ang isang problema o pinsala',
   serviceNewProjectLabel: 'Bagong proyekto',
   serviceNewProjectDesc:  'Magtayo, mag-install, o mag-renovate',
@@ -1028,7 +1028,7 @@ const tl: MacTorScript = {
   heroFeature4Title:     'Pinagkakatiwalaan Lokal',
   heroFeature4Desc:      'Ginawa ng MacTor para sa mga may-ari sa GTA',
   heroScrollCue:         'Simulan ang libreng tantya sa ibaba',
-  heroLockedHint:        'Kumpletuhin ang mga pinili sa itaas para magpatuloy',
+  heroLockedHint:        'Hindi kailangan mag-sign up',
 };
 
 /** M[lang] — MacTor script in the user's language */

@@ -105,7 +105,7 @@ function LanguagePicker({ onSelect }: { onSelect: (l: Lang) => void }) {
 }
 
 // ─── Hero icons (inline SVG, teal accent) ─────────────────────────────────────
-type IconName = "check" | "bolt" | "pin" | "lock" | "chip" | "clock" | "badge";
+type IconName = "check" | "bolt" | "pin" | "lock" | "chip" | "clock" | "badge" | "wrench" | "crane" | "house" | "building";
 
 function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
   const common = { width: size, height: size, viewBox: "0 0 24 24", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round" as const, strokeLinejoin: "round" as const };
@@ -117,6 +117,10 @@ function Icon({ name, size = 18 }: { name: IconName; size?: number }) {
     case "chip":  return <svg {...common}><rect x="7" y="7" width="10" height="10" rx="1.5" /><path d="M9.5 3.5V7M14.5 3.5V7M9.5 17v3.5M14.5 17v3.5M3.5 9.5H7M3.5 14.5H7M17 9.5h3.5M17 14.5h3.5" /></svg>;
     case "clock": return <svg {...common}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3.2 2" /></svg>;
     case "badge": return <svg {...common}><path d="M12 2l2.4 4.2L19 7l-2 4 2 4-4.6.8L12 20l-2.4-4.2L5 15l2-4-2-4 4.6-.8L12 2Z" /><path d="M9.5 12.3l1.8 1.8 3.2-3.6" /></svg>;
+    case "wrench": return <svg {...common}><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L4 17l3 3 5.3-5.3a4 4 0 0 0 5.4-5.4l-2.6 2.6-2-2 2.6-2.6Z" /></svg>;
+    case "crane": return <svg {...common}><path d="M4 21V9l7-5 9 5h-9v12" /><path d="M11 10v3M4 21h16M8 21v-4a2 2 0 0 1 2-2h1" /></svg>;
+    case "house": return <svg {...common}><path d="M4 11.5 12 4l8 7.5" /><path d="M6 10v10h12V10" /><path d="M10 20v-6h4v6" /></svg>;
+    case "building": return <svg {...common}><rect x="6" y="3" width="12" height="18" rx="1" /><path d="M9 7h1.5M13.5 7H15M9 11h1.5M13.5 11H15M9 15h1.5M13.5 15H15M10 21v-3h4v3" /></svg>;
     default: return null;
   }
 }
@@ -169,7 +173,6 @@ export default function LandingPage() {
     }
   };
 
-  const heroStep = !serviceType ? 1 : !propertyType ? 2 : 3;
   const heroBadges = [
     { icon: "check" as IconName, label: m.heroBadgeFree },
     { icon: "bolt"  as IconName, label: m.heroBadgeInstant },
@@ -244,7 +247,7 @@ export default function LandingPage() {
         <div className="hero-trust-row fade-up-3">
           {heroBadges.map(b => (
             <span key={b.label} style={{ display: "flex", alignItems: "center", gap: "7px" }}>
-              <span style={{ color: "var(--teal)", display: "flex" }}><Icon name={b.icon} size={17} /></span>
+              <span style={{ color: "var(--gold)", display: "flex" }}><Icon name={b.icon} size={17} /></span>
               <span style={{ fontSize: "0.85rem", color: "var(--white)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.3px" }}>{b.label}</span>
             </span>
           ))}
@@ -253,24 +256,26 @@ export default function LandingPage() {
         {/* ── Steps panel ── */}
         <div className="hero-panel fade-up-3">
 
-          {/* Service type */}
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center", textTransform: "uppercase" }}>
-            {m.heroStepLabel(1)}
-          </p>
-
           <div className="hero-progress-dots">
             {heroSteps.map((s, i) => (
               <Fragment key={s.n}>
-                <span className={`hero-progress-dot${s.n <= heroStep ? " active" : ""}`} />
-                {i < heroSteps.length - 1 && <span className="hero-progress-line" />}
+                <span className={`hero-progress-dot${s.n === 1 ? " active" : ""}`} />
+                {i < heroSteps.length - 1 && <span className={`hero-progress-line${s.n === 1 ? " active" : ""}`} />}
               </Fragment>
             ))}
           </div>
+          <p style={{ margin: "0 0 28px", fontSize: "1rem", fontWeight: 700, color: "var(--white)", textAlign: "center" }}>
+            {m.heroStepLabel(1)}
+          </p>
 
+          {/* Service type */}
+          <p style={{ margin: "0 0 16px", fontSize: "1.2rem", fontWeight: 800, color: "var(--white)", textAlign: "center" }}>
+            {m.whatDoYouNeed}
+          </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px", marginBottom: "28px" }}>
             {([
-              { id: "repair" as ServiceType,      icon: "/icon-repair.png",      label: m.serviceRepairLabel },
-              { id: "new_project" as ServiceType, icon: "/icon-new-project.png", label: m.serviceNewProjectLabel },
+              { id: "repair" as ServiceType,      icon: "wrench" as IconName, label: m.serviceRepairLabel },
+              { id: "new_project" as ServiceType, icon: "crane" as IconName,  label: m.serviceNewProjectLabel },
             ]).map(opt => {
               const active = serviceType === opt.id;
               return (
@@ -281,17 +286,16 @@ export default function LandingPage() {
                     borderRadius: "20px",
                     minHeight: "196px",
                     display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px",
-                    background: active ? "rgba(45,212,191,0.1)" : "var(--navy-800)",
-                    border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
-                    boxShadow: active ? "0 0 0 3px rgba(45,212,191,0.12)" : "none",
+                    background: active ? "rgba(245,158,11,0.1)" : "var(--navy-800)",
+                    border: active ? "2px solid var(--gold)" : "1.5px solid var(--border)",
+                    boxShadow: active ? "0 0 0 3px rgba(245,158,11,0.12)" : "none",
                     transition: "all 0.15s",
                   }}>
                   {active && <span className="card-check-badge"><Icon name="check" size={14} /></span>}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 104, height: 104 }} />
+                  <span style={{ color: active ? "var(--gold)" : "var(--muted)" }}><Icon name={opt.icon} size={64} /></span>
                   <span style={{
-                    fontWeight: 800, fontSize: "1.1rem", textTransform: "uppercase",
-                    color: active ? "var(--teal)" : "var(--white)",
+                    fontWeight: 800, fontSize: "1.1rem",
+                    color: active ? "var(--white)" : "var(--muted)",
                     letterSpacing: "0px",
                   }}>
                     {opt.label}
@@ -302,38 +306,32 @@ export default function LandingPage() {
           </div>
 
           {/* Property type */}
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center", textTransform: "uppercase" }}>
-            {m.heroStepLabel(2)}
+          <p style={{ margin: "0 0 16px", fontSize: "1.2rem", fontWeight: 800, color: "var(--white)", textAlign: "center" }}>
+            {m.propertyLabel}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "28px" }}>
             {([
-              { id: "residential" as const, label: m.residential, icon: "/icon-residential.png" },
-              { id: "commercial"  as const, label: m.commercial,  icon: "/icon-commercial.png" },
+              { id: "residential" as const, label: m.residential, icon: "house" as IconName },
+              { id: "commercial"  as const, label: m.commercial,  icon: "building" as IconName },
             ]).map(opt => {
               const active = propertyType === opt.id;
               return (
                 <button key={opt.id} type="button" onClick={() => setPropertyType(opt.id)}
                   style={{
                     ...btnReset, position: "relative", padding: "22px 10px", borderRadius: "16px", textAlign: "center",
-                    background: active ? "rgba(45,212,191,0.1)" : "var(--navy-800)",
-                    border: active ? "2px solid var(--teal)" : "1.5px solid var(--border)",
+                    background: active ? "rgba(245,158,11,0.1)" : "var(--navy-800)",
+                    border: active ? "2px solid var(--gold)" : "1.5px solid var(--border)",
                     display: "flex", flexDirection: "column", alignItems: "center", gap: "10px",
                   }}>
                   {active && <span className="card-check-badge"><Icon name="check" size={14} /></span>}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={opt.icon} alt="" className="icon-img" style={{ width: 68, height: 68 }} />
-                  <span style={{ fontWeight: 700, color: active ? "var(--teal)" : "var(--white)", fontSize: "1rem", textTransform: "uppercase" }}>
+                  <span style={{ color: active ? "var(--gold)" : "var(--muted)" }}><Icon name={opt.icon} size={42} /></span>
+                  <span style={{ fontWeight: 700, color: active ? "var(--white)" : "var(--muted)", fontSize: "1rem" }}>
                     {opt.label}
                   </span>
                 </button>
               );
             })}
           </div>
-
-          {/* Step 3 label */}
-          <p style={{ fontFamily: "'Space Mono',monospace", fontSize: "12px", color: "var(--teal)", letterSpacing: "1.5px", marginBottom: "16px", fontWeight: 700, textAlign: "center", textTransform: "uppercase" }}>
-            {m.heroStepLabel(3)}
-          </p>
 
           {/* CTA */}
           <button type="button" onClick={start} disabled={!canStart}
@@ -358,7 +356,7 @@ export default function LandingPage() {
               </>
             )}
           </button>
-          {!canStart && !loading && (
+          {!loading && (
             <p style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", margin: "12px 0 0", fontSize: "0.8rem", color: "var(--muted)" }}>
               <Icon name="lock" size={13} /> {m.heroLockedHint}
             </p>
