@@ -3,8 +3,8 @@ import "./globals.css";
 import RegisterSW from "./components/RegisterSW";
 
 export const metadata: Metadata = {
-  title: "MacTor Invoices",
-  description: "Sistema de facturación y estimados — MACTOR Construction Toronto",
+  title: "Inspector Mactor — Free AI Property Inspection | FixMyProperty",
+  description: "Inspector Mactor is FixMyProperty's AI-powered virtual property inspector. Upload photos, get a structured analysis and a price estimate in under 60 seconds — GTA Toronto.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
