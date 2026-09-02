@@ -69,6 +69,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [editDate,    setEditDate]    = useState("");
   const [editDue,     setEditDue]     = useState("");
   const [editStatus,  setEditStatus]  = useState("");
+  const [editScheduledDate, setEditScheduledDate] = useState("");
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -95,6 +96,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditStatus(d.status || "draft");
     setEditDiscount(d.discount || 0);
     setEditHstEnabled(d.hstEnabled !== false);
+    // datetime-local wants "YYYY-MM-DDTHH:mm" — trim the seconds/Z off the ISO string
+    setEditScheduledDate(d.scheduledDate ? d.scheduledDate.slice(0, 16) : "");
     // Coming straight from "Guardar y enviar" on the new-invoice form —
     // open the send confirmation instead of firing the email blind.
     if (searchParams.get("send") === "1") {
@@ -160,6 +163,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         status:        editStatus,
         discount:      editDiscount,
         hstEnabled:    editHstEnabled,
+        scheduledDate: editScheduledDate || null,
       }),
     });
     if (r.ok) {
@@ -317,6 +321,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               {STATUS_LABELS[inv.status]||inv.status}
             </span>
             {inv.sentAt && !mob && <span style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+            {inv.scheduledDate && (
+              <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0, background:"#e0f2fe", color:"#0369a1" }}>
+                📅 {new Date(inv.scheduledDate).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}
+              </span>
+            )}
           </div>
 
           {/* Action buttons */}
@@ -603,6 +612,18 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                     <option>Net 30</option>
                     <option>Net 60</option>
                   </select>
+                </div>
+                <div style={{ gridColumn:"1/-1" }}>
+                  <label style={labelSt}>📅 Programar trabajo (opcional)</label>
+                  <div style={{ display:"flex", gap:8 }}>
+                    <input type="datetime-local" value={editScheduledDate} onChange={e => setEditScheduledDate(e.target.value)} style={{ ...inputSt, margin:0, flex:1 }} />
+                    {editScheduledDate && (
+                      <button onClick={() => setEditScheduledDate("")}
+                        style={{ background:"#f1f5f9", border:"none", borderRadius:8, color:"#64748b", padding:"0 14px", cursor:"pointer", fontSize:13 }}>
+                        Quitar
+                      </button>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

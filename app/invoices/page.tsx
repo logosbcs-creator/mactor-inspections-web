@@ -112,6 +112,10 @@ function InvoicesContent() {
         ))}
         <div style={{ marginLeft: "auto", display: "flex", gap: mob ? 6 : 8, alignItems: "center" }}>
           {!mob && <>
+            <button onClick={() => router.push("/invoices/schedule")}
+              style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#0a0f1e" }}>
+              📅 Agenda
+            </button>
             <button onClick={() => router.push("/invoices/clients")}
               style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#0a0f1e" }}>
               👥 Clientes
@@ -143,6 +147,10 @@ function InvoicesContent() {
       {/* Mobile menu row for secondary nav */}
       {mob && (
         <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "8px 10px", display: "flex", gap: 6, overflowX: "auto" }}>
+          <button onClick={() => router.push("/invoices/schedule")}
+            style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f8fafc", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#0a0f1e", whiteSpace: "nowrap" }}>
+            📅 Agenda
+          </button>
           <button onClick={() => router.push("/invoices/clients")}
             style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f8fafc", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#0a0f1e", whiteSpace: "nowrap" }}>
             👥 Clientes
