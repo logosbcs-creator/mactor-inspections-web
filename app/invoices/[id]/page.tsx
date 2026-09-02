@@ -331,7 +331,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         <div style={{ padding: mob ? "10px 12px" : "12px 24px", display:"flex", alignItems:"center", gap: mob ? 8 : 12, flexWrap: mob ? "wrap" : "nowrap" }}>
           <button onClick={() => router.push("/invoices")}
             style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1, flexShrink:0 }}>←</button>
-          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} style={{ objectFit:"contain" }} />}
+          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} onClick={() => router.push("/invoices")} style={{ objectFit:"contain", cursor:"pointer" }} />}
 
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
             <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>

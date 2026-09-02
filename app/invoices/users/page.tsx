@@ -100,7 +100,7 @@ export default function UsersPage() {
       {/* Nav */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, overflow: "hidden" }}>
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
-        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
+        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} onClick={() => router.push("/invoices")} style={{ objectFit: "contain", flexShrink: 0, cursor: "pointer" }} />}
         <div style={{ flex: 1, minWidth: 0 }}>
           <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Usuarios</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{users.length} cuenta{users.length === 1 ? "" : "s"} con acceso al sistema</p>}

@@ -62,7 +62,7 @@ export default function SchedulePage() {
     <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "10px 12px" : "12px 24px", display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: 0 }}>←</button>
-        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} style={{ objectFit: "contain" }} />}
+        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} onClick={() => router.push("/invoices")} style={{ objectFit: "contain", cursor: "pointer" }} />}
         <h1 style={{ margin: 0, fontSize: mob ? 19 : 17, fontWeight: 800, color: "#0f172a" }}>📅 Agenda</h1>
       </div>
 

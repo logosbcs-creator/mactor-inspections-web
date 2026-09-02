@@ -179,7 +179,7 @@ export default function NewInvoicePage() {
       {/* Header */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "10px 24px", display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 22, cursor: "pointer", padding: 0 }}>←</button>
-        <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain" }} />
+        <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} onClick={() => router.push("/invoices")} style={{ objectFit: "contain", cursor: "pointer" }} />
         <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>
           Nueva {type === "invoice" ? "Factura" : "Estimado"}
         </h1>
