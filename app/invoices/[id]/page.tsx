@@ -5,6 +5,10 @@ import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
+function currentUsername() {
+  try { return JSON.parse(atob(token().split(".")[1])).user || ""; }
+  catch { return ""; }
+}
 
 const STATUS_COLORS: Record<string, string> = {
   draft: "#6b7280", sent: "#2563eb", paid: "#16a34a", overdue: "#dc2626",
@@ -24,6 +28,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [sending,    setSending]    = useState(false);
   const [converting, setConverting] = useState(false);
   const [deleting,   setDeleting]   = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deletePassword,    setDeletePassword]    = useState("");
+  const [deleteError,       setDeleteError]       = useState("");
   const [saving,    setSaving]    = useState(false);
   const [msg,       setMsg]       = useState("");
   const [uploading, setUploading] = useState(false);
@@ -174,16 +181,28 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   function openPDF() { window.open(`${API}/api/invoices/${id}/pdf?token=${token()}`, "_blank"); }
 
-  async function deleteInvoice() {
-    if (!confirm(`¿Eliminar ${isEst ? "el estimado" : "la factura"} ${inv.invoiceNumber} de forma permanente? Esta acción no se puede deshacer.`)) return;
-    setDeleting(true);
+  async function confirmDelete() {
+    if (!deletePassword) return;
+    setDeleting(true); setDeleteError("");
+
+    // Re-verify identity before a destructive action — reuses the login
+    // endpoint rather than trusting the still-valid session token alone.
+    const check = await fetch(`${API}/api/auth/login`, {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: currentUsername(), password: deletePassword }),
+    });
+    if (!check.ok) {
+      setDeleteError("Contraseña incorrecta");
+      setDeleting(false);
+      return;
+    }
+
     const r = await fetch(`${API}/api/invoices/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token()}` } });
     if (r.ok) {
       router.push("/invoices");
     } else {
-      setMsg("❌ Error al eliminar");
+      setDeleteError("Error al eliminar");
       setDeleting(false);
-      setTimeout(() => setMsg(""), 3000);
     }
   }
 
@@ -279,9 +298,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 ✉ {mob ? "Add Email" : "Add Email to Send"}
               </button>
             )}
-            <button onClick={deleteInvoice} disabled={deleting} title="Eliminar permanentemente"
-              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 12 : 13, fontWeight:600, cursor:deleting?"not-allowed":"pointer", opacity:deleting?0.6:1 }}>
-              {deleting ? "..." : "🗑️"}
+            <button onClick={() => { setShowDeleteConfirm(true); setDeletePassword(""); setDeleteError(""); }} title="Eliminar permanentemente"
+              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 12 : 13, fontWeight:600, cursor:"pointer" }}>
+              🗑️
             </button>
           </div>
         </div>
@@ -641,6 +660,39 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         )}
 
       </div>
+
+      {/* Delete confirmation — requires re-entering the password */}
+      {showDeleteConfirm && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+          onClick={e => e.target === e.currentTarget && !deleting && setShowDeleteConfirm(false)}>
+          <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:380, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:"#dc2626" }}>⚠️ Eliminar permanentemente</h2>
+              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting}
+                style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#94a3b8" }}>×</button>
+            </div>
+            <p style={{ margin:"0 0 16px", fontSize:13, color:"#64748b" }}>
+              Vas a eliminar {isEst ? "el estimado" : "la factura"} <strong style={{ color:"#0f172a" }}>{inv.invoiceNumber}</strong> de <strong style={{ color:"#0f172a" }}>{inv.clientName}</strong> de forma permanente. Esta acción no se puede deshacer.
+            </p>
+            <label style={{ ...labelSt, display:"block", marginBottom:6 }}>Confirma tu contraseña para continuar</label>
+            <input type="password" autoFocus value={deletePassword}
+              onChange={e => setDeletePassword(e.target.value)}
+              onKeyDown={e => e.key === "Enter" && !deleting && deletePassword && confirmDelete()}
+              placeholder="••••••" style={{ ...inputSt, margin:0 }} />
+            {deleteError && <p style={{ color:"#dc2626", fontSize:12, margin:"8px 0 0" }}>{deleteError}</p>}
+            <div style={{ display:"flex", gap:8, marginTop:20 }}>
+              <button onClick={confirmDelete} disabled={deleting || !deletePassword}
+                style={{ flex:1, padding:"11px", background: deleting ? "#94a3b8" : "#dc2626", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor: (deleting||!deletePassword)?"not-allowed":"pointer" }}>
+                {deleting ? "Eliminando..." : "Eliminar definitivamente"}
+              </button>
+              <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting}
+                style={{ padding:"11px 18px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
