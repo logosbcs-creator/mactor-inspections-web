@@ -155,6 +155,9 @@ export default function SchedulePage() {
     const r = await fetch(`${API}/api/invoices/${taskId}/convert`, { method: "POST", headers: { Authorization: `Bearer ${token()}` } });
     if (r.ok) {
       const created = await r.json();
+      // The task is now the estimate — delete the task so it doesn't sit
+      // duplicated in the Agenda alongside the real document.
+      await fetch(`${API}/api/invoices/${taskId}`, { method: "DELETE", headers: { Authorization: `Bearer ${token()}` } });
       router.push(`/invoices/${created.id}`);
     } else {
       setTaskMsg("❌ Error convirtiendo");
