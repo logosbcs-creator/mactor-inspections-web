@@ -40,6 +40,7 @@ export default function SchedulePage() {
   const [taskDescription, setTaskDescription] = useState("");
   const [taskDate,        setTaskDate]        = useState("");
   const [taskSaving,      setTaskSaving]      = useState(false);
+  const [taskLoading,     setTaskLoading]     = useState(false);
   const [taskConverting,  setTaskConverting]  = useState(false);
   const [taskMsg,         setTaskMsg]         = useState("");
 
@@ -103,8 +104,16 @@ export default function SchedulePage() {
   }
 
   async function openEditTask(j: Job) {
+    // Wipe stale state from any previous session first (e.g. a
+    // half-filled "new task" form) and only let Guardar be clickable
+    // once the real record has actually loaded — otherwise a fast
+    // click while this fetch is still in flight could save leftover
+    // data (including an empty date) over the real task.
+    setTaskId(null);
+    setTaskName(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
+    setTaskLoading(true);
     setTaskModalOpen(true);
-    setTaskMsg("Cargando...");
+    setTaskMsg("");
     const r = await fetch(`${API}/api/invoices/${j.id}`, { headers: { Authorization: `Bearer ${token()}` } });
     const d = await r.json();
     setTaskId(d.id);
@@ -114,7 +123,7 @@ export default function SchedulePage() {
     setTaskAddress(d.clientAddress || "");
     setTaskDescription((d.lineItems || [])[0]?.description || "");
     setTaskDate(d.scheduledDate ? d.scheduledDate.slice(0, 16) : "");
-    setTaskMsg("");
+    setTaskLoading(false);
   }
 
   async function saveTask() {
@@ -357,11 +366,12 @@ export default function SchedulePage() {
                 style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
             </div>
 
+            {taskLoading && <p style={{ margin: "12px 0 0", fontSize: 13, color: "#94a3b8" }}>Cargando...</p>}
             {taskMsg && <p style={{ margin: "12px 0 0", fontSize: 13, color: taskMsg.startsWith("❌") ? "#dc2626" : "#94a3b8" }}>{taskMsg}</p>}
 
             <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
-              <button onClick={saveTask} disabled={taskSaving}
-                style={{ flex: 1, padding: "11px", background: taskSaving ? "#94a3b8" : "#e63946", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: taskSaving ? "not-allowed" : "pointer" }}>
+              <button onClick={saveTask} disabled={taskSaving || taskLoading}
+                style={{ flex: 1, padding: "11px", background: (taskSaving || taskLoading) ? "#94a3b8" : "#e63946", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (taskSaving || taskLoading) ? "not-allowed" : "pointer" }}>
                 {taskSaving ? "Guardando..." : "Guardar"}
               </button>
               <button onClick={() => setTaskModalOpen(false)} disabled={taskSaving}
@@ -370,7 +380,7 @@ export default function SchedulePage() {
               </button>
             </div>
 
-            {taskId && (
+            {taskId && !taskLoading && (
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button onClick={convertTask} disabled={taskConverting || taskSaving}
                   style={{ flex: 1, padding: "10px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, fontSize: 13, fontWeight: 700, color: "#16a34a", cursor: taskConverting ? "not-allowed" : "pointer" }}>
