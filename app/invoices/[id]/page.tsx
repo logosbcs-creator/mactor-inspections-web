@@ -11,10 +11,10 @@ function currentUsername() {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "#6b7280", sent: "#2563eb", paid: "#16a34a", overdue: "#dc2626",
+  draft: "#6b7280", sent: "#2563eb", paid: "#16a34a", overdue: "#dc2626", approved: "#16a34a",
 };
 const STATUS_LABELS: Record<string, string> = {
-  draft: "Draft", sent: "Sent", paid: "Paid", overdue: "Overdue",
+  draft: "Draft", sent: "Sent", paid: "Paid", overdue: "Overdue", approved: "Approved",
 };
 
 interface LineItem { description: string; notes?: string; rate: number; qty: number; amount: number; }
@@ -433,10 +433,21 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 ))}
               </div>
 
-              {/* Payment Info + Totals */}
-              <div style={{ display:"grid", gridTemplateColumns: isEst ? "1fr" : "1fr 1fr", padding:"20px 28px", gap:24, borderTop:"1px solid #e8e8e8" }}>
-                {/* Payment info — invoices only */}
-                {!isEst && (
+              {/* Payment Info / Approve + Totals */}
+              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", padding:"20px 28px", gap:24, borderTop:"1px solid #e8e8e8" }}>
+                {isEst ? (
+                  <div>
+                    <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Ready to Move Forward?</p>
+                    {inv.status === "approved" ? (
+                      <p style={{ margin:"0 0 10px", fontSize:12, fontWeight:700, color:"#16a34a" }}>✓ Approved — we'll be in touch to schedule.</p>
+                    ) : (
+                      <p style={{ margin:"0 0 10px", fontSize:12 }}>
+                        <a href={`${API}/api/estimate-approve/${inv.id}`} target="_blank" rel="noreferrer" style={{ color:"#2563eb", fontWeight:700 }}>Click here to approve this estimate</a>
+                      </p>
+                    )}
+                    <p style={{ margin:0, fontSize:11, color:"#888" }}>Approving lets us know you'd like to proceed — we'll follow up to schedule the work.</p>
+                  </div>
+                ) : (
                   <div>
                     <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Payment Info</p>
                     {inv.status !== "paid" && (
@@ -454,7 +465,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                 )}
                 {/* Totals */}
-                <div style={ isEst ? { maxWidth:320, marginLeft:"auto" } : {}}>
+                <div>
                   {[["Subtotal", inv.subtotal], ["HST (13%)", inv.hst]].map(([l,v]) => (
                     <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
                       <span style={{ fontSize:12, color:"#666" }}>{l}</span>
@@ -532,7 +543,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
               <p style={{ margin:"0 0 12px", fontSize:11, color:"#64748b", fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Status</p>
               <div style={{ display:"flex", gap:8 }}>
-                {(["draft","sent","paid","overdue"] as const).map(s => (
+                {(isEst ? ["draft","sent","approved"] as const : ["draft","sent","paid","overdue"] as const).map(s => (
                   <button key={s} onClick={() => setEditStatus(s)}
                     style={{ padding:"7px 16px", borderRadius:20, border:`2px solid ${editStatus===s ? STATUS_COLORS[s] : "#e2e8f0"}`,
                       background: editStatus===s ? STATUS_COLORS[s]+"22" : "#fff",
