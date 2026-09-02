@@ -252,7 +252,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         <div style={{ padding: mob ? "10px 12px" : "12px 24px", display:"flex", alignItems:"center", gap: mob ? 8 : 12, flexWrap: mob ? "wrap" : "nowrap" }}>
           <button onClick={() => router.push("/invoices")}
             style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1, flexShrink:0 }}>←</button>
-          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={90} height={44} style={{ objectFit:"contain" }} />}
+          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} style={{ objectFit:"contain" }} />}
 
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
             <span style={{ fontWeight:800, fontSize: mob ? 15 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
@@ -343,7 +343,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <div style={{ padding:"20px 28px 16px", display:"grid", gridTemplateColumns:"120px 1fr 160px", gap:16, borderBottom:"1px solid #e8e8e8" }}>
                 {/* Logo */}
                 <div style={{ display:"flex", alignItems:"flex-start" }}>
-                  <Image src="/mactor-logo.png" alt="MacTor Construction" width={110} height={70} style={{ objectFit:"contain" }} />
+                  <Image src="/mactor-logo.png" alt="MacTor Construction" width={115} height={80} style={{ objectFit:"contain" }} />
                 </div>
                 {/* Company info */}
                 <div>

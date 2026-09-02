@@ -98,7 +98,7 @@ function InvoicesContent() {
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: 0, overflow: "hidden" }}>
         {!mob && (
           <div style={{ display: "flex", alignItems: "center", padding: "8px 0", marginRight: 28, flexShrink: 0 }}>
-            <Image src="/mactor-logo.png" alt="MacTor Construction" width={100} height={48} style={{ objectFit: "contain" }} />
+            <Image src="/mactor-logo.png" alt="MacTor Construction" width={69} height={48} style={{ objectFit: "contain" }} />
           </div>
         )}
         {(["Invoices","Estimates"] as const).map(t => (

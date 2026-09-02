@@ -54,8 +54,8 @@ export default function InvoiceLogin() {
           <Image
             src="/mactor-logo-claro.png"
             alt="MacTor Construction"
-            width={300}
-            height={85}
+            width={230}
+            height={160}
             style={{ objectFit: "contain", display: "block", margin: "0 auto" }}
           />
           <p style={{ color: "#94a3b8", fontSize: 12, margin: "12px 0 0", textTransform: "uppercase", letterSpacing: ".1em", fontWeight: 600 }}>

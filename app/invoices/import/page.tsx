@@ -122,7 +122,7 @@ export default function ImportPage() {
       {/* Header */}
       <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "10px 20px", display: "flex", alignItems: "center", gap: 12 }}>
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 22, cursor: "pointer", padding: 0 }}>←</button>
-        <Image src="/mactor-logo.png" alt="MacTor Construction" width={100} height={48} style={{ objectFit: "contain" }} />
+        <Image src="/mactor-logo.png" alt="MacTor Construction" width={69} height={48} style={{ objectFit: "contain" }} />
         <div>
           <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>Importar historial</h1>
           <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>Pega el JSON que generó ChatGPT</p>
