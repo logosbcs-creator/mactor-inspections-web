@@ -23,6 +23,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
   const [sending,    setSending]    = useState(false);
   const [converting, setConverting] = useState(false);
+  const [deleting,   setDeleting]   = useState(false);
   const [saving,    setSaving]    = useState(false);
   const [msg,       setMsg]       = useState("");
   const [uploading, setUploading] = useState(false);
@@ -173,6 +174,19 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   function openPDF() { window.open(`${API}/api/invoices/${id}/pdf?token=${token()}`, "_blank"); }
 
+  async function deleteInvoice() {
+    if (!confirm(`¿Eliminar ${isEst ? "el estimado" : "la factura"} ${inv.invoiceNumber} de forma permanente? Esta acción no se puede deshacer.`)) return;
+    setDeleting(true);
+    const r = await fetch(`${API}/api/invoices/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token()}` } });
+    if (r.ok) {
+      router.push("/invoices");
+    } else {
+      setMsg("❌ Error al eliminar");
+      setDeleting(false);
+      setTimeout(() => setMsg(""), 3000);
+    }
+  }
+
   async function convertToInvoice() {
     if (!confirm("¿Crear una invoice a partir de este estimado?")) return;
     setConverting(true);
@@ -265,6 +279,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 ✉ {mob ? "Add Email" : "Add Email to Send"}
               </button>
             )}
+            <button onClick={deleteInvoice} disabled={deleting} title="Eliminar permanentemente"
+              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 12 : 13, fontWeight:600, cursor:deleting?"not-allowed":"pointer", opacity:deleting?0.6:1 }}>
+              {deleting ? "..." : "🗑️"}
+            </button>
           </div>
         </div>
 
