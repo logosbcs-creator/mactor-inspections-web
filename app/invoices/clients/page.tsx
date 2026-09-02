@@ -299,11 +299,11 @@ export default function ClientsPage() {
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
         {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 15 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{clients.length} clientes · se alimenta automáticamente</p>}
         </div>
         <button onClick={() => setShowNew(true)}
-          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 14 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 16 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
           + {mob ? "Nuevo" : "Nuevo cliente"}
         </button>
       </div>
@@ -365,8 +365,8 @@ export default function ClientsPage() {
             { label: "Por cobrar",      value: outstanding,                                   color: "#0f172a", fmt: "$" },
           ].map(s => (
             <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: "1px solid #e2e8f0" }}>
-              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 12 : 11 }}>{s.label}</p>
-              <p style={{ margin: 0, fontSize: mob ? 18 : 20, fontWeight: 800, color: s.color }}>
+              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 14 : 11 }}>{s.label}</p>
+              <p style={{ margin: 0, fontSize: mob ? 20 : 20, fontWeight: 800, color: s.color }}>
                 {s.fmt === "$" ? `$${Number(s.value).toLocaleString("en-CA", { minimumFractionDigits: 0 })}` : s.value}
               </p>
             </div>

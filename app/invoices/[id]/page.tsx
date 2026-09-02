@@ -283,7 +283,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} style={{ objectFit:"contain" }} />}
 
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
-            <span style={{ fontWeight:800, fontSize: mob ? 17 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
+            <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
             <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0,
               background:(STATUS_COLORS[inv.status]||"#6b7280")+"22", color:STATUS_COLORS[inv.status]||"#6b7280" }}>
               {STATUS_LABELS[inv.status]||inv.status}
@@ -294,38 +294,38 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {/* Action buttons */}
           <div style={{ display:"flex", gap: mob ? 5 : 8, flexWrap: mob ? "wrap" : "nowrap", width: mob ? "100%" : "auto" }}>
             <button onClick={convert} disabled={converting}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 14 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 16 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
               {converting ? "Creando..." : isEst ? "🧾 " + (mob ? "Invoice" : "Convertir a Invoice") : "📋 " + (mob ? "Estimado" : "Convertir a Estimado")}
             </button>
             {!isEst && inv.status !== "paid" && (
               <button onClick={markPaid}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 14 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 16 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
                 ✓ {mob ? "Paid" : "Mark Paid"}
               </button>
             )}
             {!isEst && inv.status === "paid" && (
               <button onClick={markUnpaid}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize: mob ? 14 : 13, fontWeight:600, cursor:"pointer" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
                 ↩ {mob ? "Unpaid" : "Mark Unpaid"}
               </button>
             )}
             <button onClick={openPDF}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 14 : 13, fontWeight:600, cursor:"pointer" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
               📄 PDF
             </button>
             {inv.clientEmail ? (
               <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setShowSendModal(true); }} disabled={sending}
-                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 14 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 16 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
                 {sending ? "Sending..." : "✉ " + (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
             ) : (
               <button onClick={() => setTab("edit")}
-                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize: mob ? 14 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize: mob ? 16 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
                 ✉ {mob ? "Add Email" : "Add Email to Send"}
               </button>
             )}
             <button onClick={() => { setShowDeleteConfirm(true); setDeletePassword(""); setDeleteError(""); }} title="Eliminar permanentemente"
-              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 14 : 13, fontWeight:600, cursor:"pointer" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
               🗑️
             </button>
           </div>

@@ -104,7 +104,7 @@ function InvoicesContent() {
         {(["Invoices","Estimates"] as const).map(t => (
           <button key={t} onClick={() => setTypeFilter(t === "Invoices" ? "invoice" : "estimate")}
             style={{ padding: mob ? "14px 10px" : "18px 16px", border: "none", background: "none", cursor: "pointer",
-              fontSize: mob ? 14 : 13, fontWeight: 600, flexShrink: 0,
+              fontSize: mob ? 16 : 13, fontWeight: 600, flexShrink: 0,
               color: (t === "Invoices" ? typeFilter === "invoice" : typeFilter === "estimate") ? "#e63946" : "#64748b",
               borderBottom: (t === "Invoices" ? typeFilter === "invoice" : typeFilter === "estimate") ? "2px solid #e63946" : "2px solid transparent" }}>
             {t}
@@ -130,11 +130,11 @@ function InvoicesContent() {
             </button>
           </>}
           <button onClick={() => router.push("/invoices/new")}
-            style={{ padding: mob ? "7px 12px" : "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 14 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+            style={{ padding: mob ? "7px 12px" : "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 16 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
             + {isEst ? "Estimado" : "Factura"}
           </button>
           <button onClick={logout}
-            style={{ padding: mob ? "6px 9px" : "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: mob ? 13 : 12, fontWeight: 600, cursor: "pointer", color: "#94a3b8" }}>
+            style={{ padding: mob ? "6px 9px" : "7px 12px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: mob ? 15 : 12, fontWeight: 600, cursor: "pointer", color: "#94a3b8" }}>
             Salir
           </button>
         </div>
@@ -180,8 +180,8 @@ function InvoicesContent() {
             <div key={s.label} style={{ background: "#fff", borderRadius: 12, padding: mob ? "14px 14px" : "20px 24px", border: "1px solid #e2e8f0", boxShadow: "0 1px 3px rgba(0,0,0,.04)" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                 <div>
-                  <p style={{ margin: 0, fontSize: mob ? 12 : 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em" }}>{s.label}</p>
-                  <p style={{ margin: "4px 0 0", fontSize: mob ? 19 : 24, fontWeight: 800, color: s.color }}>
+                  <p style={{ margin: 0, fontSize: mob ? 14 : 12, color: "#64748b", fontWeight: 600, textTransform: "uppercase", letterSpacing: ".04em" }}>{s.label}</p>
+                  <p style={{ margin: "4px 0 0", fontSize: mob ? 21 : 24, fontWeight: 800, color: s.color }}>
                     ${s.value.toLocaleString("en-CA", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </p>
                 </div>
@@ -205,7 +205,7 @@ function InvoicesContent() {
             ).map(([t,l]) => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ padding: mob ? "12px 10px" : "14px 16px", border: "none", background: "none", cursor: "pointer",
-                  fontSize: mob ? 14 : 13, fontWeight: 600, flexShrink: 0,
+                  fontSize: mob ? 16 : 13, fontWeight: 600, flexShrink: 0,
                   color: tab === t ? "#e63946" : "#64748b",
                   borderBottom: tab === t ? "2px solid #e63946" : "2px solid transparent" }}>
                 {l}
@@ -284,13 +284,13 @@ function InvoicesContent() {
                       transition: "background 0.1s", alignItems: "center" }}
                     onMouseEnter={e => (e.currentTarget.style.background="#f8fafc")}
                     onMouseLeave={e => (e.currentTarget.style.background=i%2===0?"#fff":"#fafafa")}>
-                    <span style={{ fontSize: mob ? 14 : 13, fontWeight: 700, color: "#e63946" }}>{inv.invoiceNumber}</span>
-                    <span style={{ fontSize: mob ? 14 : 13, color: "#0f172a", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</span>
+                    <span style={{ fontSize: mob ? 16 : 13, fontWeight: 700, color: "#e63946" }}>{inv.invoiceNumber}</span>
+                    <span style={{ fontSize: mob ? 16 : 13, color: "#0f172a", fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</span>
                     {!mob && <span style={{ fontSize: 13, color: "#64748b" }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>}
                     <div style={{ textAlign: "right" }}>
                       {!isEst && inv.status === "paid"
-                        ? <span style={{ ...badge("#f1f5f9","#0a0f1e"), fontSize: mob ? 12 : 12 }}>Pagado</span>
-                        : <span style={{ fontSize: mob ? 14 : 13, fontWeight: 700, color: "#0f172a" }}>${inv.total.toLocaleString("en-CA",{minimumFractionDigits:2})}</span>
+                        ? <span style={{ ...badge("#f1f5f9","#0a0f1e"), fontSize: mob ? 14 : 12 }}>Pagado</span>
+                        : <span style={{ fontSize: mob ? 16 : 13, fontWeight: 700, color: "#0f172a" }}>${inv.total.toLocaleString("en-CA",{minimumFractionDigits:2})}</span>
                       }
                     </div>
                     {!mob && <div style={{ textAlign: "right" }}>{statusBadge(inv)}</div>}

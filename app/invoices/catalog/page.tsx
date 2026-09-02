@@ -147,7 +147,7 @@ export default function CatalogPage() {
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
         {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 15 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Servicios</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Servicios</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{items.length} servicios</p>}
         </div>
         {!mob && (
@@ -157,7 +157,7 @@ export default function CatalogPage() {
           </button>
         )}
         <button onClick={() => setShowNew(true)}
-          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 14 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 16 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
           + {mob ? "Nuevo" : "Nuevo servicio"}
         </button>
       </div>
@@ -233,7 +233,7 @@ export default function CatalogPage() {
             { label: "Precio prom.", value: items.length ? `$${(items.reduce((s,i)=>s+i.avgPrice,0)/items.length).toFixed(0)}` : "—", color: "#0a0f1e", isText: true },
           ].map(s => (
             <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: "1px solid #e2e8f0" }}>
-              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 12 : 11 }}>{s.label}</p>
+              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 14 : 11 }}>{s.label}</p>
               <p style={{ margin: 0, fontSize: s.isText ? (mob ? 14 : 14) : (mob ? 18 : 22), fontWeight: 800, color: s.color }}>{s.value}</p>
             </div>
           ))}
@@ -324,11 +324,11 @@ export default function CatalogPage() {
                       <div style={{ cursor: "pointer", minWidth: 0 }} onClick={() => setSelected(selected?.id === item.id ? null : item)}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[item.category || ""] || "#64748b", flexShrink: 0 }} />
-                          <span style={{ fontSize: mob ? 14 : 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
+                          <span style={{ fontSize: mob ? 16 : 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                         </div>
                         {!mob && item.category && <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 16 }}>{item.category} {item.unit ? `· ${item.unit}` : ""}</span>}
                       </div>
-                      <span style={{ fontSize: mob ? 14 : 13, fontWeight: 700, textAlign: "right", color: "#0f172a" }}>${item.lastPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
+                      <span style={{ fontSize: mob ? 16 : 13, fontWeight: 700, textAlign: "right", color: "#0f172a" }}>${item.lastPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
                       {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#0a0f1e" }}>${item.minPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
                       {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#dc2626" }}>${item.maxPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
                       {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#0a0f1e", fontWeight: 600 }}>${item.avgPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
