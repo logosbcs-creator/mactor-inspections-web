@@ -41,6 +41,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [notFound, setNotFound] = useState(false);
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
   const [sending,    setSending]    = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const [sendEmail,     setSendEmail]     = useState("");
+  const [sendBcc,       setSendBcc]       = useState(true);
   const [converting, setConverting] = useState(false);
   const [deleting,   setDeleting]   = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -166,8 +169,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   // ── Actions ───────────────────────────────────────────────────
   async function send() {
-    setSending(true); setMsg("");
-    const r = await fetch(`${API}/api/invoices/${id}/send`, { method: "POST", headers: { Authorization: `Bearer ${token()}` } });
+    setSending(true); setMsg(""); setShowSendModal(false);
+    const r = await fetch(`${API}/api/invoices/${id}/send`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify({ email: sendEmail || undefined, bcc: sendBcc }),
+    });
     if (r.ok) {
       setMsg("✅ Email sent!");
       // Mirrors the backend: only a draft flips to "sent" — a resend on an
@@ -307,7 +314,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               📄 PDF
             </button>
             {inv.clientEmail ? (
-              <button onClick={send} disabled={sending}
+              <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setShowSendModal(true); }} disabled={sending}
                 style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 12 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
                 {sending ? "Sending..." : "✉ " + (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
@@ -697,6 +704,41 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         )}
 
       </div>
+
+      {/* Send email — lets Julio override the recipient for this send only, and BCC himself for a record */}
+      {showSendModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+          onClick={e => e.target === e.currentTarget && setShowSendModal(false)}>
+          <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:400, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:"#0f172a" }}>✉ {isEst ? "Enviar estimado" : "Enviar factura"}</h2>
+              <button onClick={() => setShowSendModal(false)} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#94a3b8" }}>×</button>
+            </div>
+            <label style={{ ...labelSt, display:"block", marginBottom:6 }}>Enviar a</label>
+            <input type="email" autoFocus value={sendEmail}
+              onChange={e => setSendEmail(e.target.value)}
+              placeholder="cliente@ejemplo.com"
+              style={{ ...inputSt, margin:0 }} />
+            <p style={{ margin:"6px 0 0", fontSize:11, color:"#94a3b8" }}>
+              Puedes cambiarlo por otro correo solo para este envío — no modifica el email guardado del cliente.
+            </p>
+            <label style={{ display:"flex", alignItems:"center", gap:8, marginTop:16, cursor:"pointer" }}>
+              <input type="checkbox" checked={sendBcc} onChange={e => setSendBcc(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
+              <span style={{ fontSize:13, color:"#374151" }}>Enviarme copia oculta (BCC) a billing@mactor.ca</span>
+            </label>
+            <div style={{ display:"flex", gap:8, marginTop:20 }}>
+              <button onClick={send} disabled={sending || !sendEmail.trim()}
+                style={{ flex:1, padding:"11px", background: sending ? "#94a3b8" : "#e63946", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:(sending||!sendEmail.trim())?"not-allowed":"pointer" }}>
+                {sending ? "Enviando..." : "Enviar"}
+              </button>
+              <button onClick={() => setShowSendModal(false)} disabled={sending}
+                style={{ padding:"11px 18px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete confirmation — requires re-entering the password */}
       {showDeleteConfirm && (
