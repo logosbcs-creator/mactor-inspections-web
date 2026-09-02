@@ -62,6 +62,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [editClient,  setEditClient]  = useState({ name:"", email:"", phone:"", address:"" });
   const [editItems,   setEditItems]   = useState<LineItem[]>([]);
   const [editCardSurcharge, setEditCardSurcharge] = useState(false);
+  const [editHstEnabled, setEditHstEnabled] = useState(true);
+  const [editDiscount,   setEditDiscount]   = useState(0);
   const [editNotes,   setEditNotes]   = useState("");
   const [editPhotos,  setEditPhotos]  = useState<string[]>([]);
   const [editDate,    setEditDate]    = useState("");
@@ -91,6 +93,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditDate(d.invoiceDate ? d.invoiceDate.split("T")[0] : "");
     setEditDue(d.dueDate || "On Receipt");
     setEditStatus(d.status || "draft");
+    setEditDiscount(d.discount || 0);
+    setEditHstEnabled(d.hstEnabled !== false);
     // Coming straight from "Guardar y enviar" on the new-invoice form —
     // open the send confirmation instead of firing the email blind.
     if (searchParams.get("send") === "1") {
@@ -132,8 +136,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   }
 
   const editDisplayItems = editCardSurcharge ? withCardSurcharge(editItems) : editItems;
-  const subtotal = editDisplayItems.reduce((s, i) => s + Number(i.amount || 0), 0);
-  const hst      = Math.round(subtotal * 0.13 * 100) / 100;
+  const rawSubtotal = editDisplayItems.reduce((s, i) => s + Number(i.amount || 0), 0);
+  const subtotal = Math.max(0, Math.round((rawSubtotal - Number(editDiscount || 0)) * 100) / 100);
+  const hst      = editHstEnabled ? Math.round(subtotal * 0.13 * 100) / 100 : 0;
   const total    = Math.round((subtotal + hst) * 100) / 100;
 
   // ── Save edits ────────────────────────────────────────────────
@@ -153,6 +158,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         invoiceDate:   editDate,
         dueDate:       editDue,
         status:        editStatus,
+        discount:      editDiscount,
+        hstEnabled:    editHstEnabled,
       }),
     });
     if (r.ok) {
@@ -487,10 +494,14 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 )}
                 {/* Totals */}
                 <div>
-                  {[["Subtotal", inv.subtotal], ["HST (13%)", inv.hst]].map(([l,v]) => (
+                  {([
+                    ["Subtotal", inv.subtotal],
+                    ...(inv.discount > 0 ? [["Descuento", -inv.discount]] : []),
+                    ...(inv.hstEnabled !== false ? [["HST (13%)", inv.hst]] : []),
+                  ] as [string, number][]).map(([l,v]) => (
                     <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:7 }}>
                       <span style={{ fontSize:12, color:"#666" }}>{l}</span>
-                      <span style={{ fontSize:12, color:"#1a1a1a" }}>${Number(v).toFixed(2)}</span>
+                      <span style={{ fontSize:12, color:"#1a1a1a" }}>{v < 0 ? "-" : ""}${Math.abs(Number(v)).toFixed(2)}</span>
                     </div>
                   ))}
                   <div style={{ borderTop:"1px solid #ccc", paddingTop:7, marginTop:4, display:"flex", justifyContent:"space-between" }}>
@@ -675,14 +686,40 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 </span>
               </label>
 
+              {/* Discount */}
+              <div style={{ marginTop:10 }}>
+                <label style={labelSt}>Descuento ($)</label>
+                <input type="number" min="0" step="0.01" value={editDiscount || ""}
+                  onChange={e => setEditDiscount(parseFloat(e.target.value) || 0)}
+                  placeholder="0.00" style={{ ...inputSt, margin:0 }} />
+              </div>
+
+              {/* HST toggle */}
+              <label style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 14px", marginTop:10,
+                background:"#f8fafc", border:`1px solid ${!editHstEnabled ? "#94a3b8" : "#e2e8f0"}`,
+                borderRadius:10, cursor:"pointer" }}>
+                <input type="checkbox" checked={editHstEnabled} onChange={e => setEditHstEnabled(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
+                <span style={{ fontSize:13, color:"#374151" }}>Aplicar HST (13%)</span>
+              </label>
+
               {/* Totals preview */}
               <div style={{ marginTop:10, padding:"14px", background:"#f8fafc", borderRadius:8 }}>
-                {[["Subtotal", subtotal], ["HST (13%)", hst]].map(([l,v]) => (
-                  <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                    <span style={{ fontSize:13, color:"#64748b" }}>{l}</span>
-                    <span style={{ fontSize:13 }}>${Number(v).toFixed(2)}</span>
+                <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                  <span style={{ fontSize:13, color:"#64748b" }}>Subtotal</span>
+                  <span style={{ fontSize:13 }}>${rawSubtotal.toFixed(2)}</span>
+                </div>
+                {editDiscount > 0 && (
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                    <span style={{ fontSize:13, color:"#64748b" }}>Descuento</span>
+                    <span style={{ fontSize:13, color:"#dc2626" }}>-${Number(editDiscount).toFixed(2)}</span>
                   </div>
-                ))}
+                )}
+                {editHstEnabled && (
+                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
+                    <span style={{ fontSize:13, color:"#64748b" }}>HST (13%)</span>
+                    <span style={{ fontSize:13 }}>${hst.toFixed(2)}</span>
+                  </div>
+                )}
                 <div style={{ display:"flex", justifyContent:"space-between", borderTop:"1px solid #e2e8f0", paddingTop:8, marginTop:4 }}>
                   <span style={{ fontWeight:800, fontSize:14 }}>TOTAL</span>
                   <span style={{ fontWeight:800, fontSize:16, color:"#e63946" }}>CAD ${total.toFixed(2)}</span>

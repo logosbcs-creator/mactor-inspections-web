@@ -45,6 +45,8 @@ export default function NewInvoicePage() {
   const [client, setClient] = useState({ name: "", email: "", phone: "", address: "" });
   const [items,  setItems]  = useState<LineItem[]>([emptyItem()]);
   const [cardSurcharge, setCardSurcharge] = useState(false);
+  const [hstEnabled, setHstEnabled] = useState(true);
+  const [discount,   setDiscount]   = useState(0);
   const [notes,  setNotes]  = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -120,8 +122,9 @@ export default function NewInvoicePage() {
   }
 
   const displayItems = cardSurcharge ? withCardSurcharge(items) : items;
-  const subtotal = displayItems.reduce((s, i) => s + Number(i.amount), 0);
-  const hst      = Math.round(subtotal * 0.13 * 100) / 100;
+  const rawSubtotal = displayItems.reduce((s, i) => s + Number(i.amount), 0);
+  const subtotal = Math.max(0, Math.round((rawSubtotal - Number(discount || 0)) * 100) / 100);
+  const hst      = hstEnabled ? Math.round(subtotal * 0.13 * 100) / 100 : 0;
   const total    = Math.round((subtotal + hst) * 100) / 100;
 
   async function handlePhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -159,7 +162,7 @@ export default function NewInvoicePage() {
         body: JSON.stringify({
           type, clientName: client.name, clientEmail: client.email,
           clientPhone: client.phone, clientAddress: client.address,
-          lineItems: displayItems, notes, photos,
+          lineItems: displayItems, notes, photos, discount, hstEnabled,
         }),
       });
       if (r.status === 401) { router.push("/invoices/login"); return; }
@@ -326,14 +329,39 @@ export default function NewInvoicePage() {
             </span>
           </label>
 
+          {/* Discount */}
+          <div style={{ marginBottom: 6 }}>
+            <label style={lbl}>Descuento ($)</label>
+            <input style={inp} type="number" min="0" step="0.01" value={discount || ""}
+              onChange={e => setDiscount(parseFloat(e.target.value) || 0)} placeholder="0.00" />
+          </div>
+
+          {/* HST toggle */}
+          <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", marginBottom: 6,
+            background: "#f8fafc", border: `1px solid ${!hstEnabled ? "#94a3b8" : "#e2e8f0"}`,
+            borderRadius: 10, cursor: "pointer" }}>
+            <input type="checkbox" checked={hstEnabled} onChange={e => setHstEnabled(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
+            <span style={{ fontSize: 13, color: "#374151" }}>Aplicar HST (13%)</span>
+          </label>
+
           {/* Totals */}
           <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 14, marginTop: 8 }}>
-            {[["Subtotal", subtotal], ["HST (13%)", hst]].map(([l, v]) => (
-              <div key={String(l)} style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ color: "#64748b", fontSize: 13 }}>{l}</span>
-                <span style={{ fontSize: 13 }}>${Number(v).toFixed(2)}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+              <span style={{ color: "#64748b", fontSize: 13 }}>Subtotal</span>
+              <span style={{ fontSize: 13 }}>${rawSubtotal.toFixed(2)}</span>
+            </div>
+            {discount > 0 && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ color: "#64748b", fontSize: 13 }}>Descuento</span>
+                <span style={{ fontSize: 13, color: "#dc2626" }}>-${Number(discount).toFixed(2)}</span>
               </div>
-            ))}
+            )}
+            {hstEnabled && (
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ color: "#64748b", fontSize: 13 }}>HST (13%)</span>
+                <span style={{ fontSize: 13 }}>${hst.toFixed(2)}</span>
+              </div>
+            )}
             <div style={{ display: "flex", justifyContent: "space-between", background: "#0f172a", borderRadius: 8, padding: "10px 14px", marginTop: 8 }}>
               <span style={{ color: "#fff", fontWeight: 700 }}>TOTAL CAD</span>
               <span style={{ color: "#e63946", fontWeight: 800, fontSize: 18 }}>${total.toFixed(2)}</span>
