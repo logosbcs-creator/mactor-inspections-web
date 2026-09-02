@@ -10,6 +10,21 @@ interface ClientSuggestion { id: string; name: string; email: string | null; pho
 const emptyItem = (): LineItem => ({ description: "", notes: "", rate: 0, qty: 1, amount: 0 });
 function token() { return localStorage.getItem("mactor_token") || ""; }
 
+// Card processing cost (Stripe: ~2.9% + $0.30 — rounded up here for a small
+// cushion), spread proportionally across each item's amount instead of
+// added as its own visible line, so the invoice total already covers it.
+function withCardSurcharge(items: LineItem[]): LineItem[] {
+  const subtotal = items.reduce((s, i) => s + Number(i.amount || 0), 0);
+  if (subtotal <= 0) return items;
+  const totalSurcharge = subtotal * 0.03 + 3;
+  return items.map(item => {
+    const share  = (Number(item.amount || 0) / subtotal) * totalSurcharge;
+    const amount = Math.round((Number(item.amount || 0) + share) * 100) / 100;
+    const qty    = Number(item.qty) || 1;
+    return { ...item, amount, rate: Math.round((amount / qty) * 100) / 100 };
+  });
+}
+
 const inp: React.CSSProperties = {
   width: "100%", padding: "10px 12px", borderRadius: 8, background: "#fff",
   border: "1px solid #e2e8f0", color: "#0f172a", fontSize: 14, outline: "none", boxSizing: "border-box",
@@ -29,6 +44,7 @@ export default function NewInvoicePage() {
   const [type,   setType]   = useState<"invoice"|"estimate">("invoice");
   const [client, setClient] = useState({ name: "", email: "", phone: "", address: "" });
   const [items,  setItems]  = useState<LineItem[]>([emptyItem()]);
+  const [cardSurcharge, setCardSurcharge] = useState(false);
   const [notes,  setNotes]  = useState("");
   const [photos, setPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -93,7 +109,8 @@ export default function NewInvoicePage() {
     });
   }
 
-  const subtotal = items.reduce((s, i) => s + Number(i.amount), 0);
+  const displayItems = cardSurcharge ? withCardSurcharge(items) : items;
+  const subtotal = displayItems.reduce((s, i) => s + Number(i.amount), 0);
   const hst      = Math.round(subtotal * 0.13 * 100) / 100;
   const total    = Math.round((subtotal + hst) * 100) / 100;
 
@@ -132,7 +149,7 @@ export default function NewInvoicePage() {
         body: JSON.stringify({
           type, clientName: client.name, clientEmail: client.email,
           clientPhone: client.phone, clientAddress: client.address,
-          lineItems: items, notes, photos,
+          lineItems: displayItems, notes, photos,
         }),
       });
       if (r.status === 401) { router.push("/invoices/login"); return; }
@@ -277,11 +294,21 @@ export default function NewInvoicePage() {
                 </div>
                 <div>
                   <label style={lbl}>Total</label>
-                  <div style={{ ...inp, color: "#e63946", fontWeight: 700, display: "flex", alignItems: "center" }}>${item.amount.toFixed(2)}</div>
+                  <div style={{ ...inp, color: "#e63946", fontWeight: 700, display: "flex", alignItems: "center" }}>${displayItems[i].amount.toFixed(2)}</div>
                 </div>
               </div>
             </div>
           ))}
+
+          {/* Card surcharge */}
+          <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", marginBottom: 6,
+            background: cardSurcharge ? "#eff6ff" : "#f8fafc", border: `1px solid ${cardSurcharge ? "#93c5fd" : "#e2e8f0"}`,
+            borderRadius: 10, cursor: "pointer" }}>
+            <input type="checkbox" checked={cardSurcharge} onChange={e => setCardSurcharge(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
+            <span style={{ fontSize: 13, color: "#374151" }}>
+              💳 Cliente pagará con tarjeta <span style={{ color: "#64748b" }}>— agrega 3% + $3 CAD, repartido entre los ítems</span>
+            </span>
+          </label>
 
           {/* Totals */}
           <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 14, marginTop: 8 }}>

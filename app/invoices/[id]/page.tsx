@@ -19,6 +19,21 @@ const STATUS_LABELS: Record<string, string> = {
 
 interface LineItem { description: string; notes?: string; rate: number; qty: number; amount: number; }
 
+// Card processing cost (Stripe: ~2.9% + $0.30 — rounded up here for a small
+// cushion), spread proportionally across each item's amount instead of
+// added as its own visible line, so the invoice total already covers it.
+function withCardSurcharge(items: LineItem[]): LineItem[] {
+  const subtotal = items.reduce((s, i) => s + Number(i.amount || 0), 0);
+  if (subtotal <= 0) return items;
+  const totalSurcharge = subtotal * 0.03 + 3;
+  return items.map(item => {
+    const share  = (Number(item.amount || 0) / subtotal) * totalSurcharge;
+    const amount = Math.round((Number(item.amount || 0) + share) * 100) / 100;
+    const qty    = Number(item.qty) || 1;
+    return { ...item, amount, rate: Math.round((amount / qty) * 100) / 100 };
+  });
+}
+
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id }    = use(params);
   const router    = useRouter();
@@ -40,6 +55,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   // Edit form state
   const [editClient,  setEditClient]  = useState({ name:"", email:"", phone:"", address:"" });
   const [editItems,   setEditItems]   = useState<LineItem[]>([]);
+  const [editCardSurcharge, setEditCardSurcharge] = useState(false);
   const [editNotes,   setEditNotes]   = useState("");
   const [editPhotos,  setEditPhotos]  = useState<string[]>([]);
   const [editDate,    setEditDate]    = useState("");
@@ -92,7 +108,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditItems(prev => prev.filter((_, idx) => idx !== i));
   }
 
-  const subtotal = editItems.reduce((s, i) => s + Number(i.amount || 0), 0);
+  const editDisplayItems = editCardSurcharge ? withCardSurcharge(editItems) : editItems;
+  const subtotal = editDisplayItems.reduce((s, i) => s + Number(i.amount || 0), 0);
   const hst      = Math.round(subtotal * 0.13 * 100) / 100;
   const total    = Math.round((subtotal + hst) * 100) / 100;
 
@@ -107,7 +124,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         clientEmail:   editClient.email,
         clientPhone:   editClient.phone,
         clientAddress: editClient.address,
-        lineItems:     editItems,
+        lineItems:     editDisplayItems,
         notes:         editNotes,
         photos:        editPhotos,
         invoiceDate:   editDate,
@@ -579,7 +596,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                     <input type="number" value={item.qty} onChange={e => updateItem(i,"qty",parseFloat(e.target.value)||1)}
                       style={{ ...inputSt, margin:0 }} />
                     <div style={{ ...inputSt as any, margin:0, background:"#f8fafc", color:"#0f172a", fontWeight:700, display:"flex", alignItems:"center" }}>
-                      ${item.amount.toFixed(2)}
+                      ${editDisplayItems[i].amount.toFixed(2)}
                     </div>
                     <button onClick={() => removeItem(i)}
                       style={{ background:"#fee2e2", border:"none", borderRadius:6, color:"#dc2626", cursor:"pointer", fontSize:16, fontWeight:700 }}>
@@ -596,8 +613,18 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 + Add line item
               </button>
 
+              {/* Card surcharge */}
+              <label style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 14px", marginTop:16,
+                background: editCardSurcharge ? "#eff6ff" : "#f8fafc", border:`1px solid ${editCardSurcharge ? "#93c5fd" : "#e2e8f0"}`,
+                borderRadius:10, cursor:"pointer" }}>
+                <input type="checkbox" checked={editCardSurcharge} onChange={e => setEditCardSurcharge(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
+                <span style={{ fontSize:13, color:"#374151" }}>
+                  💳 Cliente pagará con tarjeta <span style={{ color:"#64748b" }}>— agrega 3% + $3 CAD, repartido entre los ítems</span>
+                </span>
+              </label>
+
               {/* Totals preview */}
-              <div style={{ marginTop:16, padding:"14px", background:"#f8fafc", borderRadius:8 }}>
+              <div style={{ marginTop:10, padding:"14px", background:"#f8fafc", borderRadius:8 }}>
                 {[["Subtotal", subtotal], ["HST (13%)", hst]].map(([l,v]) => (
                   <div key={String(l)} style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
                     <span style={{ fontSize:13, color:"#64748b" }}>{l}</span>
