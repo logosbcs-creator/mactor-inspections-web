@@ -47,6 +47,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [sendBcc,       setSendBcc]       = useState(true);
   const [sendSms,       setSendSms]       = useState(false);
   const [sendPhone,     setSendPhone]     = useState("");
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [scheduleDate,      setScheduleDate]      = useState("");
+  const [scheduling,        setScheduling]        = useState(false);
   const [converting, setConverting] = useState(false);
   const [deleting,   setDeleting]   = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -222,6 +225,22 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setTimeout(() => setMsg(""), 6000);
   }
 
+  async function saveSchedule(overrideValue?: string) {
+    const value = overrideValue !== undefined ? overrideValue : scheduleDate;
+    setScheduling(true);
+    const r = await fetch(`${API}/api/invoices/${id}`, {
+      method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify({ scheduledDate: value || null }),
+    });
+    if (r.ok) {
+      const updated = await r.json();
+      setInv((p: any) => ({ ...p, scheduledDate: updated.scheduledDate }));
+      setEditScheduledDate(value);
+      setShowScheduleModal(false);
+    }
+    setScheduling(false);
+  }
+
   async function markPaid() {
     const r = await fetch(`${API}/api/invoices/${id}`, {
       method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
@@ -346,6 +365,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 ↩ {mob ? "Unpaid" : "Mark Unpaid"}
               </button>
             )}
+            <button onClick={() => { setScheduleDate(inv.scheduledDate ? inv.scheduledDate.slice(0,16) : ""); setShowScheduleModal(true); }}
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border: inv.scheduledDate ? "1px solid #0369a1" : "1px solid #e2e8f0",
+                background: inv.scheduledDate ? "#e0f2fe" : "#fff", color: inv.scheduledDate ? "#0369a1" : "#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap" }}>
+              📅 {mob ? "Agenda" : inv.scheduledDate ? "Reprogramar" : "Programar trabajo"}
+            </button>
             <button onClick={openPDF}
               style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
               📄 PDF
@@ -839,6 +863,42 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </button>
               <button onClick={() => setShowSendModal(false)} disabled={sending}
                 style={{ padding:"11px 18px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Schedule work — sets scheduledDate, shows up on the Agenda page */}
+      {showScheduleModal && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+          onClick={e => e.target === e.currentTarget && !scheduling && setShowScheduleModal(false)}>
+          <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:380, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:"#0f172a" }}>📅 Programar trabajo</h2>
+              <button onClick={() => setShowScheduleModal(false)} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#94a3b8" }}>×</button>
+            </div>
+            <label style={{ ...labelSt, display:"block", marginBottom:6 }}>Fecha y hora</label>
+            <input type="datetime-local" autoFocus value={scheduleDate}
+              onChange={e => setScheduleDate(e.target.value)}
+              style={{ ...inputSt, margin:0 }} />
+            <p style={{ margin:"6px 0 0", fontSize:11, color:"#94a3b8" }}>
+              Aparecerá en la Agenda para planear el trabajo.
+            </p>
+            <div style={{ display:"flex", gap:8, marginTop:20 }}>
+              <button onClick={() => saveSchedule()} disabled={scheduling}
+                style={{ flex:1, padding:"11px", background: scheduling ? "#94a3b8" : "#0369a1", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:scheduling?"not-allowed":"pointer" }}>
+                {scheduling ? "Guardando..." : "Guardar"}
+              </button>
+              {inv.scheduledDate && (
+                <button onClick={() => { setScheduleDate(""); saveSchedule(""); }} disabled={scheduling}
+                  style={{ padding:"11px 16px", background:"#fee2e2", border:"none", borderRadius:10, fontSize:14, fontWeight:600, cursor:scheduling?"not-allowed":"pointer", color:"#dc2626" }}>
+                  Quitar
+                </button>
+              )}
+              <button onClick={() => setShowScheduleModal(false)} disabled={scheduling}
+                style={{ padding:"11px 16px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
                 Cancelar
               </button>
             </div>
