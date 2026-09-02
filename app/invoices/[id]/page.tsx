@@ -158,9 +158,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       const newStatus = inv.status === "draft" ? "sent" : inv.status;
       setInv((p: any) => ({ ...p, status: newStatus, sentAt: new Date().toISOString() }));
       setEditStatus(newStatus);
-    } else { setMsg("❌ Error sending email"); }
+    } else {
+      const d = await r.json().catch(() => ({}));
+      setMsg(`❌ ${d.error || "Error sending email"}`);
+    }
     setSending(false);
-    setTimeout(() => setMsg(""), 4000);
+    setTimeout(() => setMsg(""), 6000);
   }
 
   async function markPaid() {
