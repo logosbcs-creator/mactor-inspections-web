@@ -257,12 +257,8 @@ export default function NewInvoicePage() {
 
         {/* Line items */}
         <div style={card}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ marginBottom: 14 }}>
             <p style={{ ...lbl, margin: 0 }}>Ítems</p>
-            <button onClick={() => setItems(p => [...p, emptyItem()])}
-              style={{ background: "#fef2f2", color: "#e63946", border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
-              + Agregar ítem
-            </button>
           </div>
 
           {items.map((item, i) => (
@@ -299,6 +295,11 @@ export default function NewInvoicePage() {
               </div>
             </div>
           ))}
+
+          <button onClick={() => setItems(p => [...p, emptyItem()])}
+            style={{ width: "100%", padding: "12px", borderRadius: 8, border: "2px dashed #e2e8f0", background: "#fafafa", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 16 }}>
+            + Agregar ítem
+          </button>
 
           {/* Card surcharge */}
           <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", marginBottom: 6,
