@@ -44,6 +44,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [showSendModal, setShowSendModal] = useState(false);
   const [sendEmail,     setSendEmail]     = useState("");
   const [sendBcc,       setSendBcc]       = useState(true);
+  const [sendSms,       setSendSms]       = useState(false);
+  const [sendPhone,     setSendPhone]     = useState("");
   const [converting, setConverting] = useState(false);
   const [deleting,   setDeleting]   = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -173,10 +175,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     const r = await fetch(`${API}/api/invoices/${id}/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
-      body: JSON.stringify({ email: sendEmail || undefined, bcc: sendBcc }),
+      body: JSON.stringify({ email: sendEmail || undefined, bcc: sendBcc, sms: sendSms, phone: sendPhone || undefined }),
     });
     if (r.ok) {
-      setMsg("✅ Email sent!");
+      const d = await r.json().catch(() => ({}));
+      setMsg(sendSms && d.smsError ? `⚠️ Email sent, but SMS failed: ${d.smsError}` : "✅ Email sent!");
       // Mirrors the backend: only a draft flips to "sent" — a resend on an
       // already sent/paid invoice keeps its current status.
       const newStatus = inv.status === "draft" ? "sent" : inv.status;
@@ -314,7 +317,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               📄 PDF
             </button>
             {inv.clientEmail ? (
-              <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setShowSendModal(true); }} disabled={sending}
+              <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setSendSms(false); setSendPhone(inv.clientPhone || ""); setShowSendModal(true); }} disabled={sending}
                 style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 16 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
                 {sending ? "Sending..." : "✉ " + (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
@@ -737,9 +740,19 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <input type="checkbox" checked={sendBcc} onChange={e => setSendBcc(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
               <span style={{ fontSize:13, color:"#374151" }}>Enviarme copia oculta (BCC) a billing@mactor.ca</span>
             </label>
+            <label style={{ display:"flex", alignItems:"center", gap:8, marginTop:12, cursor:"pointer" }}>
+              <input type="checkbox" checked={sendSms} onChange={e => setSendSms(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
+              <span style={{ fontSize:13, color:"#374151" }}>También enviar por SMS</span>
+            </label>
+            {sendSms && (
+              <input type="tel" value={sendPhone}
+                onChange={e => setSendPhone(e.target.value)}
+                placeholder="416-000-0000"
+                style={{ ...inputSt, margin:"8px 0 0" }} />
+            )}
             <div style={{ display:"flex", gap:8, marginTop:20 }}>
-              <button onClick={send} disabled={sending || !sendEmail.trim()}
-                style={{ flex:1, padding:"11px", background: sending ? "#94a3b8" : "#e63946", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:(sending||!sendEmail.trim())?"not-allowed":"pointer" }}>
+              <button onClick={send} disabled={sending || !sendEmail.trim() || (sendSms && !sendPhone.trim())}
+                style={{ flex:1, padding:"11px", background: sending ? "#94a3b8" : "#e63946", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:(sending||!sendEmail.trim()||(sendSms&&!sendPhone.trim()))?"not-allowed":"pointer" }}>
                 {sending ? "Enviando..." : "Enviar"}
               </button>
               <button onClick={() => setShowSendModal(false)} disabled={sending}
