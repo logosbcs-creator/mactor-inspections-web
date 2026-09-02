@@ -226,15 +226,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     }
   }
 
-  async function convertToInvoice() {
-    if (!confirm("¿Crear una invoice a partir de este estimado?")) return;
+  async function convert() {
+    const toEst = !isEst;
+    if (!confirm(toEst ? "¿Crear un estimado a partir de esta factura?" : "¿Crear una factura a partir de este estimado?")) return;
     setConverting(true);
     const r = await fetch(`${API}/api/invoices/${id}/convert`, {
       method: "POST", headers: { Authorization: `Bearer ${token()}` },
     });
     if (r.ok) {
-      const inv = await r.json();
-      router.push(`/invoices/${inv.id}`);
+      const created = await r.json();
+      router.push(`/invoices/${created.id}`);
     } else {
       setMsg("❌ Error al convertir");
       setConverting(false);
@@ -285,12 +286,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
           {/* Action buttons */}
           <div style={{ display:"flex", gap: mob ? 5 : 8, flexWrap: mob ? "wrap" : "nowrap", width: mob ? "100%" : "auto" }}>
-            {isEst && (
-              <button onClick={convertToInvoice} disabled={converting}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize: mob ? 12 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
-                {converting ? "Creando..." : "🧾 " + (mob ? "Invoice" : "Convertir a Invoice")}
-              </button>
-            )}
+            <button onClick={convert} disabled={converting}
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize: mob ? 12 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
+              {converting ? "Creando..." : isEst ? "🧾 " + (mob ? "Invoice" : "Convertir a Invoice") : "📋 " + (mob ? "Estimado" : "Convertir a Estimado")}
+            </button>
             {!isEst && inv.status !== "paid" && (
               <button onClick={markPaid}
                 style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #16a34a", background:"#dcfce7", color:"#16a34a", fontSize: mob ? 12 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
