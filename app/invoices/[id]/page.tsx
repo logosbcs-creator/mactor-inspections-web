@@ -432,7 +432,15 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 {!isEst && (
                   <div>
                     <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Payment Info</p>
-                    <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>PAYPAL</p>
+                    {inv.status !== "paid" && (
+                      <>
+                        <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>PAY ONLINE</p>
+                        <p style={{ margin:"0 0 10px", fontSize:12 }}>
+                          <a href={`${API}/api/pay/${inv.id}`} target="_blank" rel="noreferrer" style={{ color:"#2563eb" }}>Click here to pay by card</a>
+                        </p>
+                      </>
+                    )}
+                    <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>E-TRANSFER</p>
                     <p style={{ margin:"0 0 10px", fontSize:12, color:"#2563eb" }}>payments@mactor.ca</p>
                     <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>BY CHEQUE</p>
                     <p style={{ margin:0, fontSize:12, color:"#444" }}>Mactor Construction or Julio Cesar Macias Aguilar</p>
