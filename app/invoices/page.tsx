@@ -20,7 +20,7 @@ function InvoicesContent() {
   const searchParams = useSearchParams();
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [tab,      setTab]      = useState<Tab>("all");
-  const [typeFilter, setTypeFilter] = useState<"all"|"invoice"|"estimate">("all");
+  const [typeFilter, setTypeFilter] = useState<"all"|"invoice"|"estimate">("invoice");
   const [search,   setSearch]   = useState(searchParams.get("q") || "");
   const [loading,  setLoading]  = useState(true);
   const [perPage,  setPerPage]  = useState(50);
