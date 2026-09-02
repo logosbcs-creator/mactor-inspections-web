@@ -113,6 +113,16 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditItems(prev => prev.filter((_, idx) => idx !== i));
   }
 
+  function moveItem(i: number, dir: -1 | 1) {
+    setEditItems(prev => {
+      const j = i + dir;
+      if (j < 0 || j >= prev.length) return prev;
+      const items = [...prev];
+      [items[i], items[j]] = [items[j], items[i]];
+      return items;
+    });
+  }
+
   const editDisplayItems = editCardSurcharge ? withCardSurcharge(editItems) : editItems;
   const subtotal = editDisplayItems.reduce((s, i) => s + Number(i.amount || 0), 0);
   const hst      = Math.round(subtotal * 0.13 * 100) / 100;
@@ -616,6 +626,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
               {editItems.map((item, i) => (
                 <div key={i} style={{ border:"1px solid #f1f5f9", borderRadius:8, padding:"12px", marginBottom:10, background:"#fafafa" }}>
+                  <div style={{ display:"flex", justifyContent:"flex-end", gap:6, marginBottom:8 }}>
+                    <button onClick={() => moveItem(i, -1)} disabled={i === 0}
+                      style={{ background:"#f1f5f9", border:"none", borderRadius:6, color: i===0 ? "#cbd5e1" : "#475569", cursor: i===0 ? "default" : "pointer", fontSize:13, fontWeight:700, padding:"2px 8px" }}>↑</button>
+                    <button onClick={() => moveItem(i, 1)} disabled={i === editItems.length - 1}
+                      style={{ background:"#f1f5f9", border:"none", borderRadius:6, color: i===editItems.length-1 ? "#cbd5e1" : "#475569", cursor: i===editItems.length-1 ? "default" : "pointer", fontSize:13, fontWeight:700, padding:"2px 8px" }}>↓</button>
+                  </div>
                   <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 70px 50px 70px 28px" : "1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
                     <input value={item.description} onChange={e => updateItem(i,"description",e.target.value)}
                       placeholder="Description" style={{ ...inputSt, margin:0 }} />

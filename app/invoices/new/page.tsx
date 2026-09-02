@@ -109,6 +109,16 @@ export default function NewInvoicePage() {
     });
   }
 
+  function moveItem(i: number, dir: -1 | 1) {
+    setItems(prev => {
+      const j = i + dir;
+      if (j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  }
+
   const displayItems = cardSurcharge ? withCardSurcharge(items) : items;
   const subtotal = displayItems.reduce((s, i) => s + Number(i.amount), 0);
   const hst      = Math.round(subtotal * 0.13 * 100) / 100;
@@ -265,10 +275,16 @@ export default function NewInvoicePage() {
             <div key={i} style={{ border: "1px solid #f1f5f9", borderRadius: 10, padding: 14, marginBottom: 10, background: "#fafafa" }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: "#e63946" }}>Ítem {i + 1}</span>
-                {items.length > 1 && (
-                  <button onClick={() => setItems(p => p.filter((_, j) => j !== i))}
-                    style={{ background: "#fee2e2", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 16, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>×</button>
-                )}
+                <div style={{ display: "flex", gap: 6 }}>
+                  <button onClick={() => moveItem(i, -1)} disabled={i === 0}
+                    style={{ background: "#f1f5f9", border: "none", color: i===0 ? "#cbd5e1" : "#475569", cursor: i===0 ? "default" : "pointer", fontSize: 13, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>↑</button>
+                  <button onClick={() => moveItem(i, 1)} disabled={i === items.length - 1}
+                    style={{ background: "#f1f5f9", border: "none", color: i===items.length-1 ? "#cbd5e1" : "#475569", cursor: i===items.length-1 ? "default" : "pointer", fontSize: 13, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>↓</button>
+                  {items.length > 1 && (
+                    <button onClick={() => setItems(p => p.filter((_, j) => j !== i))}
+                      style={{ background: "#fee2e2", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 16, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>×</button>
+                  )}
+                </div>
               </div>
               <div style={{ marginBottom: 10 }}>
                 <label style={lbl}>Descripción</label>
