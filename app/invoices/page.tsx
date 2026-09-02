@@ -124,6 +124,10 @@ function InvoicesContent() {
               style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#374151" }}>
               📥 Importar
             </button>
+            <button onClick={() => router.push("/invoices/users")}
+              style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", color: "#0f172a" }}>
+              👤 Usuarios
+            </button>
           </>}
           <button onClick={() => router.push("/invoices/new")}
             style={{ padding: mob ? "7px 12px" : "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
@@ -150,6 +154,10 @@ function InvoicesContent() {
           <button onClick={() => router.push("/invoices/import")}
             style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f8fafc", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#374151", whiteSpace: "nowrap" }}>
             📥 Importar
+          </button>
+          <button onClick={() => router.push("/invoices/users")}
+            style={{ padding: "6px 12px", borderRadius: 20, border: "1px solid #e2e8f0", background: "#f8fafc", fontSize: 12, fontWeight: 600, cursor: "pointer", color: "#0f172a", whiteSpace: "nowrap" }}>
+            👤 Usuarios
           </button>
         </div>
       )}

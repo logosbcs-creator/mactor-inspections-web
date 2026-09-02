@@ -19,6 +19,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const { id }    = use(params);
   const router    = useRouter();
   const [inv,     setInv]     = useState<any>(null);
+  const [notFound, setNotFound] = useState(false);
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
   const [sending,    setSending]    = useState(false);
   const [converting, setConverting] = useState(false);
@@ -49,6 +50,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   async function load() {
     const r = await fetch(`${API}/api/invoices/${id}`, { headers: { Authorization: `Bearer ${token()}` } });
     if (r.status === 401) { router.push("/invoices/login"); return; }
+    if (!r.ok) { setNotFound(true); return; }
     const d = await r.json();
     setInv(d);
     // Populate edit form
@@ -141,8 +143,14 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   async function send() {
     setSending(true); setMsg("");
     const r = await fetch(`${API}/api/invoices/${id}/send`, { method: "POST", headers: { Authorization: `Bearer ${token()}` } });
-    if (r.ok) { setMsg("✅ Email sent!"); setInv((p: any) => ({ ...p, status: "sent", sentAt: new Date().toISOString() })); }
-    else       { setMsg("❌ Error sending email"); }
+    if (r.ok) {
+      setMsg("✅ Email sent!");
+      // Mirrors the backend: only a draft flips to "sent" — a resend on an
+      // already sent/paid invoice keeps its current status.
+      const newStatus = inv.status === "draft" ? "sent" : inv.status;
+      setInv((p: any) => ({ ...p, status: newStatus, sentAt: new Date().toISOString() }));
+      setEditStatus(newStatus);
+    } else { setMsg("❌ Error sending email"); }
     setSending(false);
     setTimeout(() => setMsg(""), 4000);
   }
@@ -180,6 +188,17 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       setTimeout(() => setMsg(""), 3000);
     }
   }
+
+  if (notFound) return (
+    <div style={{ minHeight:"100dvh", background:"#f8fafc", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, fontFamily:"system-ui,sans-serif" }}>
+      <p style={{ fontSize:36, margin:0 }}>🔍</p>
+      <p style={{ color:"#64748b", fontSize:14 }}>Invoice not found</p>
+      <button onClick={() => router.push("/invoices")}
+        style={{ padding:"9px 20px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+        ← Back to invoices
+      </button>
+    </div>
+  );
 
   if (!inv) return (
     <div style={{ minHeight:"100dvh", background:"#f8fafc", display:"flex", alignItems:"center", justifyContent:"center", color:"#94a3b8", fontFamily:"system-ui,sans-serif" }}>
