@@ -14,11 +14,11 @@ interface ServiceItem {
 }
 
 const CATEGORY_COLORS: Record<string, string> = {
-  Masonry: "#dc2626", Drainage: "#2563eb", Landscaping: "#16a34a",
-  Cleanup: "#d97706", Foundation: "#7c3aed", Coating: "#0891b2",
-  Fencing: "#92400e", Roofing: "#374151", "Windows & Doors": "#b45309",
-  Concrete: "#6b7280", Flooring: "#a16207", Drywall: "#9f1239",
-  "Spray & Coating": "#0f766e", General: "#64748b",
+  Masonry: "#dc2626", Drainage: "#0a0f1e", Landscaping: "#0a0f1e",
+  Cleanup: "#0f172a", Foundation: "#0a0f1e", Coating: "#0a0f1e",
+  Fencing: "#0f172a", Roofing: "#374151", "Windows & Doors": "#64748b",
+  Concrete: "#6b7280", Flooring: "#64748b", Drywall: "#e63946",
+  "Spray & Coating": "#0a0f1e", General: "#64748b",
 };
 
 export default function CatalogPage() {
@@ -147,17 +147,17 @@ export default function CatalogPage() {
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
         {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 13 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Servicios</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 15 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Servicios</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{items.length} servicios</p>}
         </div>
         {!mob && (
           <button onClick={runBackfill} disabled={backfilling}
-            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: backfilling ? "#f1f5f9" : "#fff", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: "#7c3aed", opacity: backfilling ? 0.6 : 1, whiteSpace: "nowrap", flexShrink: 0 }}>
+            style={{ padding: "8px 16px", borderRadius: 8, border: "1px solid #e2e8f0", background: backfilling ? "#f1f5f9" : "#fff", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: "#0a0f1e", opacity: backfilling ? 0.6 : 1, whiteSpace: "nowrap", flexShrink: 0 }}>
             {backfilling ? "Procesando..." : "🔄 Rellenar"}
           </button>
         )}
         <button onClick={() => setShowNew(true)}
-          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 14 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
           + {mob ? "Nuevo" : "Nuevo servicio"}
         </button>
       </div>
@@ -228,13 +228,13 @@ export default function CatalogPage() {
         <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4, 1fr)", gap: mob ? 8 : 12, marginBottom: mob ? 14 : 24 }}>
           {[
             { label: "Servicios",    value: items.length,                    color: "#0f172a" },
-            { label: "Categorías",   value: cats.length,                     color: "#7c3aed" },
+            { label: "Categorías",   value: cats.length,                     color: "#0a0f1e" },
             { label: mob ? "Top" : "Más usado", value: items[0]?.name?.split(" ").slice(0,2).join(" ") || "—", color: "#e63946", isText: true },
-            { label: "Precio prom.", value: items.length ? `$${(items.reduce((s,i)=>s+i.avgPrice,0)/items.length).toFixed(0)}` : "—", color: "#16a34a", isText: true },
+            { label: "Precio prom.", value: items.length ? `$${(items.reduce((s,i)=>s+i.avgPrice,0)/items.length).toFixed(0)}` : "—", color: "#0a0f1e", isText: true },
           ].map(s => (
             <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: "1px solid #e2e8f0" }}>
-              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 10 : 11 }}>{s.label}</p>
-              <p style={{ margin: 0, fontSize: s.isText ? (mob ? 12 : 14) : (mob ? 18 : 22), fontWeight: 800, color: s.color }}>{s.value}</p>
+              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 12 : 11 }}>{s.label}</p>
+              <p style={{ margin: 0, fontSize: s.isText ? (mob ? 14 : 14) : (mob ? 18 : 22), fontWeight: 800, color: s.color }}>{s.value}</p>
             </div>
           ))}
         </div>
@@ -319,25 +319,25 @@ export default function CatalogPage() {
                         borderBottom: "1px solid #f1f5f9",
                         background: selected?.id === item.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
                         transition: "background 0.1s", alignItems: "center" }}
-                      onMouseEnter={e => { if (selected?.id !== item.id) e.currentTarget.style.background = "#f0f9ff"; }}
+                      onMouseEnter={e => { if (selected?.id !== item.id) e.currentTarget.style.background = "#f8fafc"; }}
                       onMouseLeave={e => { if (selected?.id !== item.id) e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"; }}>
                       <div style={{ cursor: "pointer", minWidth: 0 }} onClick={() => setSelected(selected?.id === item.id ? null : item)}>
                         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                           <span style={{ width: 8, height: 8, borderRadius: "50%", background: CATEGORY_COLORS[item.category || ""] || "#64748b", flexShrink: 0 }} />
-                          <span style={{ fontSize: mob ? 12 : 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
+                          <span style={{ fontSize: mob ? 14 : 13, fontWeight: 600, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{item.name}</span>
                         </div>
                         {!mob && item.category && <span style={{ fontSize: 11, color: "#94a3b8", marginLeft: 16 }}>{item.category} {item.unit ? `· ${item.unit}` : ""}</span>}
                       </div>
-                      <span style={{ fontSize: mob ? 12 : 13, fontWeight: 700, textAlign: "right", color: "#0f172a" }}>${item.lastPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
-                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#16a34a" }}>${item.minPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
+                      <span style={{ fontSize: mob ? 14 : 13, fontWeight: 700, textAlign: "right", color: "#0f172a" }}>${item.lastPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>
+                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#0a0f1e" }}>${item.minPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
                       {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#dc2626" }}>${item.maxPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
-                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#7c3aed", fontWeight: 600 }}>${item.avgPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
+                      {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#0a0f1e", fontWeight: 600 }}>${item.avgPrice.toLocaleString("en-CA", { minimumFractionDigits: 0 })}</span>}
                       {!mob && <span style={{ fontSize: 12, textAlign: "right", color: "#64748b" }}>{item.useCount}×</span>}
                       <div style={{ display: "flex", gap: 4, justifyContent: "flex-end" }}>
                         <button
                           onClick={e => { e.stopPropagation(); setSelected(item); openEdit(item); }}
                           title="Editar"
-                          style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: "#0891b2" }}>
+                          style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: "#0a0f1e" }}>
                           ✏️
                         </button>
                         <button
@@ -360,7 +360,7 @@ export default function CatalogPage() {
                           <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
                             <button onClick={() => editingSvc ? setEditingSvc(false) : openEdit(selected)}
                               title="Editar"
-                              style={{ background: editingSvc ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
+                              style={{ background: editingSvc ? "#f1f5f9" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0a0f1e" }}>
                               ✏️
                             </button>
                             <button onClick={() => deleteService()} disabled={deletingSvc}
@@ -405,7 +405,7 @@ export default function CatalogPage() {
                             </div>
                             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
                               <button onClick={saveService} disabled={savingSvc}
-                                style={{ flex: 1, padding: "9px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                                style={{ flex: 1, padding: "9px", background: "#0a0f1e", color: "#fff", border: "none", borderRadius: 8, fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                                 {savingSvc ? "Guardando..." : "Guardar cambios"}
                               </button>
                               <button onClick={() => setEditingSvc(false)}

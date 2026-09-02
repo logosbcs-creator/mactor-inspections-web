@@ -102,11 +102,11 @@ export default function UsersPage() {
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
         {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 13 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Usuarios</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 15 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Usuarios</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{users.length} cuenta{users.length === 1 ? "" : "s"} con acceso al sistema</p>}
         </div>
         <button onClick={() => { setShowNew(true); setError(""); }}
-          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 14 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
           + {mob ? "Nuevo" : "Nuevo usuario"}
         </button>
       </div>
@@ -163,7 +163,7 @@ export default function UsersPage() {
             <input style={inp} type="password" value={newPw} onChange={e => setNewPw(e.target.value)} placeholder="••••••" autoComplete="new-password" />
             <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
               <button onClick={savePassword} disabled={savingPw || newPw.length < 6}
-                style={{ flex: 1, padding: "11px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: savingPw ? "not-allowed" : "pointer", opacity: savingPw ? 0.7 : 1 }}>
+                style={{ flex: 1, padding: "11px", background: "#0a0f1e", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: savingPw ? "not-allowed" : "pointer", opacity: savingPw ? 0.7 : 1 }}>
                 {savingPw ? "Guardando..." : "Guardar"}
               </button>
               <button onClick={() => { setPwFor(null); setNewPw(""); }}
@@ -196,12 +196,12 @@ export default function UsersPage() {
               style={{ display: "grid", gridTemplateColumns: mob ? "1fr 90px" : "1fr 1fr 140px 100px", padding: mob ? "10px 12px" : "12px 20px",
                 borderBottom: i < users.length - 1 ? "1px solid #f1f5f9" : "none",
                 background: i % 2 === 0 ? "#fff" : "#fafafa", alignItems: "center" }}>
-              <span style={{ fontSize: mob ? 12 : 13, fontWeight: 700, color: "#0f172a" }}>{u.username}</span>
+              <span style={{ fontSize: mob ? 14 : 13, fontWeight: 700, color: "#0f172a" }}>{u.username}</span>
               {!mob && <span style={{ fontSize: 13, color: "#374151" }}>{u.name || "—"}</span>}
               {!mob && <span style={{ fontSize: 12, color: "#94a3b8" }}>{new Date(u.createdAt).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" })}</span>}
               <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                 <button onClick={() => { setPwFor(u); setNewPw(""); }} title="Cambiar contraseña"
-                  style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: "#0891b2" }}>
+                  style={{ background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: "#0a0f1e" }}>
                   🔑
                 </button>
                 <button onClick={() => deleteUser(u)} disabled={deletingId === u.id} title="Eliminar"

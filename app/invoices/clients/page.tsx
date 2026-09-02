@@ -20,7 +20,7 @@ const inp: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRad
 
 function statusBadge(s: string) {
   const map: Record<string, [string, string]> = {
-    paid: ["#dcfce7", "#16a34a"], sent: ["#dbeafe", "#1d4ed8"],
+    paid: ["#f1f5f9", "#0a0f1e"], sent: ["#f1f5f9", "#0a0f1e"],
     draft: ["#f3f4f6", "#6b7280"], overdue: ["#fee2e2", "#dc2626"],
   };
   const [bg, color] = map[s] || ["#f3f4f6", "#6b7280"];
@@ -152,7 +152,7 @@ export default function ClientsPage() {
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <button onClick={() => setEditingContact(v => !v)}
             title="Editar"
-            style={{ background: editingContact ? "#e0f2fe" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0891b2" }}>
+            style={{ background: editingContact ? "#f1f5f9" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0a0f1e" }}>
             ✏️
           </button>
           <button onClick={deleteClient} disabled={deleting}
@@ -187,7 +187,7 @@ export default function ClientsPage() {
             ))}
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
               <button onClick={saveContact} disabled={saving}
-                style={{ flex: 1, padding: "8px", background: "#0891b2", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                style={{ flex: 1, padding: "8px", background: "#0a0f1e", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                 {saving ? "Guardando..." : "Guardar cambios"}
               </button>
               <button onClick={() => setEditingContact(false)}
@@ -216,9 +216,9 @@ export default function ClientsPage() {
         {/* Totals */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
-            { label: "Facturado",  value: selected.totalInvoiced, color: "#7c3aed" },
-            { label: "Cobrado",    value: selected.totalPaid,     color: "#16a34a" },
-            { label: "Por cobrar", value: selected.totalInvoiced - selected.totalPaid, color: "#d97706" },
+            { label: "Facturado",  value: selected.totalInvoiced, color: "#0a0f1e" },
+            { label: "Cobrado",    value: selected.totalPaid,     color: "#0a0f1e" },
+            { label: "Por cobrar", value: selected.totalInvoiced - selected.totalPaid, color: "#0f172a" },
           ].map(s => (
             <div key={s.label} style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 12px" }}>
               <p style={{ ...lbl, margin: "0 0 4px" }}>{s.label}</p>
@@ -263,12 +263,12 @@ export default function ClientsPage() {
             <div key={i}
               onClick={() => router.push(`/invoices/${encodeURIComponent(h.number)}`)}
               style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", transition: "background 0.1s" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#e0f2fe")}
+              onMouseEnter={e => (e.currentTarget.style.background = "#f1f5f9")}
               onMouseLeave={e => (e.currentTarget.style.background = "#f8fafc")}
             >
               <span style={{ fontSize: 14 }}>{h.type === "invoice" ? "📄" : "📋"}</span>
               <div style={{ flex: 1 }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0891b2" }}>{h.number}</p>
+                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0a0f1e" }}>{h.number}</p>
                 <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{h.date}</p>
               </div>
               <div style={{ textAlign: "right" }}>
@@ -299,11 +299,11 @@ export default function ClientsPage() {
         <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
         {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} style={{ objectFit: "contain", flexShrink: 0 }} />}
         <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 13 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 15 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{clients.length} clientes · se alimenta automáticamente</p>}
         </div>
         <button onClick={() => setShowNew(true)}
-          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 12 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 14 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
           + {mob ? "Nuevo" : "Nuevo cliente"}
         </button>
       </div>
@@ -360,13 +360,13 @@ export default function ClientsPage() {
         <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4, 1fr)", gap: mob ? 8 : 12, marginBottom: mob ? 14 : 24 }}>
           {[
             { label: "Clientes",        value: clients.length,                                color: "#0f172a", fmt: "n" },
-            { label: mob ? "Facturado" : "Total facturado",  value: clients.reduce((s,c)=>s+c.totalInvoiced,0), color: "#7c3aed", fmt: "$" },
-            { label: mob ? "Cobrado" : "Total cobrado",      value: totalPaid,                color: "#16a34a", fmt: "$" },
-            { label: "Por cobrar",      value: outstanding,                                   color: "#d97706", fmt: "$" },
+            { label: mob ? "Facturado" : "Total facturado",  value: clients.reduce((s,c)=>s+c.totalInvoiced,0), color: "#0a0f1e", fmt: "$" },
+            { label: mob ? "Cobrado" : "Total cobrado",      value: totalPaid,                color: "#0a0f1e", fmt: "$" },
+            { label: "Por cobrar",      value: outstanding,                                   color: "#0f172a", fmt: "$" },
           ].map(s => (
             <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: "1px solid #e2e8f0" }}>
-              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 10 : 11 }}>{s.label}</p>
-              <p style={{ margin: 0, fontSize: mob ? 16 : 20, fontWeight: 800, color: s.color }}>
+              <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 12 : 11 }}>{s.label}</p>
+              <p style={{ margin: 0, fontSize: mob ? 18 : 20, fontWeight: 800, color: s.color }}>
                 {s.fmt === "$" ? `$${Number(s.value).toLocaleString("en-CA", { minimumFractionDigits: 0 })}` : s.value}
               </p>
             </div>
@@ -403,7 +403,7 @@ export default function ClientsPage() {
                     borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
                     cursor: "pointer", background: selected?.id === c.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
                     transition: "background 0.1s" }}
-                  onMouseEnter={e => { if (selected?.id !== c.id) e.currentTarget.style.background = "#f0f9ff"; }}
+                  onMouseEnter={e => { if (selected?.id !== c.id) e.currentTarget.style.background = "#f8fafc"; }}
                   onMouseLeave={e => { if (selected?.id !== c.id) e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"; }}>
                   <div>
                     <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{c.name}</p>
@@ -414,10 +414,10 @@ export default function ClientsPage() {
                   <span style={{ fontSize: 12, color: "#64748b", textAlign: "right" }}>
                     {c.lastActivity ? new Date(c.lastActivity).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" }) : "—"}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#7c3aed", textAlign: "right" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0a0f1e", textAlign: "right" }}>
                     ${c.totalInvoiced.toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#16a34a", textAlign: "right" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0a0f1e", textAlign: "right" }}>
                     ${c.totalPaid.toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                   </span>
                   <div style={{ textAlign: "right" }}>
@@ -467,7 +467,7 @@ export default function ClientsPage() {
                     {c.invoiceCount > 0 && `${c.invoiceCount} inv`}{c.invoiceCount > 0 && c.estimateCount > 0 && " · "}{c.estimateCount > 0 && `${c.estimateCount} est`}
                   </p>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#7c3aed", textAlign: "right", alignSelf: "center" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "#0a0f1e", textAlign: "right", alignSelf: "center" }}>
                   ${c.totalInvoiced.toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                 </span>
               </div>

@@ -145,22 +145,22 @@ export default function ImportPage() {
         </div>
 
         {/* Prompt section */}
-        <div style={{ background: "#1e3a5f", borderRadius: 12, padding: "16px 20px", marginBottom: 20, border: "1px solid #2563eb33" }}>
+        <div style={{ background: "#1f2937", borderRadius: 12, padding: "16px 20px", marginBottom: 20, border: "1px solid #0a0f1e33" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#60a5fa" }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#94a3b8" }}>
               📋 Prompt para ChatGPT — {mode === "invoice" ? "Facturas" : "Estimados"}
             </p>
             <button onClick={copyPrompt}
-              style={{ background: copied?"#16a34a":"#2563eb", color:"#fff", border:"none", borderRadius:8, padding:"5px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>
+              style={{ background:"#0a0f1e", color:"#fff", border:"none", borderRadius:8, padding:"5px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>
               {copied ? "✓ Copiado" : "Copiar prompt"}
             </button>
           </div>
-          <pre style={{ margin: 0, fontSize: 11, color: "#93c5fd", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto",
-            background: "#0f2040", borderRadius: 8, padding: "10px 12px" }}>
+          <pre style={{ margin: 0, fontSize: 11, color: "#94a3b8", lineHeight: 1.7, whiteSpace: "pre-wrap", maxHeight: 200, overflow: "auto",
+            background: "#0f172a", borderRadius: 8, padding: "10px 12px" }}>
             {(mode === "invoice" ? INVOICE_PROMPT : ESTIMATE_PROMPT).trim()}
           </pre>
           {mode === "estimate" && (
-            <p style={{ margin: "10px 0 0", fontSize: 11, color: "#fbbf24" }}>
+            <p style={{ margin: "10px 0 0", fontSize: 11, color: "#94a3b8" }}>
               ⭐ Los estimados con <strong>subItems</strong> alimentan automáticamente el catálogo de precios
             </p>
           )}
@@ -177,7 +177,7 @@ export default function ImportPage() {
             placeholder={'[\n  {\n    "invoiceNumber": "INV0001",\n    "clientName": "John Smith",\n    ...\n  }\n]'}
             style={{
               width: "100%", minHeight: 320, padding: "12px", borderRadius: 8,
-              background: "#0a0f1e", border: "1px solid #374151", color: "#a5f3fc",
+              background: "#0a0f1e", border: "1px solid #374151", color: "#e2e8f0",
               fontSize: 12, fontFamily: "monospace", outline: "none",
               resize: "vertical", boxSizing: "border-box", lineHeight: 1.6,
             }}
@@ -191,22 +191,22 @@ export default function ImportPage() {
 
         {/* Error */}
         {error && (
-          <div style={{ background: "#7f1d1d", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#fca5a5" }}>
+          <div style={{ background: "#7f1d1d", borderRadius: 10, padding: "12px 16px", marginBottom: 16, fontSize: 13, color: "#dc2626" }}>
             ❌ {error}
           </div>
         )}
 
         {/* Result */}
         {result && (
-          <div style={{ background: result.errors?.length ? "#78350f" : "#14532d", borderRadius: 12, padding: "20px", marginBottom: 16 }}>
+          <div style={{ background: result.errors?.length ? "#374151" : "#0a0f1e", borderRadius: 12, padding: "20px", marginBottom: 16 }}>
             <p style={{ margin: "0 0 12px", fontSize: 15, fontWeight: 700 }}>
               {result.errors?.length === 0 ? "✅ Importación completada" : "⚠️ Importación con algunos errores"}
             </p>
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
               {[
-                { label: "Creadas",  value: result.created, color: "#4ade80" },
-                { label: "Ya existían", value: result.skipped, color: "#facc15" },
-                { label: "Errores",  value: result.errors?.length || 0, color: "#f87171" },
+                { label: "Creadas",  value: result.created, color: "#94a3b8" },
+                { label: "Ya existían", value: result.skipped, color: "#94a3b8" },
+                { label: "Errores",  value: result.errors?.length || 0, color: "#e63946" },
               ].map(s => (
                 <div key={s.label} style={{ background: "rgba(0,0,0,.2)", borderRadius: 8, padding: "10px", textAlign: "center" }}>
                   <p style={{ margin: 0, fontSize: 22, fontWeight: 700, color: s.color }}>{s.value}</p>
@@ -217,19 +217,19 @@ export default function ImportPage() {
             {result.errors?.length > 0 && (
               <div style={{ marginTop: 12 }}>
                 {result.errors.map((e: any, i: number) => (
-                  <p key={i} style={{ margin: "4px 0", fontSize: 11, color: "#fca5a5" }}>• {e.invoiceNumber}: {e.error}</p>
+                  <p key={i} style={{ margin: "4px 0", fontSize: 11, color: "#dc2626" }}>• {e.invoiceNumber}: {e.error}</p>
                 ))}
               </div>
             )}
             {result.created > 0 && (
               <div style={{ marginTop: 16, display: "flex", gap: 10, flexWrap: "wrap" }}>
                 <button onClick={() => router.push("/invoices")}
-                  style={{ background: "#16a34a", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                  style={{ background: "#0a0f1e", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                   Ver {mode === "estimate" ? "estimados" : "facturas"} importados →
                 </button>
                 {mode === "estimate" && (
                   <button onClick={() => router.push("/invoices/catalog")}
-                    style={{ background: "#7c3aed", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
+                    style={{ background: "#0a0f1e", color: "#fff", border: "none", borderRadius: 10, padding: "10px 24px", fontSize: 13, fontWeight: 700, cursor: "pointer" }}>
                     Ver catálogo de precios →
                   </button>
                 )}

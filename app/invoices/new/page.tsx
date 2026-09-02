@@ -190,7 +190,7 @@ export default function NewInvoicePage() {
         {/* Client */}
         <div style={card}>
           <p style={{ ...lbl, marginBottom: 14 }}>
-            Cliente {clientFromCatalog && <span style={{ background: "#dcfce7", color: "#16a34a", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginLeft: 6 }}>Del catálogo</span>}
+            Cliente {clientFromCatalog && <span style={{ background: "#f1f5f9", color: "#0a0f1e", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginLeft: 6 }}>Del catálogo</span>}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div style={{ gridColumn: "1/-1" }} className="client-autocomplete">
@@ -220,7 +220,7 @@ export default function NewInvoicePage() {
                           background: "#fff", transition: "background 0.1s",
                           display: "flex", justifyContent: "space-between", alignItems: "center",
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "#f0f9ff")}
+                        onMouseEnter={e => (e.currentTarget.style.background = "#f8fafc")}
                         onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
                       >
                         <div>
@@ -302,7 +302,7 @@ export default function NewInvoicePage() {
 
           {/* Card surcharge */}
           <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", marginBottom: 6,
-            background: cardSurcharge ? "#eff6ff" : "#f8fafc", border: `1px solid ${cardSurcharge ? "#93c5fd" : "#e2e8f0"}`,
+            background: "#f8fafc", border: `1px solid ${cardSurcharge ? "#94a3b8" : "#e2e8f0"}`,
             borderRadius: 10, cursor: "pointer" }}>
             <input type="checkbox" checked={cardSurcharge} onChange={e => setCardSurcharge(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
             <span style={{ fontSize: 13, color: "#374151" }}>

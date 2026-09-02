@@ -11,7 +11,7 @@ function currentUsername() {
 }
 
 const STATUS_COLORS: Record<string, string> = {
-  draft: "#6b7280", sent: "#2563eb", paid: "#16a34a", overdue: "#dc2626", approved: "#16a34a",
+  draft: "#6b7280", sent: "#0a0f1e", paid: "#0a0f1e", overdue: "#dc2626", approved: "#0a0f1e",
 };
 const STATUS_LABELS: Record<string, string> = {
   draft: "Draft", sent: "Sent", paid: "Paid", overdue: "Overdue", approved: "Approved",
@@ -283,7 +283,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} style={{ objectFit:"contain" }} />}
 
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
-            <span style={{ fontWeight:800, fontSize: mob ? 15 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
+            <span style={{ fontWeight:800, fontSize: mob ? 17 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
             <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0,
               background:(STATUS_COLORS[inv.status]||"#6b7280")+"22", color:STATUS_COLORS[inv.status]||"#6b7280" }}>
               {STATUS_LABELS[inv.status]||inv.status}
@@ -294,38 +294,38 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {/* Action buttons */}
           <div style={{ display:"flex", gap: mob ? 5 : 8, flexWrap: mob ? "wrap" : "nowrap", width: mob ? "100%" : "auto" }}>
             <button onClick={convert} disabled={converting}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #7c3aed", background:"#f5f3ff", color:"#7c3aed", fontSize: mob ? 12 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 14 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
               {converting ? "Creando..." : isEst ? "🧾 " + (mob ? "Invoice" : "Convertir a Invoice") : "📋 " + (mob ? "Estimado" : "Convertir a Estimado")}
             </button>
             {!isEst && inv.status !== "paid" && (
               <button onClick={markPaid}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #16a34a", background:"#dcfce7", color:"#16a34a", fontSize: mob ? 12 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 14 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
                 ✓ {mob ? "Paid" : "Mark Paid"}
               </button>
             )}
             {!isEst && inv.status === "paid" && (
               <button onClick={markUnpaid}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize: mob ? 12 : 13, fontWeight:600, cursor:"pointer" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize: mob ? 14 : 13, fontWeight:600, cursor:"pointer" }}>
                 ↩ {mob ? "Unpaid" : "Mark Unpaid"}
               </button>
             )}
             <button onClick={openPDF}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 12 : 13, fontWeight:600, cursor:"pointer" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 14 : 13, fontWeight:600, cursor:"pointer" }}>
               📄 PDF
             </button>
             {inv.clientEmail ? (
               <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setShowSendModal(true); }} disabled={sending}
-                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 12 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 14 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
                 {sending ? "Sending..." : "✉ " + (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
             ) : (
               <button onClick={() => setTab("edit")}
-                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize: mob ? 12 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize: mob ? 14 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
                 ✉ {mob ? "Add Email" : "Add Email to Send"}
               </button>
             )}
             <button onClick={() => { setShowDeleteConfirm(true); setDeletePassword(""); setDeleteError(""); }} title="Eliminar permanentemente"
-              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 12 : 13, fontWeight:600, cursor:"pointer" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 14 : 13, fontWeight:600, cursor:"pointer" }}>
               🗑️
             </button>
           </div>
@@ -346,9 +346,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* ── Flash message ── */}
       {msg && (
-        <div style={{ background: msg.startsWith("✅") ? "#f0fdf4" : "#fef2f2",
-          borderBottom: `1px solid ${msg.startsWith("✅")?"#bbf7d0":"#fecaca"}`,
-          padding:"10px 24px", fontSize:13, color: msg.startsWith("✅") ? "#16a34a" : "#dc2626", fontWeight:600 }}>
+        <div style={{ background: msg.startsWith("✅") ? "#f8fafc" : "#fef2f2",
+          borderBottom: `1px solid ${msg.startsWith("✅")?"#e2e8f0":"#fecaca"}`,
+          padding:"10px 24px", fontSize:13, color: msg.startsWith("✅") ? "#0a0f1e" : "#dc2626", fontWeight:600 }}>
           {msg}
         </div>
       )}
@@ -380,7 +380,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>North York On</p>
                   <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>M4A2X3</p>
                   <p style={{ margin:"0 0 2px", fontSize:11, color:"#444" }}>6475173343</p>
-                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#2563eb" }}>https://www.mactor.ca</p>
+                  <p style={{ margin:"0 0 2px", fontSize:11, color:"#0a0f1e" }}>https://www.mactor.ca</p>
                   <p style={{ margin:0, fontSize:11, color:"#444" }}>julio@mactor.ca</p>
                 </div>
                 {/* Invoice meta */}
@@ -406,7 +406,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 <p style={{ margin:"0 0 3px", fontSize:14, fontWeight:700, color:"#1a1a1a" }}>{inv.clientName}</p>
                 {inv.clientAddress && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientAddress}</p>}
                 {inv.clientPhone   && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientPhone}</p>}
-                {inv.clientEmail   && <p style={{ margin:"2px 0", fontSize:12, color:"#2563eb" }}>{inv.clientEmail}</p>}
+                {inv.clientEmail   && <p style={{ margin:"2px 0", fontSize:12, color:"#0a0f1e" }}>{inv.clientEmail}</p>}
               </div>
 
               {/* Line items */}
@@ -439,10 +439,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   <div>
                     <p style={{ margin:"0 0 10px", fontWeight:700, fontSize:13, color:"#1a1a1a" }}>Ready to Move Forward?</p>
                     {inv.status === "approved" ? (
-                      <p style={{ margin:"0 0 10px", fontSize:12, fontWeight:700, color:"#16a34a" }}>✓ Approved — we'll be in touch to schedule.</p>
+                      <p style={{ margin:"0 0 10px", fontSize:12, fontWeight:700, color:"#0a0f1e" }}>✓ Approved — we'll be in touch to schedule.</p>
                     ) : (
                       <p style={{ margin:"0 0 10px", fontSize:12 }}>
-                        <a href={`${API}/api/estimate-approve/${inv.id}`} target="_blank" rel="noreferrer" style={{ color:"#2563eb", fontWeight:700 }}>Click here to approve this estimate</a>
+                        <a href={`${API}/api/estimate-approve/${inv.id}`} target="_blank" rel="noreferrer" style={{ color:"#0a0f1e", fontWeight:700 }}>Click here to approve this estimate</a>
                       </p>
                     )}
                     <p style={{ margin:0, fontSize:11, color:"#888" }}>Approving lets us know you'd like to proceed — we'll follow up to schedule the work.</p>
@@ -454,12 +454,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                       <>
                         <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>PAY ONLINE</p>
                         <p style={{ margin:"0 0 10px", fontSize:12 }}>
-                          <a href={`${API}/api/pay/${inv.id}`} target="_blank" rel="noreferrer" style={{ color:"#2563eb" }}>Click here to pay by card</a>
+                          <a href={`${API}/api/pay/${inv.id}`} target="_blank" rel="noreferrer" style={{ color:"#0a0f1e" }}>Click here to pay by card</a>
                         </p>
                       </>
                     )}
                     <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>E-TRANSFER</p>
-                    <p style={{ margin:"0 0 10px", fontSize:12, color:"#2563eb" }}>payments@mactor.ca</p>
+                    <p style={{ margin:"0 0 10px", fontSize:12, color:"#0a0f1e" }}>payments@mactor.ca</p>
                     <p style={{ margin:"0 0 2px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase" }}>BY CHEQUE</p>
                     <p style={{ margin:0, fontSize:12, color:"#444" }}>Mactor Construction or Julio Cesar Macias Aguilar</p>
                   </div>
@@ -640,7 +640,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
               {/* Card surcharge */}
               <label style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 14px", marginTop:16,
-                background: editCardSurcharge ? "#eff6ff" : "#f8fafc", border:`1px solid ${editCardSurcharge ? "#93c5fd" : "#e2e8f0"}`,
+                background:"#f8fafc", border:`1px solid ${editCardSurcharge ? "#94a3b8" : "#e2e8f0"}`,
                 borderRadius:10, cursor:"pointer" }}>
                 <input type="checkbox" checked={editCardSurcharge} onChange={e => setEditCardSurcharge(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
                 <span style={{ fontSize:13, color:"#374151" }}>
