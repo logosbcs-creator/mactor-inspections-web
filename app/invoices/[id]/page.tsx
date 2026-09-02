@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, use, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
@@ -37,6 +37,7 @@ function withCardSurcharge(items: LineItem[]): LineItem[] {
 export default function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id }    = use(params);
   const router    = useRouter();
+  const searchParams = useSearchParams();
   const [inv,     setInv]     = useState<any>(null);
   const [notFound, setNotFound] = useState(false);
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
@@ -90,6 +91,13 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditDate(d.invoiceDate ? d.invoiceDate.split("T")[0] : "");
     setEditDue(d.dueDate || "On Receipt");
     setEditStatus(d.status || "draft");
+    // Coming straight from "Guardar y enviar" on the new-invoice form —
+    // open the send confirmation instead of firing the email blind.
+    if (searchParams.get("send") === "1") {
+      setSendEmail(d.clientEmail || "");
+      setSendPhone(d.clientPhone || "");
+      setShowSendModal(true);
+    }
   }
 
   // ── Edit helpers ──────────────────────────────────────────────

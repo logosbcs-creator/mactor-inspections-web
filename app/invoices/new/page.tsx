@@ -164,10 +164,9 @@ export default function NewInvoicePage() {
       });
       if (r.status === 401) { router.push("/invoices/login"); return; }
       const inv = await r.json();
-      if (andSend && client.email) {
-        await fetch(`${API}/api/invoices/${inv.id}/send`, { method: "POST", headers: { Authorization: `Bearer ${token()}` } });
-      }
-      router.push(`/invoices/${inv.id}`);
+      // "Guardar y enviar" no dispara el envío a ciegas — abre el modal de
+      // confirmación (destinatario, SMS, etc.) en la página del documento.
+      router.push(`/invoices/${inv.id}${andSend ? "?send=1" : ""}`);
     } catch { alert("Error guardando"); }
     finally { setSaving(false); }
   }
