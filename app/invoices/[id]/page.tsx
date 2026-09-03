@@ -278,7 +278,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
     const r = await fetch(`${API}/api/invoices/${id}`, { method: "DELETE", headers: { Authorization: `Bearer ${token()}` } });
     if (r.ok) {
-      router.push("/invoices");
+      router.push("/invoices/schedule");
     } else {
       setDeleteError("Error al eliminar");
       setDeleting(false);
@@ -306,7 +306,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     <div style={{ minHeight:"100dvh", background:"#f8fafc", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, fontFamily:"system-ui,sans-serif" }}>
       <p style={{ fontSize:36, margin:0 }}>🔍</p>
       <p style={{ color:"#64748b", fontSize:14 }}>Invoice not found</p>
-      <button onClick={() => router.push("/invoices")}
+      <button onClick={() => router.push("/invoices/schedule")}
         style={{ padding:"9px 20px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize:13, fontWeight:700, cursor:"pointer" }}>
         ← Back to invoices
       </button>
@@ -330,9 +330,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
         {/* Row 1: back + logo + invoice # + status + action buttons */}
         <div style={{ padding: mob ? "10px 12px" : "12px 24px", display:"flex", alignItems:"center", gap: mob ? 8 : 12, flexWrap: mob ? "wrap" : "nowrap" }}>
-          <button onClick={() => router.push("/invoices")}
+          <button onClick={() => router.push("/invoices/schedule")}
             style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1, flexShrink:0 }}>←</button>
-          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} onClick={() => router.push("/invoices")} style={{ objectFit:"contain", cursor:"pointer" }} />}
+          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} onClick={() => router.push("/invoices/schedule")} style={{ objectFit:"contain", cursor:"pointer" }} />}
 
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
             <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>

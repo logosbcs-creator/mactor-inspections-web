@@ -133,9 +133,7 @@ function InvoicesContent() {
           <div style={{ display: "flex", alignItems: "center", padding: mob ? "0 10px" : "0 20px", borderBottom: `1px solid ${LINE}`, gap: 0, overflowX: "auto", WebkitOverflowScrolling: "touch" as never }}>
             {(isEst
               ? [["all","Todos"],["outstanding","Enviados"],["paid","Borradores"]] as [Tab,string][]
-              : mob
-                ? [["all","Todas"],["paid","Pagadas"]] as [Tab,string][]
-                : [["all","All Invoices"],["outstanding","Outstanding"],["paid","Paid"]] as [Tab,string][]
+              : [["all","Todas"],["paid","Pagadas"],["outstanding","No pagadas"]] as [Tab,string][]
             ).map(([t,l]) => (
               <button key={t} onClick={() => setTab(t)}
                 style={{ padding: mob ? "12px 10px" : "14px 16px", border: "none", background: "none", cursor: "pointer",

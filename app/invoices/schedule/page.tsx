@@ -297,16 +297,9 @@ function ScheduleContent() {
                     </p>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                      <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {j.clientName}
-                      </p>
-                      {j.type !== "task" && (
-                        <span style={{ fontSize: mob ? 15 : 13, fontWeight: 600, color: TEXT, flexShrink: 0 }}>
-                          ${j.total.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
-                        </span>
-                      )}
-                    </div>
+                    <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      {j.clientName}
+                    </p>
                     {j.companyName && (
                       <p style={{ margin: "1px 0 0", fontSize: 12, color: MUTED, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {j.companyName}
