@@ -19,7 +19,13 @@ const RED_SOFT = "#321a1e";
 interface Job {
   id: string; invoiceNumber: string; type: string; status: string;
   clientName: string; companyName?: string; clientEmail?: string; clientPhone?: string; clientAddress?: string;
-  total: number; scheduledDate: string;
+  total: number; scheduledDate: string; lineItems?: { description?: string }[];
+}
+
+function shortDescription(j: Job): string {
+  const desc = (j.lineItems || []).map(i => i.description).filter(Boolean).join(" · ");
+  if (!desc) return "";
+  return desc.length > 42 ? desc.slice(0, 42).trim() + "…" : desc;
 }
 
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -306,9 +312,9 @@ function ScheduleContent() {
                         {j.companyName}
                       </p>
                     )}
-                    {(j.clientAddress || j.clientPhone) && (
+                    {shortDescription(j) && (
                       <p style={{ margin: "2px 0 0", fontSize: 12, color: MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {[j.clientAddress, j.clientPhone].filter(Boolean).join(" · ")}
+                        {shortDescription(j)}
                       </p>
                     )}
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
