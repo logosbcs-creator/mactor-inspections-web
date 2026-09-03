@@ -2,8 +2,20 @@
 import { useState, useRef, useEffect, useCallback, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import AppHeader from "../../components/AppHeader";
+import { FileText, ClipboardList, CreditCard, Camera, Save, Send, ChevronUp, ChevronDown, X, Plus } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+
+const BG       = "#10131a";
+const PANEL    = "#191e28";
+const SOFT     = "#242b37";
+const HOVER    = "#20262f";
+const LINE     = "#323947";
+const TEXT     = "#f3f6fc";
+const MUTED    = "#aeb8ca";
+const RED      = "#ff5964";
+const RED_SOFT = "#321a1e";
 
 interface LineItem { description: string; notes: string; rate: number; qty: number; amount: number; }
 interface ClientSuggestion { id: string; name: string; email: string | null; phone: string | null; address: string | null; invoiceCount: number; totalInvoiced: number; }
@@ -26,15 +38,15 @@ function withCardSurcharge(items: LineItem[]): LineItem[] {
 }
 
 const inp: React.CSSProperties = {
-  width: "100%", padding: "10px 12px", borderRadius: 8, background: "#fff",
-  border: "1px solid #e2e8f0", color: "#0f172a", fontSize: 14, outline: "none", boxSizing: "border-box",
+  width: "100%", padding: "10px 12px", borderRadius: 8, background: BG,
+  border: `1px solid ${LINE}`, color: TEXT, fontSize: 14, outline: "none", boxSizing: "border-box",
 };
 const lbl: React.CSSProperties = {
-  display: "block", color: "#64748b", fontSize: 11, fontWeight: 700,
+  display: "block", color: MUTED, fontSize: 11, fontWeight: 700,
   marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em"
 };
 const card: React.CSSProperties = {
-  background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0",
+  background: PANEL, borderRadius: 12, border: `1px solid ${LINE}`,
   padding: "20px 24px", marginBottom: 16
 };
 
@@ -177,26 +189,22 @@ function NewInvoiceContent() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
-      {/* Header */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "10px 24px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => router.push("/invoices/schedule")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 22, cursor: "pointer", padding: 0 }}>←</button>
-        <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} onClick={() => router.push("/invoices/schedule")} style={{ objectFit: "contain", cursor: "pointer" }} />
-        <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>
-          Nueva {type === "invoice" ? "Factura" : "Estimado"}
-        </h1>
-      </div>
+    <div style={{ minHeight: "100dvh", background: BG, fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: TEXT }}>
+      <AppHeader active={type === "estimate" ? "estimates" : "invoices"} />
 
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "24px 20px" }}>
+        <h1 style={{ margin: "0 0 16px", fontSize: 20, fontWeight: 700, color: TEXT }}>
+          Nueva {type === "invoice" ? "Factura" : "Estimado"}
+        </h1>
 
         {/* Type toggle */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
           {(["invoice","estimate"] as const).map(t => (
             <button key={t} onClick={() => setType(t)}
-              style={{ flex: 1, padding: "10px", borderRadius: 10, border: `2px solid ${type===t?"#e63946":"#e2e8f0"}`,
-                cursor: "pointer", fontWeight: 700, fontSize: 13,
-                background: type===t ? "#e63946" : "#fff", color: type===t ? "#fff" : "#64748b" }}>
-              {t === "invoice" ? "📄 Factura" : "📋 Estimado"}
+              style={{ flex: 1, padding: "10px", borderRadius: 10, border: `2px solid ${type===t?RED:LINE}`,
+                cursor: "pointer", fontWeight: 700, fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                background: type===t ? RED : "none", color: type===t ? "#fff" : MUTED }}>
+              {t === "invoice" ? <FileText size={15} /> : <ClipboardList size={15} />} {t === "invoice" ? "Factura" : "Estimado"}
             </button>
           ))}
         </div>
@@ -204,7 +212,7 @@ function NewInvoiceContent() {
         {/* Client */}
         <div style={card}>
           <p style={{ ...lbl, marginBottom: 14 }}>
-            Cliente {clientFromCatalog && <span style={{ background: "#f1f5f9", color: "#0a0f1e", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginLeft: 6 }}>Del catálogo</span>}
+            Cliente {clientFromCatalog && <span style={{ background: SOFT, color: TEXT, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20, marginLeft: 6 }}>Del catálogo</span>}
           </p>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
             <div style={{ gridColumn: "1/-1" }} className="client-autocomplete">
@@ -222,30 +230,30 @@ function NewInvoiceContent() {
                 {showSugg && suggestions.length > 0 && (
                   <div style={{
                     position: "absolute", top: "100%", left: 0, right: 0, zIndex: 100,
-                    background: "#fff", border: "1px solid #e2e8f0", borderRadius: 10,
-                    boxShadow: "0 8px 24px rgba(0,0,0,.12)", marginTop: 4, overflow: "hidden",
+                    background: PANEL, border: `1px solid ${LINE}`, borderRadius: 10,
+                    boxShadow: "0 8px 24px rgba(0,0,0,.4)", marginTop: 4, overflow: "hidden",
                   }}>
                     {suggestions.map((c, i) => (
                       <div key={c.id}
                         onMouseDown={() => selectClient(c)}
                         style={{
                           padding: "10px 14px", cursor: "pointer",
-                          borderBottom: i < suggestions.length - 1 ? "1px solid #f1f5f9" : "none",
-                          background: "#fff", transition: "background 0.1s",
+                          borderBottom: i < suggestions.length - 1 ? `1px solid ${LINE}` : "none",
+                          background: PANEL, transition: "background 0.1s",
                           display: "flex", justifyContent: "space-between", alignItems: "center",
                         }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "#f8fafc")}
-                        onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
+                        onMouseEnter={e => (e.currentTarget.style.background = HOVER)}
+                        onMouseLeave={e => (e.currentTarget.style.background = PANEL)}
                       >
                         <div>
-                          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{c.name}</p>
+                          <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: TEXT }}>{c.name}</p>
                           {(c.email || c.phone) && (
-                            <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+                            <p style={{ margin: "2px 0 0", fontSize: 11, color: MUTED }}>
                               {[c.email, c.phone].filter(Boolean).join(" · ")}
                             </p>
                           )}
                         </div>
-                        <span style={{ fontSize: 10, color: "#94a3b8", marginLeft: 12 }}>
+                        <span style={{ fontSize: 10, color: MUTED, marginLeft: 12 }}>
                           {c.invoiceCount > 0 ? `${c.invoiceCount} fact.` : "nuevo"}
                         </span>
                       </div>
@@ -280,17 +288,17 @@ function NewInvoiceContent() {
           </div>
 
           {items.map((item, i) => (
-            <div key={i} style={{ border: "1px solid #f1f5f9", borderRadius: 10, padding: 14, marginBottom: 10, background: "#fafafa" }}>
+            <div key={i} style={{ border: `1px solid ${LINE}`, borderRadius: 10, padding: 14, marginBottom: 10, background: SOFT }}>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-                <span style={{ fontSize: 12, fontWeight: 700, color: "#e63946" }}>Ítem {i + 1}</span>
+                <span style={{ fontSize: 12, fontWeight: 700, color: RED }}>Ítem {i + 1}</span>
                 <div style={{ display: "flex", gap: 6 }}>
                   <button onClick={() => moveItem(i, -1)} disabled={i === 0}
-                    style={{ background: "#f1f5f9", border: "none", color: i===0 ? "#cbd5e1" : "#475569", cursor: i===0 ? "default" : "pointer", fontSize: 13, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>↑</button>
+                    style={{ background: BG, border: "none", color: i===0 ? LINE : MUTED, cursor: i===0 ? "default" : "pointer", borderRadius: 6, padding: "4px 8px", display: "flex" }}><ChevronUp size={14} /></button>
                   <button onClick={() => moveItem(i, 1)} disabled={i === items.length - 1}
-                    style={{ background: "#f1f5f9", border: "none", color: i===items.length-1 ? "#cbd5e1" : "#475569", cursor: i===items.length-1 ? "default" : "pointer", fontSize: 13, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>↓</button>
+                    style={{ background: BG, border: "none", color: i===items.length-1 ? LINE : MUTED, cursor: i===items.length-1 ? "default" : "pointer", borderRadius: 6, padding: "4px 8px", display: "flex" }}><ChevronDown size={14} /></button>
                   {items.length > 1 && (
                     <button onClick={() => setItems(p => p.filter((_, j) => j !== i))}
-                      style={{ background: "#fee2e2", border: "none", color: "#dc2626", cursor: "pointer", fontSize: 16, fontWeight: 700, borderRadius: 6, padding: "2px 8px" }}>×</button>
+                      style={{ background: RED_SOFT, border: "none", color: RED, cursor: "pointer", borderRadius: 6, padding: "4px 8px", display: "flex" }}><X size={14} /></button>
                   )}
                 </div>
               </div>
@@ -314,24 +322,24 @@ function NewInvoiceContent() {
                 </div>
                 <div>
                   <label style={lbl}>Total</label>
-                  <div style={{ ...inp, color: "#e63946", fontWeight: 700, display: "flex", alignItems: "center" }}>${displayItems[i].amount.toFixed(2)}</div>
+                  <div style={{ ...inp, color: RED, fontWeight: 700, display: "flex", alignItems: "center" }}>${displayItems[i].amount.toFixed(2)}</div>
                 </div>
               </div>
             </div>
           ))}
 
           <button onClick={() => setItems(p => [...p, emptyItem()])}
-            style={{ width: "100%", padding: "12px", borderRadius: 8, border: "2px dashed #e2e8f0", background: "#fafafa", color: "#64748b", fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 16 }}>
-            + Agregar ítem
+            style={{ width: "100%", padding: "12px", borderRadius: 8, border: `2px dashed ${LINE}`, background: SOFT, color: MUTED, fontSize: 13, fontWeight: 600, cursor: "pointer", marginBottom: 16, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Plus size={15} /> Agregar ítem
           </button>
 
           {/* Card surcharge */}
           <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", marginBottom: 6,
-            background: "#f8fafc", border: `1px solid ${cardSurcharge ? "#94a3b8" : "#e2e8f0"}`,
+            background: SOFT, border: `1px solid ${cardSurcharge ? MUTED : LINE}`,
             borderRadius: 10, cursor: "pointer" }}>
             <input type="checkbox" checked={cardSurcharge} onChange={e => setCardSurcharge(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
-            <span style={{ fontSize: 13, color: "#374151" }}>
-              💳 Cliente pagará con tarjeta <span style={{ color: "#64748b" }}>— agrega 3% + $3 CAD, repartido entre los ítems</span>
+            <span style={{ fontSize: 13, color: TEXT, display: "flex", alignItems: "center", gap: 6 }}>
+              <CreditCard size={14} /> Cliente pagará con tarjeta <span style={{ color: MUTED }}>— agrega 3% + $3 CAD, repartido entre los ítems</span>
             </span>
           </label>
 
@@ -344,33 +352,33 @@ function NewInvoiceContent() {
 
           {/* HST toggle */}
           <label style={{ display: "flex", alignItems: "center", gap: 10, padding: "12px 14px", marginBottom: 6,
-            background: "#f8fafc", border: `1px solid ${!hstEnabled ? "#94a3b8" : "#e2e8f0"}`,
+            background: SOFT, border: `1px solid ${!hstEnabled ? MUTED : LINE}`,
             borderRadius: 10, cursor: "pointer" }}>
             <input type="checkbox" checked={hstEnabled} onChange={e => setHstEnabled(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
-            <span style={{ fontSize: 13, color: "#374151" }}>Aplicar HST (13%)</span>
+            <span style={{ fontSize: 13, color: TEXT }}>Aplicar HST (13%)</span>
           </label>
 
           {/* Totals */}
-          <div style={{ borderTop: "1px solid #e2e8f0", paddingTop: 14, marginTop: 8 }}>
+          <div style={{ borderTop: `1px solid ${LINE}`, paddingTop: 14, marginTop: 8 }}>
             <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-              <span style={{ color: "#64748b", fontSize: 13 }}>Subtotal</span>
-              <span style={{ fontSize: 13 }}>${rawSubtotal.toFixed(2)}</span>
+              <span style={{ color: MUTED, fontSize: 13 }}>Subtotal</span>
+              <span style={{ fontSize: 13, color: TEXT }}>${rawSubtotal.toFixed(2)}</span>
             </div>
             {discount > 0 && (
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ color: "#64748b", fontSize: 13 }}>Descuento</span>
-                <span style={{ fontSize: 13, color: "#dc2626" }}>-${Number(discount).toFixed(2)}</span>
+                <span style={{ color: MUTED, fontSize: 13 }}>Descuento</span>
+                <span style={{ fontSize: 13, color: RED }}>-${Number(discount).toFixed(2)}</span>
               </div>
             )}
             {hstEnabled && (
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
-                <span style={{ color: "#64748b", fontSize: 13 }}>HST (13%)</span>
-                <span style={{ fontSize: 13 }}>${hst.toFixed(2)}</span>
+                <span style={{ color: MUTED, fontSize: 13 }}>HST (13%)</span>
+                <span style={{ fontSize: 13, color: TEXT }}>${hst.toFixed(2)}</span>
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "space-between", background: "#0f172a", borderRadius: 8, padding: "10px 14px", marginTop: 8 }}>
-              <span style={{ color: "#fff", fontWeight: 700 }}>TOTAL CAD</span>
-              <span style={{ color: "#e63946", fontWeight: 800, fontSize: 18 }}>${total.toFixed(2)}</span>
+            <div style={{ display: "flex", justifyContent: "space-between", background: SOFT, borderRadius: 8, padding: "10px 14px", marginTop: 8 }}>
+              <span style={{ color: TEXT, fontWeight: 700 }}>TOTAL CAD</span>
+              <span style={{ color: RED, fontWeight: 800, fontSize: 18 }}>${total.toFixed(2)}</span>
             </div>
           </div>
         </div>
@@ -388,9 +396,9 @@ function NewInvoiceContent() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
             <p style={{ ...lbl, margin: 0 }}>Fotos ({photos.length})</p>
             <button onClick={() => fileRef.current?.click()} disabled={uploading}
-              style={{ background: uploading ? "#f1f5f9" : "#fef2f2", color: uploading ? "#94a3b8" : "#e63946",
-                border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: uploading ? "not-allowed" : "pointer" }}>
-              {uploading ? "Subiendo..." : "📷 Agregar fotos"}
+              style={{ background: uploading ? SOFT : RED_SOFT, color: uploading ? MUTED : RED,
+                border: "none", borderRadius: 8, padding: "6px 14px", fontSize: 12, fontWeight: 700, cursor: uploading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+              <Camera size={13} /> {uploading ? "Subiendo..." : "Agregar fotos"}
             </button>
             <input ref={fileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handlePhotoUpload} />
           </div>
@@ -398,24 +406,24 @@ function NewInvoiceContent() {
           {photos.length > 0 ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
               {photos.map((url, i) => (
-                <div key={i} style={{ position: "relative", borderRadius: 8, overflow: "hidden", aspectRatio: "4/3", background: "#f1f5f9" }}>
+                <div key={i} style={{ position: "relative", borderRadius: 8, overflow: "hidden", aspectRatio: "4/3", background: SOFT }}>
                   <Image src={url} alt={`foto ${i+1}`} fill style={{ objectFit: "cover" }} />
                   <button onClick={() => removePhoto(url)}
                     style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,.6)", border: "none",
-                      color: "#fff", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", fontSize: 14, lineHeight: "22px", textAlign: "center" }}>
-                    ×
+                      color: "#fff", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <X size={13} />
                   </button>
                 </div>
               ))}
             </div>
           ) : (
             <div onClick={() => fileRef.current?.click()}
-              style={{ border: "2px dashed #e2e8f0", borderRadius: 10, padding: "32px", textAlign: "center", cursor: "pointer", background: "#fafafa" }}
-              onMouseEnter={e => (e.currentTarget.style.borderColor = "#e63946")}
-              onMouseLeave={e => (e.currentTarget.style.borderColor = "#e2e8f0")}>
-              <p style={{ margin: 0, fontSize: 28 }}>📷</p>
-              <p style={{ margin: "8px 0 0", fontSize: 13, color: "#94a3b8" }}>Haz clic para agregar fotos del trabajo</p>
-              <p style={{ margin: "4px 0 0", fontSize: 11, color: "#cbd5e1" }}>Se incluirán al final del PDF</p>
+              style={{ border: `2px dashed ${LINE}`, borderRadius: 10, padding: "32px", textAlign: "center", cursor: "pointer", background: SOFT }}
+              onMouseEnter={e => (e.currentTarget.style.borderColor = RED)}
+              onMouseLeave={e => (e.currentTarget.style.borderColor = LINE)}>
+              <Camera size={28} color={MUTED} style={{ margin: "0 auto" }} />
+              <p style={{ margin: "8px 0 0", fontSize: 13, color: MUTED }}>Haz clic para agregar fotos del trabajo</p>
+              <p style={{ margin: "4px 0 0", fontSize: 11, color: MUTED }}>Se incluirán al final del PDF</p>
             </div>
           )}
         </div>
@@ -423,15 +431,15 @@ function NewInvoiceContent() {
         {/* Actions */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           <button onClick={() => save(false)} disabled={saving}
-            style={{ padding: "14px", borderRadius: 12, background: "#fff", border: "1px solid #e2e8f0", color: "#374151", fontSize: 14, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1 }}>
-            💾 Guardar borrador
+            style={{ padding: "14px", borderRadius: 12, background: SOFT, border: `1px solid ${LINE}`, color: TEXT, fontSize: 14, fontWeight: 700, cursor: saving ? "not-allowed" : "pointer", opacity: saving ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Save size={16} /> Guardar borrador
           </button>
           <button onClick={() => save(true)} disabled={saving || !client.email}
-            style={{ padding: "14px", borderRadius: 12, background: "#e63946", border: "none", color: "#fff", fontSize: 14, fontWeight: 700, cursor: (saving || !client.email) ? "not-allowed" : "pointer", opacity: (saving || !client.email) ? 0.7 : 1 }}>
-            📤 Guardar y enviar
+            style={{ padding: "14px", borderRadius: 12, background: RED, border: "none", color: "#fff", fontSize: 14, fontWeight: 700, cursor: (saving || !client.email) ? "not-allowed" : "pointer", opacity: (saving || !client.email) ? 0.7 : 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Send size={16} /> Guardar y enviar
           </button>
         </div>
-        {!client.email && <p style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", marginTop: 8 }}>Agrega email del cliente para enviar directo</p>}
+        {!client.email && <p style={{ color: MUTED, fontSize: 12, textAlign: "center", marginTop: 8 }}>Agrega email del cliente para enviar directo</p>}
       </div>
     </div>
   );

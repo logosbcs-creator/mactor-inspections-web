@@ -2,6 +2,11 @@
 import { useState, useEffect, use, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import AppHeader from "../../components/AppHeader";
+import {
+  Search, FileText, ClipboardList, Check, Undo2, Calendar, File, Mail, Trash2,
+  Eye, Pencil, CreditCard, Camera, Save, X, AlertTriangle, ChevronUp, ChevronDown, Plus,
+} from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -10,8 +15,17 @@ function currentUsername() {
   catch { return ""; }
 }
 
+const BG       = "#10131a";
+const PANEL    = "#191e28";
+const SOFT     = "#242b37";
+const LINE     = "#323947";
+const TEXT     = "#f3f6fc";
+const MUTED    = "#aeb8ca";
+const RED      = "#ff5964";
+const RED_SOFT = "#321a1e";
+
 const STATUS_COLORS: Record<string, string> = {
-  draft: "#6b7280", sent: "#0a0f1e", paid: "#0a0f1e", overdue: "#dc2626", approved: "#0a0f1e",
+  draft: MUTED, sent: TEXT, paid: TEXT, overdue: RED, approved: TEXT,
 };
 const STATUS_LABELS: Record<string, string> = {
   draft: "Draft", sent: "Sent", paid: "Paid", overdue: "Overdue", approved: "Approved",
@@ -303,19 +317,25 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   }
 
   if (notFound) return (
-    <div style={{ minHeight:"100dvh", background:"#f8fafc", display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, fontFamily:"system-ui,sans-serif" }}>
-      <p style={{ fontSize:36, margin:0 }}>🔍</p>
-      <p style={{ color:"#64748b", fontSize:14 }}>Invoice not found</p>
-      <button onClick={() => router.push("/invoices/schedule")}
-        style={{ padding:"9px 20px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize:13, fontWeight:700, cursor:"pointer" }}>
-        ← Back to invoices
-      </button>
+    <div style={{ minHeight:"100dvh", background:BG, color:TEXT, fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      <AppHeader active="invoices" />
+      <div style={{ display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", gap:12, padding:"100px 20px" }}>
+        <Search size={36} color={MUTED} />
+        <p style={{ color:MUTED, fontSize:14 }}>Invoice not found</p>
+        <button onClick={() => router.push("/invoices/schedule")}
+          style={{ padding:"9px 20px", borderRadius:8, border:"none", background:RED, color:"#fff", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+          Back to Agenda
+        </button>
+      </div>
     </div>
   );
 
   if (!inv) return (
-    <div style={{ minHeight:"100dvh", background:"#f8fafc", display:"flex", alignItems:"center", justifyContent:"center", color:"#94a3b8", fontFamily:"system-ui,sans-serif" }}>
-      Loading...
+    <div style={{ minHeight:"100dvh", background:BG, color:TEXT, fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      <AppHeader active="invoices" />
+      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", color:MUTED, padding:"100px 20px" }}>
+        Loading...
+      </div>
     </div>
   );
 
@@ -323,27 +343,24 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
   // ─────────────────────────────────────────────────────────────
   return (
-    <div style={{ minHeight:"100dvh", background:"#f8fafc", fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color:"#111" }}>
+    <div style={{ minHeight:"100dvh", background:BG, fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color:TEXT }}>
+      <AppHeader active={isEst ? "estimates" : "invoices"} />
 
       {/* ── Top bar ── */}
-      <div style={{ background:"#fff", borderBottom:"1px solid #e2e8f0" }}>
+      <div style={{ background:PANEL, borderBottom:`1px solid ${LINE}` }}>
 
-        {/* Row 1: back + logo + invoice # + status + action buttons */}
+        {/* Row 1: invoice # + status + action buttons */}
         <div style={{ padding: mob ? "10px 12px" : "12px 24px", display:"flex", alignItems:"center", gap: mob ? 8 : 12, flexWrap: mob ? "wrap" : "nowrap" }}>
-          <button onClick={() => router.push("/invoices/schedule")}
-            style={{ background:"none", border:"none", color:"#64748b", fontSize:20, cursor:"pointer", padding:0, lineHeight:1, flexShrink:0 }}>←</button>
-          {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} onClick={() => router.push("/invoices/schedule")} style={{ objectFit:"contain", cursor:"pointer" }} />}
-
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
-            <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:"#0f172a" }}>{inv.invoiceNumber}</span>
+            <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:TEXT }}>{inv.invoiceNumber}</span>
             <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0,
-              background:(STATUS_COLORS[inv.status]||"#6b7280")+"22", color:STATUS_COLORS[inv.status]||"#6b7280" }}>
+              background: inv.status === "overdue" ? RED_SOFT : SOFT, color:STATUS_COLORS[inv.status]||MUTED }}>
               {STATUS_LABELS[inv.status]||inv.status}
             </span>
-            {inv.sentAt && !mob && <span style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+            {inv.sentAt && !mob && <span style={{ fontSize:11, color:MUTED }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
             {inv.scheduledDate && (
-              <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0, background:"#f1f5f9", color:"#0a0f1e" }}>
-                📅 {new Date(inv.scheduledDate).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}
+              <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0, background:SOFT, color:TEXT, display:"flex", alignItems:"center", gap:4 }}>
+                <Calendar size={11} /> {new Date(inv.scheduledDate).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}
               </span>
             )}
           </div>
@@ -351,44 +368,44 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {/* Action buttons */}
           <div style={{ display:"flex", gap: mob ? 5 : 8, flexWrap: mob ? "wrap" : "nowrap", width: mob ? "100%" : "auto" }}>
             <button onClick={convert} disabled={converting}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 16 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap" }}>
-              {converting ? "Creando..." : isEst ? "🧾 " + (mob ? "Invoice" : "Convertir a Invoice") : "📋 " + (mob ? "Estimado" : "Convertir a Estimado")}
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:`1px solid ${LINE}`, background:SOFT, color:TEXT, fontSize: mob ? 16 : 13, fontWeight:700, cursor:converting?"not-allowed":"pointer", opacity:converting?0.7:1, whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>
+              {converting ? "Creando..." : <>{isEst ? <FileText size={14} /> : <ClipboardList size={14} />} {isEst ? (mob ? "Invoice" : "Convertir a Invoice") : (mob ? "Estimado" : "Convertir a Estimado")}</>}
             </button>
             {!isEst && inv.status !== "paid" && (
               <button onClick={markPaid}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #0a0f1e", background:"#f1f5f9", color:"#0a0f1e", fontSize: mob ? 16 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
-                ✓ {mob ? "Paid" : "Mark Paid"}
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:`1px solid ${LINE}`, background:SOFT, color:TEXT, fontSize: mob ? 16 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>
+                <Check size={14} /> {mob ? "Paid" : "Mark Paid"}
               </button>
             )}
             {!isEst && inv.status === "paid" && (
               <button onClick={markUnpaid}
-                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#64748b", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
-                ↩ {mob ? "Unpaid" : "Mark Unpaid"}
+                style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:`1px solid ${LINE}`, background:"none", color:MUTED, fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
+                <Undo2 size={14} /> {mob ? "Unpaid" : "Mark Unpaid"}
               </button>
             )}
             <button onClick={() => { setScheduleDate(inv.scheduledDate ? inv.scheduledDate.slice(0,16) : ""); setShowScheduleModal(true); }}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border: inv.scheduledDate ? "1px solid #0a0f1e" : "1px solid #e2e8f0",
-                background: inv.scheduledDate ? "#f1f5f9" : "#fff", color: inv.scheduledDate ? "#0a0f1e" : "#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap" }}>
-              📅 {mob ? "Agenda" : inv.scheduledDate ? "Reprogramar" : "Programar trabajo"}
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border: `1px solid ${LINE}`,
+                background: inv.scheduledDate ? SOFT : "none", color: inv.scheduledDate ? TEXT : MUTED, fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>
+              <Calendar size={14} /> {mob ? "Agenda" : inv.scheduledDate ? "Reprogramar" : "Programar trabajo"}
             </button>
             <button onClick={openPDF}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:"1px solid #e2e8f0", background:"#fff", color:"#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
-              📄 PDF
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border:`1px solid ${LINE}`, background:"none", color:MUTED, fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", gap:6 }}>
+              <File size={14} /> PDF
             </button>
             {inv.clientEmail ? (
               <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setSendSms(false); setSendPhone(inv.clientPhone || ""); setShowSendModal(true); }} disabled={sending}
-                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:"#e63946", color:"#fff", fontSize: mob ? 16 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap" }}>
-                {sending ? "Sending..." : "✉ " + (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:RED, color:"#fff", fontSize: mob ? 16 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>
+                <Mail size={14} /> {sending ? "Sending..." : (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
             ) : (
               <button onClick={() => setTab("edit")}
-                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"1px dashed #e63946", background:"#fff", color:"#e63946", fontSize: mob ? 16 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap" }}>
-                ✉ {mob ? "Add Email" : "Add Email to Send"}
+                style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:`1px dashed ${RED}`, background:"none", color:RED, fontSize: mob ? 16 : 13, fontWeight:700, cursor:"pointer", whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>
+                <Mail size={14} /> {mob ? "Add Email" : "Add Email to Send"}
               </button>
             )}
             <button onClick={() => { setShowDeleteConfirm(true); setDeletePassword(""); setDeleteError(""); }} title="Eliminar permanentemente"
-              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:"1px solid #fee2e2", background:"#fff", color:"#dc2626", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer" }}>
-              🗑️
+              style={{ padding: mob ? "7px 10px" : "8px 12px", borderRadius:8, border:`1px solid ${RED_SOFT}`, background:"none", color:RED, fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center" }}>
+              <Trash2 size={14} />
             </button>
           </div>
         </div>
@@ -398,9 +415,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           {(["preview","edit"] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               style={{ padding:"10px 20px", border:"none", background:"none", cursor:"pointer", fontSize:13, fontWeight:600, textTransform:"capitalize",
-                color: tab===t ? "#e63946" : "#64748b",
-                borderBottom: tab===t ? "2px solid #e63946" : "2px solid transparent" }}>
-              {t === "preview" ? "👁 Preview" : "✏️ Edit"}
+                color: tab===t ? RED : MUTED, display:"flex", alignItems:"center", gap:6,
+                borderBottom: tab===t ? `2px solid ${RED}` : "2px solid transparent" }}>
+              {t === "preview" ? <><Eye size={14} /> Preview</> : <><Pencil size={14} /> Edit</>}
             </button>
           ))}
         </div>
@@ -408,9 +425,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* ── Flash message ── */}
       {msg && (
-        <div style={{ background: msg.startsWith("✅") ? "#f8fafc" : "#fef2f2",
-          borderBottom: `1px solid ${msg.startsWith("✅")?"#e2e8f0":"#fecaca"}`,
-          padding:"10px 24px", fontSize:13, color: msg.startsWith("✅") ? "#0a0f1e" : "#dc2626", fontWeight:600 }}>
+        <div style={{ background: msg.startsWith("✅") ? PANEL : RED_SOFT,
+          borderBottom: `1px solid ${msg.startsWith("✅") ? LINE : RED_SOFT}`,
+          padding:"10px 24px", fontSize:13, color: msg.startsWith("✅") ? TEXT : RED, fontWeight:600 }}>
           {msg}
         </div>
       )}
@@ -593,9 +610,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </div>{/* end inv-doc-scroll */}
             </div>
 
-            <p style={{ textAlign:"center", fontSize:12, color:"#94a3b8" }}>
+            <p style={{ textAlign:"center", fontSize:12, color:MUTED }}>
               Need to make a change?{" "}
-              <button onClick={() => setTab("edit")} style={{ background:"none", border:"none", color:"#e63946", cursor:"pointer", fontWeight:700, fontSize:12 }}>
+              <button onClick={() => setTab("edit")} style={{ background:"none", border:"none", color:RED, cursor:"pointer", fontWeight:700, fontSize:12 }}>
                 Switch to Edit tab
               </button>
             </p>
@@ -607,14 +624,14 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
           <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
 
             {/* Status */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
-              <p style={{ margin:"0 0 12px", fontSize:11, color:"#64748b", fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Status</p>
-              <div style={{ display:"flex", gap:8 }}>
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
+              <p style={{ margin:"0 0 12px", fontSize:11, color:MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Status</p>
+              <div style={{ display:"flex", gap:8, flexWrap:"wrap" }}>
                 {(isEst ? ["draft","sent","approved"] as const : ["draft","sent","paid","overdue"] as const).map(s => (
                   <button key={s} onClick={() => setEditStatus(s)}
-                    style={{ padding:"7px 16px", borderRadius:20, border:`2px solid ${editStatus===s ? STATUS_COLORS[s] : "#e2e8f0"}`,
-                      background: editStatus===s ? STATUS_COLORS[s]+"22" : "#fff",
-                      color: editStatus===s ? STATUS_COLORS[s] : "#64748b",
+                    style={{ padding:"7px 16px", borderRadius:20, border:`2px solid ${editStatus===s ? STATUS_COLORS[s] : LINE}`,
+                      background: editStatus===s ? (s === "overdue" ? RED_SOFT : SOFT) : "none",
+                      color: editStatus===s ? STATUS_COLORS[s] : MUTED,
                       fontSize:12, fontWeight:700, cursor:"pointer", textTransform:"capitalize" }}>
                     {STATUS_LABELS[s]}
                   </button>
@@ -623,9 +640,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Dates */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
-              <p style={{ margin:"0 0 14px", fontSize:11, color:"#64748b", fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Dates</p>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
+              <p style={{ margin:"0 0 14px", fontSize:11, color:MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Dates</p>
+              <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap:14 }}>
                 <div>
                   <label style={labelSt}>Invoice Date</label>
                   <input type="date" value={editDate} onChange={e => setEditDate(e.target.value)} style={inputSt} />
@@ -640,12 +657,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </select>
                 </div>
                 <div style={{ gridColumn:"1/-1" }}>
-                  <label style={labelSt}>📅 Programar trabajo (opcional)</label>
+                  <label style={{ ...labelSt, display:"flex", alignItems:"center", gap:6 }}><Calendar size={12} /> Programar trabajo (opcional)</label>
                   <div style={{ display:"flex", gap:8 }}>
                     <input type="datetime-local" value={editScheduledDate} onChange={e => setEditScheduledDate(e.target.value)} style={{ ...inputSt, margin:0, flex:1 }} />
                     {editScheduledDate && (
                       <button onClick={() => setEditScheduledDate("")}
-                        style={{ background:"#f1f5f9", border:"none", borderRadius:8, color:"#64748b", padding:"0 14px", cursor:"pointer", fontSize:13 }}>
+                        style={{ background:SOFT, border:"none", borderRadius:8, color:MUTED, padding:"0 14px", cursor:"pointer", fontSize:13 }}>
                         Quitar
                       </button>
                     )}
@@ -655,9 +672,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Client */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
-              <p style={{ margin:"0 0 14px", fontSize:11, color:"#64748b", fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Client</p>
-              <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:14 }}>
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
+              <p style={{ margin:"0 0 14px", fontSize:11, color:MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Client</p>
+              <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap:14 }}>
                 <div style={{ gridColumn:"1/-1" }}>
                   <label style={labelSt}>Name *</label>
                   <input value={editClient.name} onChange={e => setEditClient(p => ({...p, name:e.target.value}))} style={inputSt} placeholder="Client name" />
@@ -681,59 +698,67 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </div>
             </div>
 
-            {/* Line items */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
+            {/* Line items — each field gets its own full-width row so nothing
+                gets squeezed into unreadable slivers on narrow screens. */}
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
-                <p style={{ margin:0, fontSize:11, color:"#64748b", fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Line Items</p>
-              </div>
-
-              {/* Header */}
-              <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 70px 50px 70px 28px" : "1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
-                {["Description","Rate","Qty","Amount",""].map(h => (
-                  <span key={h} style={{ fontSize:10, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:".04em" }}>{h}</span>
-                ))}
+                <p style={{ margin:0, fontSize:11, color:MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Line Items</p>
               </div>
 
               {editItems.map((item, i) => (
-                <div key={i} style={{ border:"1px solid #f1f5f9", borderRadius:8, padding:"12px", marginBottom:10, background:"#fafafa" }}>
-                  <div style={{ display:"flex", justifyContent:"flex-end", gap:6, marginBottom:8 }}>
-                    <button onClick={() => moveItem(i, -1)} disabled={i === 0}
-                      style={{ background:"#f1f5f9", border:"none", borderRadius:6, color: i===0 ? "#cbd5e1" : "#475569", cursor: i===0 ? "default" : "pointer", fontSize:13, fontWeight:700, padding:"2px 8px" }}>↑</button>
-                    <button onClick={() => moveItem(i, 1)} disabled={i === editItems.length - 1}
-                      style={{ background:"#f1f5f9", border:"none", borderRadius:6, color: i===editItems.length-1 ? "#cbd5e1" : "#475569", cursor: i===editItems.length-1 ? "default" : "pointer", fontSize:13, fontWeight:700, padding:"2px 8px" }}>↓</button>
-                  </div>
-                  <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 70px 50px 70px 28px" : "1fr 90px 60px 90px 32px", gap:8, marginBottom:8 }}>
-                    <input value={item.description} onChange={e => updateItem(i,"description",e.target.value)}
-                      placeholder="Description" style={{ ...inputSt, margin:0 }} />
-                    <input type="number" value={item.rate} onChange={e => updateItem(i,"rate",parseFloat(e.target.value)||0)}
-                      style={{ ...inputSt, margin:0 }} />
-                    <input type="number" value={item.qty} onChange={e => updateItem(i,"qty",parseFloat(e.target.value)||1)}
-                      style={{ ...inputSt, margin:0 }} />
-                    <div style={{ ...inputSt as any, margin:0, background:"#f8fafc", color:"#0f172a", fontWeight:700, display:"flex", alignItems:"center" }}>
-                      ${editDisplayItems[i].amount.toFixed(2)}
+                <div key={i} style={{ border:`1px solid ${LINE}`, borderRadius:10, padding:14, marginBottom:10, background:SOFT }}>
+                  <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10 }}>
+                    <span style={{ fontSize:12, fontWeight:700, color:RED }}>Ítem {i + 1}</span>
+                    <div style={{ display:"flex", gap:6 }}>
+                      <button onClick={() => moveItem(i, -1)} disabled={i === 0}
+                        style={{ background:BG, border:"none", borderRadius:6, color: i===0 ? LINE : MUTED, cursor: i===0 ? "default" : "pointer", padding:"4px 8px", display:"flex" }}><ChevronUp size={14} /></button>
+                      <button onClick={() => moveItem(i, 1)} disabled={i === editItems.length - 1}
+                        style={{ background:BG, border:"none", borderRadius:6, color: i===editItems.length-1 ? LINE : MUTED, cursor: i===editItems.length-1 ? "default" : "pointer", padding:"4px 8px", display:"flex" }}><ChevronDown size={14} /></button>
+                      <button onClick={() => removeItem(i)}
+                        style={{ background:RED_SOFT, border:"none", borderRadius:6, color:RED, cursor:"pointer", padding:"4px 8px", display:"flex" }}><X size={14} /></button>
                     </div>
-                    <button onClick={() => removeItem(i)}
-                      style={{ background:"#fee2e2", border:"none", borderRadius:6, color:"#dc2626", cursor:"pointer", fontSize:16, fontWeight:700 }}>
-                      ×
-                    </button>
                   </div>
-                  <input value={item.notes||""} onChange={e => updateItem(i,"notes",e.target.value)}
-                    placeholder="Notes (optional)" style={{ ...inputSt, margin:0, width:"100%", fontSize:12, color:"#64748b" }} />
+                  <div style={{ marginBottom:10 }}>
+                    <label style={labelSt}>Description</label>
+                    <input value={item.description} onChange={e => updateItem(i,"description",e.target.value)}
+                      placeholder="Description" style={inputSt} />
+                  </div>
+                  <div style={{ marginBottom:10 }}>
+                    <label style={labelSt}>Notes / Detail</label>
+                    <textarea value={item.notes||""} onChange={e => updateItem(i,"notes",e.target.value)} rows={3}
+                      placeholder="Notes (optional)" style={{ ...inputSt, resize:"vertical" } as React.CSSProperties} />
+                  </div>
+                  <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 1fr" : "1fr 1fr 1fr", gap:10 }}>
+                    <div>
+                      <label style={labelSt}>Rate ($)</label>
+                      <input type="number" value={item.rate} onChange={e => updateItem(i,"rate",parseFloat(e.target.value)||0)} style={inputSt} />
+                    </div>
+                    <div>
+                      <label style={labelSt}>Qty</label>
+                      <input type="number" value={item.qty} onChange={e => updateItem(i,"qty",parseFloat(e.target.value)||1)} style={inputSt} />
+                    </div>
+                    <div style={{ gridColumn: mob ? "1/-1" : "auto" }}>
+                      <label style={labelSt}>Amount</label>
+                      <div style={{ ...inputSt, color:RED, fontWeight:700, display:"flex", alignItems:"center" }}>
+                        ${editDisplayItems[i].amount.toFixed(2)}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               ))}
 
               <button onClick={addItem}
-                style={{ width:"100%", padding:"10px", borderRadius:8, border:"2px dashed #e2e8f0", background:"#fafafa", color:"#64748b", fontSize:13, fontWeight:600, cursor:"pointer" }}>
-                + Add line item
+                style={{ width:"100%", padding:"10px", borderRadius:8, border:`2px dashed ${LINE}`, background:SOFT, color:MUTED, fontSize:13, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+                <Plus size={14} /> Add line item
               </button>
 
               {/* Card surcharge */}
               <label style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 14px", marginTop:16,
-                background:"#f8fafc", border:`1px solid ${editCardSurcharge ? "#94a3b8" : "#e2e8f0"}`,
+                background:SOFT, border:`1px solid ${editCardSurcharge ? MUTED : LINE}`,
                 borderRadius:10, cursor:"pointer" }}>
                 <input type="checkbox" checked={editCardSurcharge} onChange={e => setEditCardSurcharge(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
-                <span style={{ fontSize:13, color:"#374151" }}>
-                  💳 Cliente pagará con tarjeta <span style={{ color:"#64748b" }}>— agrega 3% + $3 CAD, repartido entre los ítems</span>
+                <span style={{ fontSize:13, color:TEXT, display:"flex", alignItems:"center", gap:6 }}>
+                  <CreditCard size={14} /> Cliente pagará con tarjeta <span style={{ color:MUTED }}>— agrega 3% + $3 CAD, repartido entre los ítems</span>
                 </span>
               </label>
 
@@ -747,39 +772,39 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
               {/* HST toggle */}
               <label style={{ display:"flex", alignItems:"center", gap:10, padding:"12px 14px", marginTop:10,
-                background:"#f8fafc", border:`1px solid ${!editHstEnabled ? "#94a3b8" : "#e2e8f0"}`,
+                background:SOFT, border:`1px solid ${!editHstEnabled ? MUTED : LINE}`,
                 borderRadius:10, cursor:"pointer" }}>
                 <input type="checkbox" checked={editHstEnabled} onChange={e => setEditHstEnabled(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
-                <span style={{ fontSize:13, color:"#374151" }}>Aplicar HST (13%)</span>
+                <span style={{ fontSize:13, color:TEXT }}>Aplicar HST (13%)</span>
               </label>
 
               {/* Totals preview */}
-              <div style={{ marginTop:10, padding:"14px", background:"#f8fafc", borderRadius:8 }}>
+              <div style={{ marginTop:10, padding:"14px", background:SOFT, borderRadius:8 }}>
                 <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                  <span style={{ fontSize:13, color:"#64748b" }}>Subtotal</span>
-                  <span style={{ fontSize:13 }}>${rawSubtotal.toFixed(2)}</span>
+                  <span style={{ fontSize:13, color:MUTED }}>Subtotal</span>
+                  <span style={{ fontSize:13, color:TEXT }}>${rawSubtotal.toFixed(2)}</span>
                 </div>
                 {editDiscount > 0 && (
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                    <span style={{ fontSize:13, color:"#64748b" }}>Descuento</span>
-                    <span style={{ fontSize:13, color:"#dc2626" }}>-${Number(editDiscount).toFixed(2)}</span>
+                    <span style={{ fontSize:13, color:MUTED }}>Descuento</span>
+                    <span style={{ fontSize:13, color:RED }}>-${Number(editDiscount).toFixed(2)}</span>
                   </div>
                 )}
                 {editHstEnabled && (
                   <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                    <span style={{ fontSize:13, color:"#64748b" }}>HST (13%)</span>
-                    <span style={{ fontSize:13 }}>${hst.toFixed(2)}</span>
+                    <span style={{ fontSize:13, color:MUTED }}>HST (13%)</span>
+                    <span style={{ fontSize:13, color:TEXT }}>${hst.toFixed(2)}</span>
                   </div>
                 )}
-                <div style={{ display:"flex", justifyContent:"space-between", borderTop:"1px solid #e2e8f0", paddingTop:8, marginTop:4 }}>
-                  <span style={{ fontWeight:800, fontSize:14 }}>TOTAL</span>
-                  <span style={{ fontWeight:800, fontSize:16, color:"#e63946" }}>CAD ${total.toFixed(2)}</span>
+                <div style={{ display:"flex", justifyContent:"space-between", borderTop:`1px solid ${LINE}`, paddingTop:8, marginTop:4 }}>
+                  <span style={{ fontWeight:800, fontSize:14, color:TEXT }}>TOTAL</span>
+                  <span style={{ fontWeight:800, fontSize:16, color:RED }}>CAD ${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
 
             {/* Notes */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
               <label style={{ ...labelSt, display:"block", marginBottom:8 }}>Notes (shown on invoice)</label>
               <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={3}
                 placeholder="Additional notes for the client..."
@@ -787,44 +812,44 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Photos */}
-            <div style={{ background:"#fff", borderRadius:12, border:"1px solid #e2e8f0", padding:"20px 24px" }}>
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
               <input ref={fileRef} type="file" accept="image/*" multiple style={{ display:"none" }} onChange={handlePhotoUpload} />
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14 }}>
                 <span style={{ ...labelSt, margin:0 }}>Photos — PDF attachment ({editPhotos.length})</span>
                 <button onClick={() => fileRef.current?.click()} disabled={uploading}
-                  style={{ background: uploading?"#f1f5f9":"#fef2f2", color: uploading?"#94a3b8":"#e63946",
-                    border:"none", borderRadius:8, padding:"6px 14px", fontSize:12, fontWeight:700, cursor: uploading?"not-allowed":"pointer" }}>
-                  {uploading ? "Uploading..." : "📷 Add photos"}
+                  style={{ background: uploading ? SOFT : RED_SOFT, color: uploading ? MUTED : RED,
+                    border:"none", borderRadius:8, padding:"6px 14px", fontSize:12, fontWeight:700, cursor: uploading?"not-allowed":"pointer", display:"flex", alignItems:"center", gap:6 }}>
+                  <Camera size={13} /> {uploading ? "Uploading..." : "Add photos"}
                 </button>
               </div>
               {editPhotos.length > 0 ? (
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
                   {editPhotos.map((url, i) => (
-                    <div key={i} style={{ position:"relative", borderRadius:8, overflow:"hidden", aspectRatio:"4/3", background:"#f1f5f9" }}>
+                    <div key={i} style={{ position:"relative", borderRadius:8, overflow:"hidden", aspectRatio:"4/3", background:SOFT }}>
                       <Image src={url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
                       <button onClick={() => setEditPhotos(p => p.filter((_, j) => j !== i))}
                         style={{ position:"absolute", top:4, right:4, background:"rgba(0,0,0,.65)", border:"none",
-                          color:"#fff", borderRadius:"50%", width:22, height:22, cursor:"pointer", fontSize:14, lineHeight:"22px", textAlign:"center" }}>
-                        ×
+                          color:"#fff", borderRadius:"50%", width:22, height:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                        <X size={13} />
                       </button>
                     </div>
                   ))}
                 </div>
               ) : (
                 <div onClick={() => fileRef.current?.click()}
-                  style={{ border:"2px dashed #e2e8f0", borderRadius:10, padding:"28px", textAlign:"center", cursor:"pointer", background:"#fafafa" }}
-                  onMouseEnter={e => (e.currentTarget.style.borderColor="#e63946")}
-                  onMouseLeave={e => (e.currentTarget.style.borderColor="#e2e8f0")}>
-                  <p style={{ margin:0, fontSize:26 }}>📷</p>
-                  <p style={{ margin:"6px 0 0", fontSize:13, color:"#94a3b8" }}>Click to add photos — they appear at the end of the PDF</p>
+                  style={{ border:`2px dashed ${LINE}`, borderRadius:10, padding:"28px", textAlign:"center", cursor:"pointer", background:SOFT }}
+                  onMouseEnter={e => (e.currentTarget.style.borderColor=RED)}
+                  onMouseLeave={e => (e.currentTarget.style.borderColor=LINE)}>
+                  <Camera size={26} color={MUTED} style={{ margin:"0 auto" }} />
+                  <p style={{ margin:"6px 0 0", fontSize:13, color:MUTED }}>Click to add photos — they appear at the end of the PDF</p>
                 </div>
               )}
             </div>
 
             {/* Save */}
             <button onClick={saveEdit} disabled={saving || !editClient.name}
-              style={{ padding:"16px", borderRadius:12, background: saving ? "#94a3b8" : "#e63946", border:"none", color:"#fff", fontSize:15, fontWeight:700, cursor: (saving||!editClient.name)?"not-allowed":"pointer" }}>
-              {saving ? "Saving..." : "💾 Save Changes"}
+              style={{ padding:"16px", borderRadius:12, background: saving ? MUTED : RED, border:"none", color:"#fff", fontSize:15, fontWeight:700, cursor: (saving||!editClient.name)?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
+              <Save size={16} /> {saving ? "Saving..." : "Save Changes"}
             </button>
           </div>
         )}
@@ -833,28 +858,28 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Send email — lets Julio override the recipient for this send only, and BCC himself for a record */}
       {showSendModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.6)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
           onClick={e => e.target === e.currentTarget && setShowSendModal(false)}>
-          <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:400, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }}>
+          <div style={{ background:PANEL, border:`1px solid ${LINE}`, borderRadius:16, width:"100%", maxWidth:400, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:"#0f172a" }}>✉ {isEst ? "Enviar estimado" : "Enviar factura"}</h2>
-              <button onClick={() => setShowSendModal(false)} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#94a3b8" }}>×</button>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:TEXT, display:"flex", alignItems:"center", gap:8 }}><Mail size={16} /> {isEst ? "Enviar estimado" : "Enviar factura"}</h2>
+              <button onClick={() => setShowSendModal(false)} style={{ background:"none", border:"none", cursor:"pointer", color:MUTED, display:"flex" }}><X size={20} /></button>
             </div>
             <label style={{ ...labelSt, display:"block", marginBottom:6 }}>Enviar a</label>
             <input type="email" autoFocus value={sendEmail}
               onChange={e => setSendEmail(e.target.value)}
               placeholder="cliente@ejemplo.com"
               style={{ ...inputSt, margin:0 }} />
-            <p style={{ margin:"6px 0 0", fontSize:11, color:"#94a3b8" }}>
+            <p style={{ margin:"6px 0 0", fontSize:11, color:MUTED }}>
               Puedes cambiarlo por otro correo solo para este envío — no modifica el email guardado del cliente.
             </p>
             <label style={{ display:"flex", alignItems:"center", gap:8, marginTop:16, cursor:"pointer" }}>
               <input type="checkbox" checked={sendBcc} onChange={e => setSendBcc(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
-              <span style={{ fontSize:13, color:"#374151" }}>Enviarme copia oculta (BCC) a billing@mactor.ca</span>
+              <span style={{ fontSize:13, color:TEXT }}>Enviarme copia oculta (BCC) a billing@mactor.ca</span>
             </label>
             <label style={{ display:"flex", alignItems:"center", gap:8, marginTop:12, cursor:"pointer" }}>
               <input type="checkbox" checked={sendSms} onChange={e => setSendSms(e.target.checked)} style={{ width:16, height:16, cursor:"pointer" }} />
-              <span style={{ fontSize:13, color:"#374151" }}>También enviar por SMS</span>
+              <span style={{ fontSize:13, color:TEXT }}>También enviar por SMS</span>
             </label>
             {sendSms && (
               <input type="tel" value={sendPhone}
@@ -864,11 +889,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             )}
             <div style={{ display:"flex", gap:8, marginTop:20 }}>
               <button onClick={send} disabled={sending || !sendEmail.trim() || (sendSms && !sendPhone.trim())}
-                style={{ flex:1, padding:"11px", background: sending ? "#94a3b8" : "#e63946", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:(sending||!sendEmail.trim()||(sendSms&&!sendPhone.trim()))?"not-allowed":"pointer" }}>
+                style={{ flex:1, padding:"11px", background: sending ? MUTED : RED, color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:(sending||!sendEmail.trim()||(sendSms&&!sendPhone.trim()))?"not-allowed":"pointer" }}>
                 {sending ? "Enviando..." : "Enviar"}
               </button>
               <button onClick={() => setShowSendModal(false)} disabled={sending}
-                style={{ padding:"11px 18px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
+                style={{ padding:"11px 18px", background:SOFT, border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -878,33 +903,33 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Schedule work — sets scheduledDate, shows up on the Agenda page */}
       {showScheduleModal && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.6)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
           onClick={e => e.target === e.currentTarget && !scheduling && setShowScheduleModal(false)}>
-          <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:380, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }}>
+          <div style={{ background:PANEL, border:`1px solid ${LINE}`, borderRadius:16, width:"100%", maxWidth:380, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
-              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:"#0f172a" }}>📅 Programar trabajo</h2>
-              <button onClick={() => setShowScheduleModal(false)} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#94a3b8" }}>×</button>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:TEXT, display:"flex", alignItems:"center", gap:8 }}><Calendar size={16} /> Programar trabajo</h2>
+              <button onClick={() => setShowScheduleModal(false)} style={{ background:"none", border:"none", cursor:"pointer", color:MUTED, display:"flex" }}><X size={20} /></button>
             </div>
             <label style={{ ...labelSt, display:"block", marginBottom:6 }}>Fecha y hora</label>
             <input type="datetime-local" autoFocus value={scheduleDate}
               onChange={e => setScheduleDate(e.target.value)}
               style={{ ...inputSt, margin:0 }} />
-            <p style={{ margin:"6px 0 0", fontSize:11, color:"#94a3b8" }}>
+            <p style={{ margin:"6px 0 0", fontSize:11, color:MUTED }}>
               Aparecerá en la Agenda para planear el trabajo.
             </p>
             <div style={{ display:"flex", gap:8, marginTop:20 }}>
               <button onClick={() => saveSchedule()} disabled={scheduling}
-                style={{ flex:1, padding:"11px", background: scheduling ? "#94a3b8" : "#e63946", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:scheduling?"not-allowed":"pointer" }}>
+                style={{ flex:1, padding:"11px", background: scheduling ? MUTED : RED, color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:scheduling?"not-allowed":"pointer" }}>
                 {scheduling ? "Guardando..." : "Guardar"}
               </button>
               {inv.scheduledDate && (
                 <button onClick={() => { setScheduleDate(""); saveSchedule(""); }} disabled={scheduling}
-                  style={{ padding:"11px 16px", background:"#fee2e2", border:"none", borderRadius:10, fontSize:14, fontWeight:600, cursor:scheduling?"not-allowed":"pointer", color:"#dc2626" }}>
+                  style={{ padding:"11px 16px", background:RED_SOFT, border:"none", borderRadius:10, fontSize:14, fontWeight:600, cursor:scheduling?"not-allowed":"pointer", color:RED }}>
                   Quitar
                 </button>
               )}
               <button onClick={() => setShowScheduleModal(false)} disabled={scheduling}
-                style={{ padding:"11px 16px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
+                style={{ padding:"11px 16px", background:SOFT, border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -914,30 +939,30 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
       {/* Delete confirmation — requires re-entering the password */}
       {showDeleteConfirm && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.6)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
           onClick={e => e.target === e.currentTarget && !deleting && setShowDeleteConfirm(false)}>
-          <div style={{ background:"#fff", borderRadius:16, width:"100%", maxWidth:380, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.2)" }}>
+          <div style={{ background:PANEL, border:`1px solid ${LINE}`, borderRadius:16, width:"100%", maxWidth:380, padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:12 }}>
-              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:"#dc2626" }}>⚠️ Eliminar permanentemente</h2>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:RED, display:"flex", alignItems:"center", gap:8 }}><AlertTriangle size={16} /> Eliminar permanentemente</h2>
               <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting}
-                style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#94a3b8" }}>×</button>
+                style={{ background:"none", border:"none", cursor:"pointer", color:MUTED, display:"flex" }}><X size={20} /></button>
             </div>
-            <p style={{ margin:"0 0 16px", fontSize:13, color:"#64748b" }}>
-              Vas a eliminar {isEst ? "el estimado" : "la factura"} <strong style={{ color:"#0f172a" }}>{inv.invoiceNumber}</strong> de <strong style={{ color:"#0f172a" }}>{inv.clientName}</strong> de forma permanente. Esta acción no se puede deshacer.
+            <p style={{ margin:"0 0 16px", fontSize:13, color:MUTED }}>
+              Vas a eliminar {isEst ? "el estimado" : "la factura"} <strong style={{ color:TEXT }}>{inv.invoiceNumber}</strong> de <strong style={{ color:TEXT }}>{inv.clientName}</strong> de forma permanente. Esta acción no se puede deshacer.
             </p>
             <label style={{ ...labelSt, display:"block", marginBottom:6 }}>Confirma tu contraseña para continuar</label>
             <input type="password" autoFocus value={deletePassword}
               onChange={e => setDeletePassword(e.target.value)}
               onKeyDown={e => e.key === "Enter" && !deleting && deletePassword && confirmDelete()}
               placeholder="••••••" style={{ ...inputSt, margin:0 }} />
-            {deleteError && <p style={{ color:"#dc2626", fontSize:12, margin:"8px 0 0" }}>{deleteError}</p>}
+            {deleteError && <p style={{ color:RED, fontSize:12, margin:"8px 0 0" }}>{deleteError}</p>}
             <div style={{ display:"flex", gap:8, marginTop:20 }}>
               <button onClick={confirmDelete} disabled={deleting || !deletePassword}
-                style={{ flex:1, padding:"11px", background: deleting ? "#94a3b8" : "#dc2626", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor: (deleting||!deletePassword)?"not-allowed":"pointer" }}>
+                style={{ flex:1, padding:"11px", background: deleting ? MUTED : RED, color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor: (deleting||!deletePassword)?"not-allowed":"pointer" }}>
                 {deleting ? "Eliminando..." : "Eliminar definitivamente"}
               </button>
               <button onClick={() => setShowDeleteConfirm(false)} disabled={deleting}
-                style={{ padding:"11px 18px", background:"#f1f5f9", border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:"#64748b" }}>
+                style={{ padding:"11px 18px", background:SOFT, border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -950,11 +975,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
 
 // ── Shared styles ──────────────────────────────────────────────
 const labelSt: React.CSSProperties = {
-  display:"block", fontSize:11, fontWeight:700, color:"#64748b",
+  display:"block", fontSize:11, fontWeight:700, color:MUTED,
   textTransform:"uppercase", letterSpacing:".04em", marginBottom:6
 };
 const inputSt: React.CSSProperties = {
-  width:"100%", padding:"9px 12px", borderRadius:8, border:"1px solid #e2e8f0",
-  fontSize:13, color:"#0f172a", outline:"none", background:"#fff",
+  width:"100%", padding:"9px 12px", borderRadius:8, border:`1px solid ${LINE}`,
+  fontSize:13, color:TEXT, outline:"none", background:BG,
   boxSizing:"border-box" as const
 };
