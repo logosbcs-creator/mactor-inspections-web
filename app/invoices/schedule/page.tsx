@@ -7,7 +7,7 @@ const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
 interface Job {
   id: string; invoiceNumber: string; type: string; status: string;
-  clientName: string; clientEmail?: string; clientPhone?: string; clientAddress?: string;
+  clientName: string; companyName?: string; clientEmail?: string; clientPhone?: string; clientAddress?: string;
   total: number; scheduledDate: string;
 }
 
@@ -34,6 +34,7 @@ export default function SchedulePage() {
   const [taskModalOpen, setTaskModalOpen] = useState(false);
   const [taskId,          setTaskId]          = useState<string|null>(null);
   const [taskName,        setTaskName]        = useState("");
+  const [taskCompany,     setTaskCompany]     = useState("");
   const [taskEmail,       setTaskEmail]       = useState("");
   const [taskPhone,       setTaskPhone]       = useState("");
   const [taskAddress,     setTaskAddress]     = useState("");
@@ -98,7 +99,7 @@ export default function SchedulePage() {
 
   function openNewTask() {
     setTaskId(null);
-    setTaskName(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
+    setTaskName(""); setTaskCompany(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
     setTaskMsg("");
     setTaskModalOpen(true);
   }
@@ -110,7 +111,7 @@ export default function SchedulePage() {
     // click while this fetch is still in flight could save leftover
     // data (including an empty date) over the real task.
     setTaskId(null);
-    setTaskName(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
+    setTaskName(""); setTaskCompany(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
     setTaskLoading(true);
     setTaskModalOpen(true);
     setTaskMsg("");
@@ -118,6 +119,7 @@ export default function SchedulePage() {
     const d = await r.json();
     setTaskId(d.id);
     setTaskName(d.clientName || "");
+    setTaskCompany(d.companyName || "");
     setTaskEmail(d.clientEmail || "");
     setTaskPhone(d.clientPhone || "");
     setTaskAddress(d.clientAddress || "");
@@ -131,7 +133,7 @@ export default function SchedulePage() {
     setTaskSaving(true); setTaskMsg("");
     const payload = {
       type: "task",
-      clientName: taskName, clientEmail: taskEmail, clientPhone: taskPhone, clientAddress: taskAddress,
+      clientName: taskName, companyName: taskCompany, clientEmail: taskEmail, clientPhone: taskPhone, clientAddress: taskAddress,
       lineItems: taskDescription.trim() ? [{ description: taskDescription, rate: 0, qty: 1, amount: 0 }] : [],
       scheduledDate: taskDate,
     };
@@ -248,7 +250,7 @@ export default function SchedulePage() {
                       )}
                     </div>
                     <p style={{ margin: "3px 0 0", fontSize: mob ? 15 : 13, color: "#0f172a", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {j.clientName}
+                      {j.clientName}{j.companyName && <span style={{ color: "#94a3b8", fontWeight: 500 }}> · {j.companyName}</span>}
                     </p>
                     {(j.clientAddress || j.clientPhone) && (
                       <p style={{ margin: "2px 0 0", fontSize: 12, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
@@ -335,6 +337,11 @@ export default function SchedulePage() {
             <div style={{ marginBottom: 12 }}>
               <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Nombre *</label>
               <input type="text" value={taskName} onChange={e => setTaskName(e.target.value)} placeholder="Nombre del cliente"
+                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+            </div>
+            <div style={{ marginBottom: 12 }}>
+              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Empresa</label>
+              <input type="text" value={taskCompany} onChange={e => setTaskCompany(e.target.value)} placeholder="Nombre de la empresa (opcional)"
                 style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
             </div>
             <div style={{ marginBottom: 12 }}>

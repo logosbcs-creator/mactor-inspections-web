@@ -42,7 +42,7 @@ export default function NewInvoicePage() {
   const router   = useRouter();
   const fileRef  = useRef<HTMLInputElement>(null);
   const [type,   setType]   = useState<"invoice"|"estimate">("invoice");
-  const [client, setClient] = useState({ name: "", email: "", phone: "", address: "" });
+  const [client, setClient] = useState({ name: "", company: "", email: "", phone: "", address: "" });
   const [items,  setItems]  = useState<LineItem[]>([emptyItem()]);
   const [cardSurcharge, setCardSurcharge] = useState(false);
   const [hstEnabled, setHstEnabled] = useState(true);
@@ -80,6 +80,7 @@ export default function NewInvoicePage() {
   function selectClient(c: ClientSuggestion) {
     setClient({
       name:    c.name,
+      company: "",
       email:   c.email    || "",
       phone:   c.phone    || "",
       address: c.address  || "",
@@ -160,7 +161,7 @@ export default function NewInvoicePage() {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
         body: JSON.stringify({
-          type, clientName: client.name, clientEmail: client.email,
+          type, clientName: client.name, companyName: client.company, clientEmail: client.email,
           clientPhone: client.phone, clientAddress: client.address,
           lineItems: displayItems, notes, photos, discount, hstEnabled,
         }),
@@ -251,6 +252,10 @@ export default function NewInvoicePage() {
                   </div>
                 )}
               </div>
+            </div>
+            <div style={{ gridColumn: "1/-1" }}>
+              <label style={lbl}>Empresa</label>
+              <input style={inp} value={client.company} onChange={e => setClient(p => ({ ...p, company: e.target.value }))} placeholder="Nombre de la empresa (opcional)" />
             </div>
             <div>
               <label style={lbl}>Email</label>

@@ -62,7 +62,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Edit form state
-  const [editClient,  setEditClient]  = useState({ name:"", email:"", phone:"", address:"" });
+  const [editClient,  setEditClient]  = useState({ name:"", company:"", email:"", phone:"", address:"" });
   const [editItems,   setEditItems]   = useState<LineItem[]>([]);
   const [editCardSurcharge, setEditCardSurcharge] = useState(false);
   const [editHstEnabled, setEditHstEnabled] = useState(true);
@@ -90,7 +90,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     const d = await r.json();
     setInv(d);
     // Populate edit form
-    setEditClient({ name: d.clientName||"", email: d.clientEmail||"", phone: d.clientPhone||"", address: d.clientAddress||"" });
+    setEditClient({ name: d.clientName||"", company: d.companyName||"", email: d.clientEmail||"", phone: d.clientPhone||"", address: d.clientAddress||"" });
     setEditItems(d.lineItems || []);
     setEditNotes(d.notes || "");
     setEditPhotos(d.photos || []);
@@ -155,6 +155,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
       body: JSON.stringify({
         clientName:    editClient.name,
+        companyName:   editClient.company,
         clientEmail:   editClient.email,
         clientPhone:   editClient.phone,
         clientAddress: editClient.address,
@@ -465,6 +466,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <div style={{ padding:"16px 28px 14px", borderBottom:"1px solid #e8e8e8" }}>
                 <p style={{ margin:"0 0 6px", fontSize:9, fontWeight:700, color:"#888", textTransform:"uppercase", letterSpacing:".06em" }}>{isEst ? "ESTIMATE FOR" : "BILL TO"}</p>
                 <p style={{ margin:"0 0 3px", fontSize:14, fontWeight:700, color:"#1a1a1a" }}>{inv.clientName}</p>
+                {inv.companyName && <p style={{ margin:"0 0 3px", fontSize:12, color:"#555" }}>{inv.companyName}</p>}
                 {inv.clientAddress && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientAddress}</p>}
                 {inv.clientPhone   && <p style={{ margin:"2px 0", fontSize:12, color:"#555" }}>{inv.clientPhone}</p>}
                 {inv.clientEmail   && <p style={{ margin:"2px 0", fontSize:12, color:"#0a0f1e" }}>{inv.clientEmail}</p>}
@@ -659,6 +661,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 <div style={{ gridColumn:"1/-1" }}>
                   <label style={labelSt}>Name *</label>
                   <input value={editClient.name} onChange={e => setEditClient(p => ({...p, name:e.target.value}))} style={inputSt} placeholder="Client name" />
+                </div>
+                <div style={{ gridColumn:"1/-1" }}>
+                  <label style={labelSt}>Company</label>
+                  <input value={editClient.company} onChange={e => setEditClient(p => ({...p, company:e.target.value}))} style={inputSt} placeholder="Company name (optional)" />
                 </div>
                 <div>
                   <label style={labelSt}>Email</label>
