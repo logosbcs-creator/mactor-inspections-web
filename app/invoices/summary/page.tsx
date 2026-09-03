@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
+import { BarChart3 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -66,7 +67,7 @@ export default function SummaryPage() {
       <AppHeader active="summary" />
 
       <div style={{ maxWidth: 900, margin: "0 auto", padding: mob ? "14px 10px" : "28px 24px" }}>
-        <h1 style={{ margin: "0 0 16px", fontSize: mob ? 19 : 20, fontWeight: 700, color: TEXT }}>📊 Resumen financiero</h1>
+        <h1 style={{ margin: "0 0 16px", fontSize: mob ? 19 : 20, fontWeight: 700, color: TEXT, display: "flex", alignItems: "center", gap: 10 }}><BarChart3 size={20} /> Resumen financiero</h1>
 
         {loading ? (
           <div style={{ padding: "60px", textAlign: "center", color: MUTED, fontSize: 14 }}>Cargando...</div>

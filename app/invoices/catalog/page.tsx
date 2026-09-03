@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
+import { FolderOpen, Pencil, Trash2, X } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -156,7 +157,7 @@ export default function CatalogPage() {
       <AppHeader active="catalog" />
       <div style={{ background: PANEL, borderBottom: `1px solid ${LINE}`, padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, flexWrap: "nowrap", overflow: "hidden" }}>
         <div style={{ flex: 1, minWidth: 0, padding: mob ? "10px 0" : "14px 0" }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Servicios</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 8 }}><FolderOpen size={17} /> Catálogo de Servicios</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: MUTED }}>{items.length} servicios</p>}
         </div>
         {!mob && (
@@ -178,7 +179,7 @@ export default function CatalogPage() {
           <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)", maxHeight: "90dvh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: TEXT }}>Nuevo Servicio</h2>
-              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
+              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
@@ -341,14 +342,14 @@ export default function CatalogPage() {
                         <button
                           onClick={e => { e.stopPropagation(); setSelected(item); openEdit(item); }}
                           title="Editar"
-                          style={{ background: SOFT, border: `1px solid ${LINE}`, borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: TEXT }}>
-                          ✏️
+                          style={{ background: SOFT, border: `1px solid ${LINE}`, borderRadius: 6, padding: "5px", cursor: "pointer", color: TEXT, display: "flex" }}>
+                          <Pencil size={13} />
                         </button>
                         <button
                           onClick={e => { e.stopPropagation(); deleteService(item); }}
                           title="Eliminar"
-                          style={{ background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: RED }}>
-                          🗑️
+                          style={{ background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 6, padding: "5px", cursor: "pointer", color: RED, display: "flex" }}>
+                          <Trash2 size={13} />
                         </button>
                       </div>
                     </div>
@@ -364,16 +365,16 @@ export default function CatalogPage() {
                           <div style={{ display: "flex", gap: 6, alignItems: "center", flexShrink: 0 }}>
                             <button onClick={() => editingSvc ? setEditingSvc(false) : openEdit(selected)}
                               title="Editar"
-                              style={{ background: editingSvc ? SOFT : "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: TEXT }}>
-                              ✏️
+                              style={{ background: editingSvc ? SOFT : "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "6px", cursor: "pointer", color: TEXT, display: "flex" }}>
+                              <Pencil size={14} />
                             </button>
                             <button onClick={() => deleteService()} disabled={deletingSvc}
                               title="Eliminar"
-                              style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: RED }}>
-                              🗑️
+                              style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "6px", cursor: "pointer", color: RED, display: "flex" }}>
+                              <Trash2 size={14} />
                             </button>
                             <button onClick={() => { setSelected(null); setEditingSvc(false); }}
-                              style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: MUTED, marginLeft: 2 }}>×</button>
+                              style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, marginLeft: 2, display: "flex" }}><X size={18} /></button>
                           </div>
                         </div>
 

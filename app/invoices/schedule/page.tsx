@@ -2,6 +2,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
+import { Bell, ClipboardList, Trash2, X } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -323,8 +324,8 @@ function ScheduleContent() {
                     </div>
                   </div>
                   <button onClick={e => { e.stopPropagation(); openReminder(j); }} title="Enviar recordatorio"
-                    style={{ flexShrink: 0, background: SOFT, border: "none", borderRadius: 8, color: TEXT, padding: mob ? "7px 9px" : "7px 10px", cursor: "pointer", fontSize: mob ? 15 : 13 }}>
-                    🔔
+                    style={{ flexShrink: 0, background: SOFT, border: "none", borderRadius: 8, color: TEXT, padding: mob ? "9px" : "8px", cursor: "pointer", display: "flex" }}>
+                    <Bell size={mob ? 16 : 15} />
                   </button>
                 </div>
                 );
@@ -340,8 +341,8 @@ function ScheduleContent() {
           onClick={e => e.target === e.currentTarget && !reminding && setReminderJob(null)}>
           <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 400, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: TEXT }}>🔔 Recordatorio</h2>
-              <button onClick={() => setReminderJob(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: TEXT, display: "flex", alignItems: "center", gap: 8 }}><Bell size={16} /> Recordatorio</h2>
+              <button onClick={() => setReminderJob(null)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
             </div>
             <p style={{ margin: "0 0 16px", fontSize: 12, color: MUTED }}>
               {reminderJob.invoiceNumber} · {reminderJob.clientName} · {new Date(reminderJob.scheduledDate).toLocaleString("es-CA", { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })}
@@ -391,7 +392,7 @@ function ScheduleContent() {
           <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 420, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: TEXT }}>{taskId ? "Editar tarea" : "+ Nueva tarea"}</h2>
-              <button onClick={() => setTaskModalOpen(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
+              <button onClick={() => setTaskModalOpen(false)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
             </div>
 
             <div style={{ marginBottom: 12 }}>
@@ -444,12 +445,12 @@ function ScheduleContent() {
             {taskId && !taskLoading && (
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button onClick={convertTask} disabled={taskConverting || taskSaving}
-                  style={{ flex: 1, padding: "10px", background: SOFT, border: `1px solid ${LINE}`, borderRadius: 10, fontSize: 13, fontWeight: 700, color: TEXT, cursor: taskConverting ? "not-allowed" : "pointer" }}>
-                  {taskConverting ? "Convirtiendo..." : "📋 Convertir a Estimado"}
+                  style={{ flex: 1, padding: "10px", background: SOFT, border: `1px solid ${LINE}`, borderRadius: 10, fontSize: 13, fontWeight: 700, color: TEXT, cursor: taskConverting ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+                  {taskConverting ? "Convirtiendo..." : <><ClipboardList size={15} /> Convertir a Estimado</>}
                 </button>
                 <button onClick={deleteTask} disabled={taskSaving}
-                  style={{ padding: "10px 14px", background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 10, fontSize: 13, fontWeight: 600, color: RED, cursor: "pointer" }}>
-                  🗑️
+                  style={{ padding: "10px 14px", background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 10, cursor: "pointer", color: RED, display: "flex", alignItems: "center" }}>
+                  <Trash2 size={15} />
                 </button>
               </div>
             )}

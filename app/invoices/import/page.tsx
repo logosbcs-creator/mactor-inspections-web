@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
+import { Upload } from "lucide-react";
 
 const INVOICE_PROMPT = `You are extracting invoice data from PDF files for MacTor Construction.
 
@@ -123,7 +124,7 @@ export default function ImportPage() {
 
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "24px 20px" }}>
         <div style={{ marginBottom: 20 }}>
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#fff" }}>📥 Importar historial</h1>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#fff", display: "flex", alignItems: "center", gap: 10 }}><Upload size={20} /> Importar historial</h1>
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "#94a3b8" }}>Pega el JSON que generó ChatGPT</p>
         </div>
 

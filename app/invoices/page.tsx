@@ -2,6 +2,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "../components/AppHeader";
+import { ClipboardList, Receipt, BarChart3 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -119,10 +120,12 @@ function InvoicesContent() {
       <AppHeader active={isEst ? "estimates" : "invoices"} />
       <div style={{ maxWidth: 1100, margin: "0 auto", padding: mob ? "14px 10px" : "28px 24px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16, flexWrap: "wrap", gap: 8 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 19 : 20, fontWeight: 700, color: TEXT }}>{isEst ? "📋 Estimados" : "🧾 Facturas"}</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 19 : 20, fontWeight: 700, color: TEXT, display: "flex", alignItems: "center", gap: 10 }}>
+            {isEst ? <ClipboardList size={20} /> : <Receipt size={20} />} {isEst ? "Estimados" : "Facturas"}
+          </h1>
           <button onClick={() => router.push("/invoices/summary")}
-            style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "7px 12px", fontSize: 12, fontWeight: 600, color: MUTED, cursor: "pointer" }}>
-            📊 Resumen financiero
+            style={{ background: "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "7px 12px", fontSize: 12, fontWeight: 600, color: MUTED, cursor: "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+            <BarChart3 size={14} /> Resumen financiero
           </button>
         </div>
 

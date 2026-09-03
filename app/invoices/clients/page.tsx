@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
+import { Users, Pencil, Trash2, X } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -163,16 +164,16 @@ export default function ClientsPage() {
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <button onClick={() => setEditingContact(v => !v)}
             title="Editar"
-            style={{ background: editingContact ? SOFT : "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: TEXT }}>
-            ✏️
+            style={{ background: editingContact ? SOFT : "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "6px", cursor: "pointer", color: TEXT, display: "flex" }}>
+            <Pencil size={14} />
           </button>
           <button onClick={deleteClient} disabled={deleting}
             title="Eliminar"
-            style={{ background: "none", border: `1px solid ${RED_SOFT}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: RED }}>
-            🗑️
+            style={{ background: "none", border: `1px solid ${RED_SOFT}`, borderRadius: 8, padding: "6px", cursor: "pointer", color: RED, display: "flex" }}>
+            <Trash2 size={14} />
           </button>
           <button onClick={() => { setSelected(null); setEditingContact(false); setShowDetail(false); }}
-            style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: MUTED, marginLeft: 2 }}>×</button>
+            style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, marginLeft: 2, display: "flex" }}><X size={18} /></button>
         </div>
       </div>
 
@@ -219,7 +220,7 @@ export default function ClientsPage() {
               </div>
             ))}
             {!selected.email && !selected.phone && !selected.address && (
-              <p style={{ margin: 0, fontSize: 12, color: MUTED }}>Sin datos de contacto — clic en ✏️ para agregar</p>
+              <p style={{ margin: 0, fontSize: 12, color: MUTED }}>Sin datos de contacto — usa el ícono de editar para agregar</p>
             )}
           </div>
         )}
@@ -308,7 +309,7 @@ export default function ClientsPage() {
       <AppHeader active="clients" />
       <div style={{ background: PANEL, borderBottom: `1px solid ${LINE}`, padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, overflow: "hidden" }}>
         <div style={{ flex: 1, minWidth: 0, padding: mob ? "10px 0" : "14px 0" }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 8 }}><Users size={17} /> Catálogo de Clientes</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: MUTED }}>{clients.length} clientes · se alimenta automáticamente</p>}
         </div>
         <button onClick={() => setShowNew(true)}
@@ -324,7 +325,7 @@ export default function ClientsPage() {
           <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)", maxHeight: "90dvh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: TEXT }}>Nuevo Cliente</h2>
-              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
+              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[

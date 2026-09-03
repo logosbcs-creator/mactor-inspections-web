@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
+import { UserCog, Key, Trash2, X } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -110,7 +111,7 @@ export default function UsersPage() {
       <AppHeader active="settings" />
       <div style={{ background: PANEL, borderBottom: `1px solid ${LINE}`, padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, overflow: "hidden" }}>
         <div style={{ flex: 1, minWidth: 0, padding: mob ? "10px 0" : "14px 0" }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>👤 Usuarios</h1>
+          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", display: "flex", alignItems: "center", gap: 8 }}><UserCog size={17} /> Usuarios</h1>
           {!mob && <p style={{ margin: 0, fontSize: 11, color: MUTED }}>{users.length} cuenta{users.length === 1 ? "" : "s"} con acceso al sistema</p>}
         </div>
         <button onClick={() => { setShowNew(true); setError(""); }}
@@ -126,7 +127,7 @@ export default function UsersPage() {
           <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 420, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: TEXT }}>Nuevo Usuario</h2>
-              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
+              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
@@ -164,7 +165,7 @@ export default function UsersPage() {
           <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 380, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: TEXT }}>Cambiar contraseña</h2>
-              <button onClick={() => setPwFor(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
+              <button onClick={() => setPwFor(null)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
             </div>
             <p style={{ margin: "0 0 12px", fontSize: 13, color: MUTED }}>Usuario: <strong style={{ color: TEXT }}>{pwFor.username}</strong></p>
             <label style={{ ...lbl, display: "block", marginBottom: 4 }}>Nueva contraseña * (mín. 6 caracteres)</label>
@@ -209,12 +210,12 @@ export default function UsersPage() {
               {!mob && <span style={{ fontSize: 12, color: MUTED }}>{new Date(u.createdAt).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" })}</span>}
               <div style={{ display: "flex", gap: 6, justifyContent: "flex-end" }}>
                 <button onClick={() => { setPwFor(u); setNewPw(""); }} title="Cambiar contraseña"
-                  style={{ background: SOFT, border: `1px solid ${LINE}`, borderRadius: 6, padding: "4px 7px", cursor: "pointer", fontSize: 12, color: TEXT }}>
-                  🔑
+                  style={{ background: SOFT, border: `1px solid ${LINE}`, borderRadius: 6, padding: "5px", cursor: "pointer", color: TEXT, display: "flex" }}>
+                  <Key size={14} />
                 </button>
                 <button onClick={() => deleteUser(u)} disabled={deletingId === u.id} title="Eliminar"
-                  style={{ background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 6, padding: "4px 7px", cursor: deletingId === u.id ? "not-allowed" : "pointer", fontSize: 12, color: RED, opacity: deletingId === u.id ? 0.6 : 1 }}>
-                  🗑️
+                  style={{ background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 6, padding: "5px", cursor: deletingId === u.id ? "not-allowed" : "pointer", color: RED, opacity: deletingId === u.id ? 0.6 : 1, display: "flex" }}>
+                  <Trash2 size={14} />
                 </button>
               </div>
             </div>
