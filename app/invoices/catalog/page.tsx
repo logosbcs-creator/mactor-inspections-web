@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
-import { FolderOpen, Pencil, Trash2, X } from "lucide-react";
+import { FolderOpen, Pencil, Trash2, X, RefreshCw } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -162,8 +162,8 @@ export default function CatalogPage() {
         </div>
         {!mob && (
           <button onClick={runBackfill} disabled={backfilling}
-            style={{ padding: "8px 16px", borderRadius: 8, border: `1px solid ${LINE}`, background: backfilling ? SOFT : "none", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: TEXT, opacity: backfilling ? 0.6 : 1, whiteSpace: "nowrap", flexShrink: 0 }}>
-            {backfilling ? "Procesando..." : "🔄 Rellenar"}
+            style={{ padding: "8px 16px", borderRadius: 8, border: `1px solid ${LINE}`, background: backfilling ? SOFT : "none", fontSize: 13, fontWeight: 600, cursor: backfilling ? "not-allowed" : "pointer", color: TEXT, opacity: backfilling ? 0.6 : 1, whiteSpace: "nowrap", flexShrink: 0, display: "flex", alignItems: "center", gap: 6 }}>
+            <RefreshCw size={14} /> {backfilling ? "Procesando..." : "Rellenar"}
           </button>
         )}
         <button onClick={() => setShowNew(true)}

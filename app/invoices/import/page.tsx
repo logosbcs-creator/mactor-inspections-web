@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
-import { Upload } from "lucide-react";
+import { Upload, FileText, ClipboardList } from "lucide-react";
 
 const INVOICE_PROMPT = `You are extracting invoice data from PDF files for MacTor Construction.
 
@@ -135,8 +135,8 @@ export default function ImportPage() {
               style={{ flex: 1, padding: "11px", borderRadius: 10,
                 border: `2px solid ${mode===m?"#e63946":"#374151"}`,
                 background: mode===m?"#e63946":"transparent",
-                color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer" }}>
-              {m === "invoice" ? "📄 Importar Facturas" : "📋 Importar Estimados"}
+                color: "#fff", fontWeight: 700, fontSize: 13, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+              {m === "invoice" ? <FileText size={14} /> : <ClipboardList size={14} />} {m === "invoice" ? "Importar Facturas" : "Importar Estimados"}
             </button>
           ))}
         </div>
@@ -144,8 +144,8 @@ export default function ImportPage() {
         {/* Prompt section */}
         <div style={{ background: "#1f2937", borderRadius: 12, padding: "16px 20px", marginBottom: 20, border: "1px solid #0a0f1e33" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#94a3b8" }}>
-              📋 Prompt para ChatGPT — {mode === "invoice" ? "Facturas" : "Estimados"}
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#94a3b8", display: "flex", alignItems: "center", gap: 8 }}>
+              <ClipboardList size={14} /> Prompt para ChatGPT — {mode === "invoice" ? "Facturas" : "Estimados"}
             </p>
             <button onClick={copyPrompt}
               style={{ background:"#0a0f1e", color:"#fff", border:"none", borderRadius:8, padding:"5px 14px", fontSize:12, fontWeight:700, cursor:"pointer" }}>
@@ -238,8 +238,8 @@ export default function ImportPage() {
         {/* Import button */}
         {!result && (
           <button onClick={handleImport} disabled={loading || !json.trim()}
-            style={{ width: "100%", padding: "15px", borderRadius: 12, background: loading ? "#374151" : "#e63946", border: "none", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (loading || !json.trim()) ? "not-allowed" : "pointer" }}>
-            {loading ? "Importando..." : "📥 Importar todo el historial"}
+            style={{ width: "100%", padding: "15px", borderRadius: 12, background: loading ? "#374151" : "#e63946", border: "none", color: "#fff", fontSize: 15, fontWeight: 700, cursor: (loading || !json.trim()) ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8 }}>
+            <Upload size={16} /> {loading ? "Importando..." : "Importar todo el historial"}
           </button>
         )}
       </div>

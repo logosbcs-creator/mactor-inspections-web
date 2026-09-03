@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
-import { Users, Pencil, Trash2, X } from "lucide-react";
+import { Users, Pencil, Trash2, X, Mail, Phone, MapPin, FileText, ClipboardList } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -211,12 +211,12 @@ export default function ClientsPage() {
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 16 }}>
             {[
-              { icon: "📧", val: selected.email },
-              { icon: "📞", val: selected.phone },
-              { icon: "📍", val: selected.address },
+              { icon: Mail,    key: "email",   val: selected.email },
+              { icon: Phone,   key: "phone",   val: selected.phone },
+              { icon: MapPin,  key: "address", val: selected.address },
             ].map(r => r.val && (
-              <div key={r.icon} style={{ display: "flex", gap: 8, fontSize: 13, color: TEXT }}>
-                <span>{r.icon}</span><span>{r.val}</span>
+              <div key={r.key} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: TEXT }}>
+                <r.icon size={14} color={MUTED} /><span>{r.val}</span>
               </div>
             ))}
             {!selected.email && !selected.phone && !selected.address && (
@@ -278,7 +278,7 @@ export default function ClientsPage() {
               onMouseEnter={e => (e.currentTarget.style.background = HOVER)}
               onMouseLeave={e => (e.currentTarget.style.background = SOFT)}
             >
-              <span style={{ fontSize: 14 }}>{h.type === "invoice" ? "📄" : "📋"}</span>
+              {h.type === "invoice" ? <FileText size={14} color={MUTED} /> : <ClipboardList size={14} color={MUTED} />}
               <div style={{ flex: 1 }}>
                 <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: TEXT }}>{h.number}</p>
                 <p style={{ margin: 0, fontSize: 11, color: MUTED }}>{h.date}</p>
