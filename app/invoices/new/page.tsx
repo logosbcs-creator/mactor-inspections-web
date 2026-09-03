@@ -1,6 +1,6 @@
 "use client";
-import { useState, useRef, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useEffect, useCallback, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
@@ -38,10 +38,11 @@ const card: React.CSSProperties = {
   padding: "20px 24px", marginBottom: 16
 };
 
-export default function NewInvoicePage() {
+function NewInvoiceContent() {
   const router   = useRouter();
+  const searchParams = useSearchParams();
   const fileRef  = useRef<HTMLInputElement>(null);
-  const [type,   setType]   = useState<"invoice"|"estimate">("invoice");
+  const [type,   setType]   = useState<"invoice"|"estimate">(searchParams.get("type") === "estimate" ? "estimate" : "invoice");
   const [client, setClient] = useState({ name: "", company: "", email: "", phone: "", address: "" });
   const [items,  setItems]  = useState<LineItem[]>([emptyItem()]);
   const [cardSurcharge, setCardSurcharge] = useState(false);
@@ -433,5 +434,13 @@ export default function NewInvoicePage() {
         {!client.email && <p style={{ color: "#94a3b8", fontSize: 12, textAlign: "center", marginTop: 8 }}>Agrega email del cliente para enviar directo</p>}
       </div>
     </div>
+  );
+}
+
+export default function NewInvoicePage() {
+  return (
+    <Suspense fallback={null}>
+      <NewInvoiceContent />
+    </Suspense>
   );
 }

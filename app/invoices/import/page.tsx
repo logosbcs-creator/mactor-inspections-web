@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import AppHeader from "../../components/AppHeader";
 
 const INVOICE_PROMPT = `You are extracting invoice data from PDF files for MacTor Construction.
 
@@ -118,18 +118,14 @@ export default function ImportPage() {
   }
 
   return (
-    <div style={{ minHeight: "100dvh", background: "#0a0f1e", color: "#fff", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif" }}>
-      {/* Header */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "10px 20px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 22, cursor: "pointer", padding: 0 }}>←</button>
-        <Image src="/mactor-logo.png" alt="MacTor Construction" width={69} height={48} onClick={() => router.push("/invoices")} style={{ objectFit: "contain", cursor: "pointer" }} />
-        <div>
-          <h1 style={{ margin: 0, fontSize: 17, fontWeight: 700, color: "#0f172a" }}>Importar historial</h1>
-          <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>Pega el JSON que generó ChatGPT</p>
-        </div>
-      </div>
+    <div style={{ minHeight: "100dvh", background: "#10131a", color: "#fff", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
+      <AppHeader active="settings" />
 
       <div style={{ maxWidth: 700, margin: "0 auto", padding: "24px 20px" }}>
+        <div style={{ marginBottom: 20 }}>
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#fff" }}>📥 Importar historial</h1>
+          <p style={{ margin: "4px 0 0", fontSize: 12, color: "#94a3b8" }}>Pega el JSON que generó ChatGPT</p>
+        </div>
 
         {/* Mode toggle */}
         <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>

@@ -28,7 +28,7 @@ export default function InvoiceLogin() {
         return;
       }
       localStorage.setItem("mactor_token", data.token);
-      router.push("/invoices");
+      router.push("/invoices/schedule");
     } catch {
       setError("Error de conexión");
     } finally {

@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 import "./globals.css";
 import RegisterSW from "./components/RegisterSW";
+
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 export const metadata: Metadata = {
   title: "Inspector Mactor — Free AI Property Inspection | FixMyProperty",
@@ -37,8 +40,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es">
-      <body style={{ background: "var(--navy)", minHeight: "100dvh" }}>
+    <html lang="es" className={inter.variable}>
+      <body style={{ background: "var(--navy)", minHeight: "100dvh", fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" }}>
         <RegisterSW />
         {children}
       </body>

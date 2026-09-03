@@ -342,7 +342,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </span>
             {inv.sentAt && !mob && <span style={{ fontSize:11, color:"#94a3b8" }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
             {inv.scheduledDate && (
-              <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0, background:"#e0f2fe", color:"#0369a1" }}>
+              <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0, background:"#f1f5f9", color:"#0a0f1e" }}>
                 📅 {new Date(inv.scheduledDate).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}
               </span>
             )}
@@ -367,8 +367,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </button>
             )}
             <button onClick={() => { setScheduleDate(inv.scheduledDate ? inv.scheduledDate.slice(0,16) : ""); setShowScheduleModal(true); }}
-              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border: inv.scheduledDate ? "1px solid #0369a1" : "1px solid #e2e8f0",
-                background: inv.scheduledDate ? "#e0f2fe" : "#fff", color: inv.scheduledDate ? "#0369a1" : "#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap" }}>
+              style={{ padding: mob ? "7px 10px" : "8px 16px", borderRadius:8, border: inv.scheduledDate ? "1px solid #0a0f1e" : "1px solid #e2e8f0",
+                background: inv.scheduledDate ? "#f1f5f9" : "#fff", color: inv.scheduledDate ? "#0a0f1e" : "#374151", fontSize: mob ? 16 : 13, fontWeight:600, cursor:"pointer", whiteSpace:"nowrap" }}>
               📅 {mob ? "Agenda" : inv.scheduledDate ? "Reprogramar" : "Programar trabajo"}
             </button>
             <button onClick={openPDF}
@@ -894,7 +894,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </p>
             <div style={{ display:"flex", gap:8, marginTop:20 }}>
               <button onClick={() => saveSchedule()} disabled={scheduling}
-                style={{ flex:1, padding:"11px", background: scheduling ? "#94a3b8" : "#0369a1", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:scheduling?"not-allowed":"pointer" }}>
+                style={{ flex:1, padding:"11px", background: scheduling ? "#94a3b8" : "#e63946", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:700, cursor:scheduling?"not-allowed":"pointer" }}>
                 {scheduling ? "Guardando..." : "Guardar"}
               </button>
               {inv.scheduledDate && (

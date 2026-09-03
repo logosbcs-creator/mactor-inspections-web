@@ -1,9 +1,19 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import Image from "next/image";
+import { useState, useEffect, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import AppHeader from "../../components/AppHeader";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
+
+const BG       = "#10131a";
+const PANEL    = "#191e28";
+const SOFT     = "#242b37";
+const HOVER    = "#20262f";
+const LINE     = "#323947";
+const TEXT     = "#f3f6fc";
+const MUTED    = "#aeb8ca";
+const RED      = "#ff5964";
+const RED_SOFT = "#321a1e";
 
 interface Job {
   id: string; invoiceNumber: string; type: string; status: string;
@@ -17,11 +27,22 @@ const STATUS_LABELS: Record<string, string> = {
   draft: "Borrador", sent: "Enviado", paid: "Pagado", overdue: "Vencido", approved: "Aprobado",
 };
 
-export default function SchedulePage() {
+const inputSt: React.CSSProperties = {
+  width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8,
+  border: `1px solid ${LINE}`, background: BG, color: TEXT, fontSize: 13,
+};
+const labelSt: React.CSSProperties = {
+  display: "block", fontSize: 11, fontWeight: 700, color: MUTED,
+  textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4,
+};
+
+function ScheduleContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [jobs,    setJobs]    = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [mob,     setMob]     = useState(false);
+  const [viewMode, setViewMode] = useState<"today"|"week">("week");
 
   const [reminderJob,   setReminderJob]   = useState<Job|null>(null);
   const [remEmail,      setRemEmail]      = useState(true);
@@ -53,6 +74,13 @@ export default function SchedulePage() {
     window.addEventListener("resize", check);
     return () => window.removeEventListener("resize", check);
   }, []);
+
+  useEffect(() => {
+    if (searchParams.get("newTask") === "1") {
+      openNewTask();
+      router.replace("/invoices/schedule");
+    }
+  }, [searchParams]);
 
   async function load() {
     setLoading(true);
@@ -190,97 +218,119 @@ export default function SchedulePage() {
 
   const buckets: Record<string, Job[]> = { Vencidas: [], Hoy: [], "Esta semana": [], "Más adelante": [] };
   jobs.forEach(j => buckets[bucketFor(new Date(j.scheduledDate))].push(j));
-  const bucketOrder = ["Vencidas", "Hoy", "Esta semana", "Más adelante"];
-  const bucketColors: Record<string, string> = { Vencidas: "#dc2626", Hoy: "#e63946", "Esta semana": "#0f172a", "Más adelante": "#64748b" };
+  const bucketOrder = viewMode === "today" ? ["Vencidas", "Hoy"] : ["Vencidas", "Hoy", "Esta semana", "Más adelante"];
+  const bucketColors: Record<string, string> = { Vencidas: RED, Hoy: RED, "Esta semana": TEXT, "Más adelante": MUTED };
+
+  const hour = now.getHours();
+  const greeting = hour < 12 ? "Buenos días" : hour < 19 ? "Buenas tardes" : "Buenas noches";
+  const dateStr = now.toLocaleDateString("es-CA", { weekday: "long", day: "numeric", month: "long" });
+  const dateStrCap = dateStr.charAt(0).toUpperCase() + dateStr.slice(1);
+  const todayCount = buckets["Hoy"].length;
 
   return (
-    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
-      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "10px 12px" : "12px 24px", display: "flex", alignItems: "center", gap: 12 }}>
-        <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: 0 }}>←</button>
-        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={63} height={44} onClick={() => router.push("/invoices")} style={{ objectFit: "contain", cursor: "pointer" }} />}
-        <h1 style={{ margin: 0, fontSize: mob ? 19 : 17, fontWeight: 800, color: "#0f172a", flex: 1 }}>📅 Agenda</h1>
-        <button onClick={openNewTask}
-          style={{ padding: mob ? "7px 12px" : "8px 18px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 15 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
-          + Tarea
-        </button>
-      </div>
+    <div style={{ minHeight: "100dvh", background: BG, fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: TEXT }}>
+      <AppHeader active="agenda" />
 
       <div style={{ maxWidth: 800, margin: "0 auto", padding: mob ? "14px 10px" : "28px 24px" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", gap: 12, flexWrap: "wrap", marginBottom: 16 }}>
+          <div>
+            <h1 style={{ margin: "0 0 4px", fontSize: mob ? 19 : 20, fontWeight: 700, color: TEXT }}>{greeting}, Julio</h1>
+            <p style={{ margin: 0, fontSize: 13, color: MUTED }}>
+              {dateStrCap} · {todayCount} actividad{todayCount === 1 ? "" : "es"} programada{todayCount === 1 ? "" : "s"}
+            </p>
+          </div>
+          <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+            {(["today","week"] as const).map(v => (
+              <button key={v} onClick={() => setViewMode(v)}
+                style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${LINE}`, cursor: "pointer",
+                  fontSize: 13, fontWeight: 600,
+                  background: viewMode === v ? RED_SOFT : "none",
+                  color: viewMode === v ? RED : MUTED }}>
+                {v === "today" ? "Hoy" : "Semana"}
+              </button>
+            ))}
+          </div>
+        </div>
         {loading ? (
-          <div style={{ padding: "60px", textAlign: "center", color: "#94a3b8", fontSize: 14 }}>Cargando...</div>
+          <div style={{ padding: "60px", textAlign: "center", color: MUTED, fontSize: 14 }}>Cargando...</div>
         ) : jobs.length === 0 ? (
           <div style={{ padding: "60px", textAlign: "center" }}>
             <p style={{ fontSize: 36, margin: 0 }}>📅</p>
-            <p style={{ color: "#94a3b8", marginTop: 12 }}>No hay trabajos programados</p>
-            <p style={{ color: "#94a3b8", fontSize: 13 }}>Abre un estimado o factura y usa "Programar trabajo" para agendarlo aquí.</p>
+            <p style={{ color: MUTED, marginTop: 12 }}>No hay trabajos programados</p>
+            <p style={{ color: MUTED, fontSize: 13 }}>Abre un estimado o factura y usa "Programar trabajo" para agendarlo aquí.</p>
+          </div>
+        ) : bucketOrder.filter(b => buckets[b].length > 0).length === 0 ? (
+          <div style={{ padding: "60px", textAlign: "center" }}>
+            <p style={{ fontSize: 36, margin: 0 }}>✅</p>
+            <p style={{ color: MUTED, marginTop: 12 }}>Nada pendiente para hoy</p>
           </div>
         ) : bucketOrder.filter(b => buckets[b].length > 0).map(b => (
           <div key={b} style={{ marginBottom: 24 }}>
-            <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 800, color: bucketColors[b], textTransform: "uppercase", letterSpacing: ".05em" }}>
+            <p style={{ margin: "0 0 10px", fontSize: 12, fontWeight: 700, color: bucketColors[b], textTransform: "uppercase", letterSpacing: ".05em" }}>
               {b} · {buckets[b].length}
             </p>
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
+            <div style={{ background: PANEL, borderRadius: 12, border: `1px solid ${LINE}`, overflow: "hidden" }}>
               {buckets[b].map((j, i) => {
                 const d = new Date(j.scheduledDate);
                 const TYPE_STYLE: Record<string, { bg: string; color: string; label: string }> = {
-                  task:     { bg: "#f1f5f9", color: "#64748b", label: "Tarea" },
-                  estimate: { bg: "#fef2f2", color: "#e63946", label: "Estimado" },
-                  invoice:  { bg: "#eef1f5", color: "#0a0f1e", label: "Factura" },
+                  task:     { bg: SOFT,     color: MUTED, label: "Tarea" },
+                  estimate: { bg: RED_SOFT, color: RED,   label: "Estimado" },
+                  invoice:  { bg: SOFT,     color: TEXT,  label: "Factura" },
                 };
                 const ts = TYPE_STYLE[j.type] || TYPE_STYLE.invoice;
                 return (
                 <div key={j.id} onClick={() => j.type === "task" ? openEditTask(j) : router.push(`/invoices/${j.id}`)}
                   style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: mob ? "12px" : "14px 18px",
-                    borderBottom: i < buckets[b].length - 1 ? "1px solid #f1f5f9" : "none", cursor: "pointer",
-                    background: "#fff" }}
-                  onMouseEnter={e => (e.currentTarget.style.background = "#f8fafc")}
-                  onMouseLeave={e => (e.currentTarget.style.background = "#fff")}>
-                  <div style={{ minWidth: mob ? 54 : 60, flexShrink: 0, textAlign: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "7px 4px" }}>
-                    <p style={{ margin: 0, fontSize: 9, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".04em" }}>
+                    borderBottom: i < buckets[b].length - 1 ? `1px solid ${LINE}` : "none", cursor: "pointer",
+                    background: PANEL }}
+                  onMouseEnter={e => (e.currentTarget.style.background = HOVER)}
+                  onMouseLeave={e => (e.currentTarget.style.background = PANEL)}>
+                  <div style={{ minWidth: mob ? 54 : 60, flexShrink: 0, textAlign: "center", background: BG, border: `1px solid ${LINE}`, borderRadius: 10, padding: "7px 4px" }}>
+                    <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: ".04em" }}>
                       {d.toLocaleDateString("es-CA", { weekday: "short" })}
                     </p>
-                    <p style={{ margin: "2px 0", fontSize: mob ? 18 : 16, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>
+                    <p style={{ margin: "2px 0", fontSize: mob ? 14 : 13, fontWeight: 700, color: TEXT, lineHeight: 1 }}>
                       {d.toLocaleDateString("es-CA", { month: "short", day: "numeric" })}
                     </p>
-                    <p style={{ margin: 0, fontSize: 10, color: "#64748b", fontWeight: 700 }}>
+                    <p style={{ margin: 0, fontSize: 10, color: MUTED, fontWeight: 700 }}>
                       {d.toLocaleTimeString("es-CA", { hour: "numeric", minute: "2-digit" })}
                     </p>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
-                      <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 800, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {j.clientName}
                       </p>
                       {j.type !== "task" && (
-                        <span style={{ fontSize: mob ? 15 : 13, fontWeight: 800, color: "#0f172a", flexShrink: 0 }}>
+                        <span style={{ fontSize: mob ? 15 : 13, fontWeight: 600, color: TEXT, flexShrink: 0 }}>
                           ${j.total.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
                         </span>
                       )}
                     </div>
                     {j.companyName && (
-                      <p style={{ margin: "1px 0 0", fontSize: 12, color: "#64748b", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <p style={{ margin: "1px 0 0", fontSize: 12, color: MUTED, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {j.companyName}
                       </p>
                     )}
                     {(j.clientAddress || j.clientPhone) && (
-                      <p style={{ margin: "2px 0 0", fontSize: 12, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                      <p style={{ margin: "2px 0 0", fontSize: 12, color: MUTED, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {[j.clientAddress, j.clientPhone].filter(Boolean).join(" · ")}
                       </p>
                     )}
                     <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{j.invoiceNumber}</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: MUTED }}>{j.invoiceNumber}</span>
                       <span style={{ fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 20, background: ts.bg, color: ts.color }}>
                         {ts.label}
                       </span>
                       {j.type !== "task" && (
-                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "#f1f5f9", color: "#64748b" }}>
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: SOFT, color: MUTED }}>
                           {STATUS_LABELS[j.status] || j.status}
                         </span>
                       )}
                     </div>
                   </div>
                   <button onClick={e => { e.stopPropagation(); openReminder(j); }} title="Enviar recordatorio"
-                    style={{ flexShrink: 0, background: "#f1f5f9", border: "none", borderRadius: 8, color: "#0a0f1e", padding: mob ? "7px 9px" : "7px 10px", cursor: "pointer", fontSize: mob ? 15 : 13 }}>
+                    style={{ flexShrink: 0, background: SOFT, border: "none", borderRadius: 8, color: TEXT, padding: mob ? "7px 9px" : "7px 10px", cursor: "pointer", fontSize: mob ? 15 : 13 }}>
                     🔔
                   </button>
                 </div>
@@ -293,47 +343,47 @@ export default function SchedulePage() {
 
       {/* Reminder modal — job details only, no totals/payment */}
       {reminderJob && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
           onClick={e => e.target === e.currentTarget && !reminding && setReminderJob(null)}>
-          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 400, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)" }}>
+          <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 400, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>🔔 Recordatorio</h2>
-              <button onClick={() => setReminderJob(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: TEXT }}>🔔 Recordatorio</h2>
+              <button onClick={() => setReminderJob(null)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
             </div>
-            <p style={{ margin: "0 0 16px", fontSize: 12, color: "#94a3b8" }}>
+            <p style={{ margin: "0 0 16px", fontSize: 12, color: MUTED }}>
               {reminderJob.invoiceNumber} · {reminderJob.clientName} · {new Date(reminderJob.scheduledDate).toLocaleString("es-CA", { weekday: "long", month: "long", day: "numeric", hour: "numeric", minute: "2-digit" })}
             </p>
 
             <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
               <input type="checkbox" checked={remEmail} onChange={e => setRemEmail(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
-              <span style={{ fontSize: 13, color: "#374151" }}>Enviar por email</span>
+              <span style={{ fontSize: 13, color: TEXT }}>Enviar por email</span>
             </label>
             {remEmail && (
               <input type="email" value={remEmailAddr} onChange={e => setRemEmailAddr(e.target.value)}
                 placeholder="cliente@ejemplo.com"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, margin: "8px 0 14px" }} />
+                style={{ ...inputSt, margin: "8px 0 14px" }} />
             )}
 
             <label style={{ display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
               <input type="checkbox" checked={remSms} onChange={e => setRemSms(e.target.checked)} style={{ width: 16, height: 16, cursor: "pointer" }} />
-              <span style={{ fontSize: 13, color: "#374151" }}>Enviar por SMS</span>
+              <span style={{ fontSize: 13, color: TEXT }}>Enviar por SMS</span>
             </label>
             {remSms && (
               <input type="tel" value={remPhone} onChange={e => setRemPhone(e.target.value)}
                 placeholder="416-000-0000"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, margin: "8px 0 0" }} />
+                style={{ ...inputSt, margin: "8px 0 0" }} />
             )}
 
-            {remMsg && <p style={{ margin: "14px 0 0", fontSize: 13, color: remMsg.startsWith("✅") ? "#16a34a" : "#dc2626" }}>{remMsg}</p>}
+            {remMsg && <p style={{ margin: "14px 0 0", fontSize: 13, color: remMsg.startsWith("✅") ? TEXT : RED }}>{remMsg}</p>}
 
             <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
               <button onClick={sendReminder} disabled={reminding || (!remEmail && !remSms) || (remEmail && !remEmailAddr.trim()) || (remSms && !remPhone.trim())}
-                style={{ flex: 1, padding: "11px", background: reminding ? "#94a3b8" : "#0369a1", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700,
+                style={{ flex: 1, padding: "11px", background: reminding ? MUTED : RED, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700,
                   cursor: (reminding || (!remEmail && !remSms)) ? "not-allowed" : "pointer" }}>
                 {reminding ? "Enviando..." : "Enviar"}
               </button>
               <button onClick={() => setReminderJob(null)} disabled={reminding}
-                style={{ padding: "11px 16px", background: "#f1f5f9", border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: "#64748b" }}>
+                style={{ padding: "11px 16px", background: SOFT, border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -343,63 +393,57 @@ export default function SchedulePage() {
 
       {/* Add/edit task — minimal agenda entry, no pricing */}
       {taskModalOpen && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
           onClick={e => e.target === e.currentTarget && !taskSaving && setTaskModalOpen(false)}>
-          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 420, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)", maxHeight: "90vh", overflowY: "auto" }}>
+          <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 420, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)", maxHeight: "90vh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>{taskId ? "Editar tarea" : "+ Nueva tarea"}</h2>
-              <button onClick={() => setTaskModalOpen(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: TEXT }}>{taskId ? "Editar tarea" : "+ Nueva tarea"}</h2>
+              <button onClick={() => setTaskModalOpen(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
             </div>
 
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Nombre *</label>
-              <input type="text" value={taskName} onChange={e => setTaskName(e.target.value)} placeholder="Nombre del cliente"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+              <label style={labelSt}>Nombre *</label>
+              <input type="text" value={taskName} onChange={e => setTaskName(e.target.value)} placeholder="Nombre del cliente" style={inputSt} />
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Empresa</label>
-              <input type="text" value={taskCompany} onChange={e => setTaskCompany(e.target.value)} placeholder="Nombre de la empresa (opcional)"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+              <label style={labelSt}>Empresa</label>
+              <input type="text" value={taskCompany} onChange={e => setTaskCompany(e.target.value)} placeholder="Nombre de la empresa (opcional)" style={inputSt} />
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Email</label>
-              <input type="email" value={taskEmail} onChange={e => setTaskEmail(e.target.value)} placeholder="email@ejemplo.com"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+              <label style={labelSt}>Email</label>
+              <input type="email" value={taskEmail} onChange={e => setTaskEmail(e.target.value)} placeholder="email@ejemplo.com" style={inputSt} />
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Teléfono</label>
-              <input type="tel" value={taskPhone} onChange={e => setTaskPhone(e.target.value)} placeholder="416-000-0000"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+              <label style={labelSt}>Teléfono</label>
+              <input type="tel" value={taskPhone} onChange={e => setTaskPhone(e.target.value)} placeholder="416-000-0000" style={inputSt} />
             </div>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Dirección</label>
-              <input type="text" value={taskAddress} onChange={e => setTaskAddress(e.target.value)} placeholder="123 Main St, Toronto ON"
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+              <label style={labelSt}>Dirección</label>
+              <input type="text" value={taskAddress} onChange={e => setTaskAddress(e.target.value)} placeholder="123 Main St, Toronto ON" style={inputSt} />
             </div>
 
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Descripción del trabajo</label>
+              <label style={labelSt}>Descripción del trabajo</label>
               <textarea value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
                 placeholder="Qué se va a hacer..."
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, resize: "vertical" }} />
+                style={{ ...inputSt, resize: "vertical" }} />
             </div>
 
             <div style={{ marginBottom: 4 }}>
-              <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 4 }}>Fecha y hora *</label>
-              <input type="datetime-local" value={taskDate} onChange={e => setTaskDate(e.target.value)}
-                style={{ width: "100%", boxSizing: "border-box", padding: "9px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13 }} />
+              <label style={labelSt}>Fecha y hora *</label>
+              <input type="datetime-local" value={taskDate} onChange={e => setTaskDate(e.target.value)} style={inputSt} />
             </div>
 
-            {taskLoading && <p style={{ margin: "12px 0 0", fontSize: 13, color: "#94a3b8" }}>Cargando...</p>}
-            {taskMsg && <p style={{ margin: "12px 0 0", fontSize: 13, color: taskMsg.startsWith("❌") ? "#dc2626" : "#94a3b8" }}>{taskMsg}</p>}
+            {taskLoading && <p style={{ margin: "12px 0 0", fontSize: 13, color: MUTED }}>Cargando...</p>}
+            {taskMsg && <p style={{ margin: "12px 0 0", fontSize: 13, color: taskMsg.startsWith("❌") ? RED : MUTED }}>{taskMsg}</p>}
 
             <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
               <button onClick={saveTask} disabled={taskSaving || taskLoading}
-                style={{ flex: 1, padding: "11px", background: (taskSaving || taskLoading) ? "#94a3b8" : "#e63946", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (taskSaving || taskLoading) ? "not-allowed" : "pointer" }}>
+                style={{ flex: 1, padding: "11px", background: (taskSaving || taskLoading) ? MUTED : RED, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: (taskSaving || taskLoading) ? "not-allowed" : "pointer" }}>
                 {taskSaving ? "Guardando..." : "Guardar"}
               </button>
               <button onClick={() => setTaskModalOpen(false)} disabled={taskSaving}
-                style={{ padding: "11px 16px", background: "#f1f5f9", border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: "#64748b" }}>
+                style={{ padding: "11px 16px", background: SOFT, border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -407,11 +451,11 @@ export default function SchedulePage() {
             {taskId && !taskLoading && (
               <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
                 <button onClick={convertTask} disabled={taskConverting || taskSaving}
-                  style={{ flex: 1, padding: "10px", background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: 10, fontSize: 13, fontWeight: 700, color: "#16a34a", cursor: taskConverting ? "not-allowed" : "pointer" }}>
+                  style={{ flex: 1, padding: "10px", background: SOFT, border: `1px solid ${LINE}`, borderRadius: 10, fontSize: 13, fontWeight: 700, color: TEXT, cursor: taskConverting ? "not-allowed" : "pointer" }}>
                   {taskConverting ? "Convirtiendo..." : "📋 Convertir a Estimado"}
                 </button>
                 <button onClick={deleteTask} disabled={taskSaving}
-                  style={{ padding: "10px 14px", background: "#fff", border: "1px solid #fee2e2", borderRadius: 10, fontSize: 13, fontWeight: 600, color: "#dc2626", cursor: "pointer" }}>
+                  style={{ padding: "10px 14px", background: PANEL, border: `1px solid ${RED_SOFT}`, borderRadius: 10, fontSize: 13, fontWeight: 600, color: RED, cursor: "pointer" }}>
                   🗑️
                 </button>
               </div>
@@ -420,5 +464,13 @@ export default function SchedulePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function SchedulePage() {
+  return (
+    <Suspense fallback={null}>
+      <ScheduleContent />
+    </Suspense>
   );
 }

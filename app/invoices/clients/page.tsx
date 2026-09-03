@@ -1,10 +1,21 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
+import AppHeader from "../../components/AppHeader";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 function token() { return localStorage.getItem("mactor_token") || ""; }
+
+const BG       = "#10131a";
+const PANEL    = "#191e28";
+const ROW_ALT  = "#1c212b";
+const SOFT     = "#242b37";
+const HOVER    = "#20262f";
+const LINE     = "#323947";
+const TEXT     = "#f3f6fc";
+const MUTED    = "#aeb8ca";
+const RED      = "#ff5964";
+const RED_SOFT = "#321a1e";
 
 interface HistoryEntry { date: string; type: string; number: string; total: number; status: string; }
 interface Client {
@@ -15,15 +26,15 @@ interface Client {
   history: HistoryEntry[];
 }
 
-const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: ".05em" };
-const inp: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 13, outline: "none", boxSizing: "border-box", background: "#fff", color: "#0f172a" };
+const lbl: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: ".05em" };
+const inp: React.CSSProperties = { width: "100%", padding: "8px 12px", borderRadius: 8, border: `1px solid ${LINE}`, fontSize: 13, outline: "none", boxSizing: "border-box", background: BG, color: TEXT };
 
 function statusBadge(s: string) {
   const map: Record<string, [string, string]> = {
-    paid: ["#f1f5f9", "#0a0f1e"], sent: ["#f1f5f9", "#0a0f1e"],
-    draft: ["#f3f4f6", "#6b7280"], overdue: ["#fee2e2", "#dc2626"],
+    paid: [SOFT, TEXT], sent: [SOFT, TEXT],
+    draft: [SOFT, MUTED], overdue: [RED_SOFT, RED],
   };
-  const [bg, color] = map[s] || ["#f3f4f6", "#6b7280"];
+  const [bg, color] = map[s] || [SOFT, MUTED];
   return <span style={{ background: bg, color, fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 20 }}>{s}</span>;
 }
 
@@ -141,27 +152,27 @@ export default function ClientsPage() {
 
   // Mobile detail overlay
   const DetailPanel = () => !selected ? null : (
-    <div style={{ background: "#fff", borderRadius: mob ? 0 : 12, border: mob ? "none" : "1px solid #e2e8f0", overflow: "hidden", height: "fit-content" }}>
-      <div style={{ padding: "16px 20px", borderBottom: "1px solid #e2e8f0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+    <div style={{ background: PANEL, borderRadius: mob ? 0 : 12, border: mob ? "none" : `1px solid ${LINE}`, overflow: "hidden", height: "fit-content" }}>
+      <div style={{ padding: "16px 20px", borderBottom: `1px solid ${LINE}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <div>
-          <p style={{ margin: 0, fontWeight: 800, fontSize: 15, color: "#0f172a" }}>{selected.name}</p>
-          <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+          <p style={{ margin: 0, fontWeight: 700, fontSize: 15, color: TEXT }}>{selected.name}</p>
+          <p style={{ margin: "2px 0 0", fontSize: 11, color: MUTED }}>
             {selected.invoiceCount} facturas · {selected.estimateCount} estimados
           </p>
         </div>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <button onClick={() => setEditingContact(v => !v)}
             title="Editar"
-            style={{ background: editingContact ? "#f1f5f9" : "none", border: "1px solid #e2e8f0", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#0a0f1e" }}>
+            style={{ background: editingContact ? SOFT : "none", border: `1px solid ${LINE}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: TEXT }}>
             ✏️
           </button>
           <button onClick={deleteClient} disabled={deleting}
             title="Eliminar"
-            style={{ background: "none", border: "1px solid #fee2e2", borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: "#dc2626" }}>
+            style={{ background: "none", border: `1px solid ${RED_SOFT}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", fontSize: 14, color: RED }}>
             🗑️
           </button>
           <button onClick={() => { setSelected(null); setEditingContact(false); setShowDetail(false); }}
-            style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: "#94a3b8", marginLeft: 2 }}>×</button>
+            style={{ background: "none", border: "none", fontSize: 18, cursor: "pointer", color: MUTED, marginLeft: 2 }}>×</button>
         </div>
       </div>
 
@@ -187,11 +198,11 @@ export default function ClientsPage() {
             ))}
             <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
               <button onClick={saveContact} disabled={saving}
-                style={{ flex: 1, padding: "8px", background: "#0a0f1e", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                style={{ flex: 1, padding: "8px", background: RED, color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                 {saving ? "Guardando..." : "Guardar cambios"}
               </button>
               <button onClick={() => setEditingContact(false)}
-                style={{ padding: "8px 12px", background: "#f1f5f9", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+                style={{ padding: "8px 12px", background: SOFT, border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer", color: MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -203,26 +214,26 @@ export default function ClientsPage() {
               { icon: "📞", val: selected.phone },
               { icon: "📍", val: selected.address },
             ].map(r => r.val && (
-              <div key={r.icon} style={{ display: "flex", gap: 8, fontSize: 13, color: "#374151" }}>
+              <div key={r.icon} style={{ display: "flex", gap: 8, fontSize: 13, color: TEXT }}>
                 <span>{r.icon}</span><span>{r.val}</span>
               </div>
             ))}
             {!selected.email && !selected.phone && !selected.address && (
-              <p style={{ margin: 0, fontSize: 12, color: "#94a3b8" }}>Sin datos de contacto — clic en ✏️ para agregar</p>
+              <p style={{ margin: 0, fontSize: 12, color: MUTED }}>Sin datos de contacto — clic en ✏️ para agregar</p>
             )}
           </div>
         )}
 
         {/* Totals */}
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "1fr 1fr", gap: 8, marginBottom: 16 }}>
           {[
-            { label: "Facturado",  value: selected.totalInvoiced, color: "#0a0f1e" },
-            { label: "Cobrado",    value: selected.totalPaid,     color: "#0a0f1e" },
-            { label: "Por cobrar", value: selected.totalInvoiced - selected.totalPaid, color: "#0f172a" },
+            { label: "Facturado",  value: selected.totalInvoiced },
+            { label: "Cobrado",    value: selected.totalPaid },
+            { label: "Por cobrar", value: selected.totalInvoiced - selected.totalPaid },
           ].map(s => (
-            <div key={s.label} style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 12px" }}>
+            <div key={s.label} style={{ background: SOFT, borderRadius: 8, padding: "10px 12px" }}>
               <p style={{ ...lbl, margin: "0 0 4px" }}>{s.label}</p>
-              <p style={{ margin: 0, fontSize: 16, fontWeight: 800, color: s.color }}>
+              <p style={{ margin: 0, fontSize: 16, fontWeight: 700, color: TEXT }}>
                 ${Number(s.value).toLocaleString("en-CA", { minimumFractionDigits: 0 })}
               </p>
             </div>
@@ -238,19 +249,19 @@ export default function ClientsPage() {
               placeholder="Notas sobre este cliente..." />
             <div style={{ display: "flex", gap: 8 }}>
               <button onClick={saveNotes} disabled={saving}
-                style={{ flex: 1, padding: "8px", background: "#e63946", color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
+                style={{ flex: 1, padding: "8px", background: RED, color: "#fff", border: "none", borderRadius: 8, fontSize: 12, fontWeight: 700, cursor: "pointer" }}>
                 {saving ? "Guardando..." : "Guardar"}
               </button>
               <button onClick={() => setEditing(false)}
-                style={{ padding: "8px 14px", background: "#f1f5f9", border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer" }}>
+                style={{ padding: "8px 14px", background: SOFT, border: "none", borderRadius: 8, fontSize: 12, cursor: "pointer", color: MUTED }}>
                 Cancelar
               </button>
             </div>
           </div>
         ) : (
           <div onClick={() => setEditing(true)}
-            style={{ background: "#f8fafc", borderRadius: 8, padding: "10px 12px", cursor: "pointer", minHeight: 48, marginBottom: 16, border: "1px dashed #e2e8f0" }}>
-            <p style={{ margin: 0, fontSize: 12, color: selected.notes ? "#374151" : "#94a3b8" }}>
+            style={{ background: SOFT, borderRadius: 8, padding: "10px 12px", cursor: "pointer", minHeight: 48, marginBottom: 16, border: `1px dashed ${LINE}` }}>
+            <p style={{ margin: 0, fontSize: 12, color: selected.notes ? TEXT : MUTED }}>
               {selected.notes || "Clic para agregar notas..."}
             </p>
           </div>
@@ -262,17 +273,17 @@ export default function ClientsPage() {
           {[...selected.history].reverse().map((h, i) => (
             <div key={i}
               onClick={() => router.push(`/invoices/${encodeURIComponent(h.number)}`)}
-              style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: "#f8fafc", borderRadius: 8, border: "1px solid #e2e8f0", cursor: "pointer", transition: "background 0.1s" }}
-              onMouseEnter={e => (e.currentTarget.style.background = "#f1f5f9")}
-              onMouseLeave={e => (e.currentTarget.style.background = "#f8fafc")}
+              style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 12px", background: SOFT, borderRadius: 8, border: `1px solid ${LINE}`, cursor: "pointer", transition: "background 0.1s" }}
+              onMouseEnter={e => (e.currentTarget.style.background = HOVER)}
+              onMouseLeave={e => (e.currentTarget.style.background = SOFT)}
             >
               <span style={{ fontSize: 14 }}>{h.type === "invoice" ? "📄" : "📋"}</span>
               <div style={{ flex: 1 }}>
-                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: "#0a0f1e" }}>{h.number}</p>
-                <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{h.date}</p>
+                <p style={{ margin: 0, fontSize: 12, fontWeight: 700, color: TEXT }}>{h.number}</p>
+                <p style={{ margin: 0, fontSize: 11, color: MUTED }}>{h.date}</p>
               </div>
               <div style={{ textAlign: "right" }}>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: TEXT }}>
                   ${Number(h.total).toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                 </p>
                 {statusBadge(h.status)}
@@ -285,37 +296,35 @@ export default function ClientsPage() {
   );
 
   return (
-    <div style={{ minHeight: "100dvh", background: "#f8fafc", fontFamily: "-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif", color: "#111" }}>
+    <div style={{ minHeight: "100dvh", background: BG, fontFamily: "var(--font-inter), -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif", color: TEXT }}>
 
       {/* Mobile detail overlay */}
       {mob && showDetail && selected && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: "#f8fafc", overflowY: "auto" }}>
+        <div style={{ position: "fixed", inset: 0, zIndex: 100, background: BG, overflowY: "auto" }}>
           <DetailPanel />
         </div>
       )}
 
-      {/* Nav */}
-      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, overflow: "hidden" }}>
-        <button onClick={() => router.push("/invoices")} style={{ background: "none", border: "none", color: "#64748b", fontSize: 20, cursor: "pointer", padding: mob ? "12px 0" : "16px 0", flexShrink: 0 }}>←</button>
-        {!mob && <Image src="/mactor-logo.png" alt="MacTor" width={69} height={48} onClick={() => router.push("/invoices")} style={{ objectFit: "contain", flexShrink: 0, cursor: "pointer" }} />}
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: "#0f172a", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
-          {!mob && <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>{clients.length} clientes · se alimenta automáticamente</p>}
+      <AppHeader active="clients" />
+      <div style={{ background: PANEL, borderBottom: `1px solid ${LINE}`, padding: mob ? "0 10px" : "0 24px", display: "flex", alignItems: "center", gap: mob ? 8 : 16, overflow: "hidden" }}>
+        <div style={{ flex: 1, minWidth: 0, padding: mob ? "10px 0" : "14px 0" }}>
+          <h1 style={{ margin: 0, fontSize: mob ? 17 : 16, fontWeight: 700, color: TEXT, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>Catálogo de Clientes</h1>
+          {!mob && <p style={{ margin: 0, fontSize: 11, color: MUTED }}>{clients.length} clientes · se alimenta automáticamente</p>}
         </div>
         <button onClick={() => setShowNew(true)}
-          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: "#e63946", color: "#fff", fontSize: mob ? 16 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
+          style={{ padding: mob ? "7px 12px" : "8px 16px", borderRadius: 8, border: "none", background: RED, color: "#fff", fontSize: mob ? 16 : 13, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap", flexShrink: 0 }}>
           + {mob ? "Nuevo" : "Nuevo cliente"}
         </button>
       </div>
 
       {/* New client modal */}
       {showNew && (
-        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.45)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
           onClick={e => e.target === e.currentTarget && setShowNew(false)}>
-          <div style={{ background: "#fff", borderRadius: 16, width: "100%", maxWidth: 480, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.2)", maxHeight: "90dvh", overflowY: "auto" }}>
+          <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 480, padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)", maxHeight: "90dvh", overflowY: "auto" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
-              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: "#0f172a" }}>Nuevo Cliente</h2>
-              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#94a3b8" }}>×</button>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: TEXT }}>Nuevo Cliente</h2>
+              <button onClick={() => setShowNew(false)} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: MUTED }}>×</button>
             </div>
             <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               {[
@@ -342,11 +351,11 @@ export default function ClientsPage() {
             </div>
             <div style={{ display: "flex", gap: 8, marginTop: 20 }}>
               <button onClick={createClient} disabled={creating || !newClient.name.trim()}
-                style={{ flex: 1, padding: "11px", background: "#e63946", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: creating ? "not-allowed" : "pointer", opacity: creating ? 0.7 : 1 }}>
+                style={{ flex: 1, padding: "11px", background: RED, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: creating ? "not-allowed" : "pointer", opacity: creating ? 0.7 : 1 }}>
                 {creating ? "Guardando..." : "Crear cliente"}
               </button>
               <button onClick={() => setShowNew(false)}
-                style={{ padding: "11px 18px", background: "#f1f5f9", border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: "#64748b" }}>
+                style={{ padding: "11px 18px", background: SOFT, border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: MUTED }}>
                 Cancelar
               </button>
             </div>
@@ -357,16 +366,16 @@ export default function ClientsPage() {
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: mob ? "12px 10px" : "24px" }}>
 
         {/* Stats */}
-        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr 1fr" : "repeat(4, 1fr)", gap: mob ? 8 : 12, marginBottom: mob ? 14 : 24 }}>
+        <div style={{ display: "grid", gridTemplateColumns: mob ? "1fr" : "repeat(4, 1fr)", gap: mob ? 8 : 12, marginBottom: mob ? 14 : 24 }}>
           {[
-            { label: "Clientes",        value: clients.length,                                color: "#0f172a", fmt: "n" },
-            { label: mob ? "Facturado" : "Total facturado",  value: clients.reduce((s,c)=>s+c.totalInvoiced,0), color: "#0a0f1e", fmt: "$" },
-            { label: mob ? "Cobrado" : "Total cobrado",      value: totalPaid,                color: "#0a0f1e", fmt: "$" },
-            { label: "Por cobrar",      value: outstanding,                                   color: "#0f172a", fmt: "$" },
+            { label: "Clientes",        value: clients.length,                                fmt: "n" },
+            { label: mob ? "Facturado" : "Total facturado",  value: clients.reduce((s,c)=>s+c.totalInvoiced,0), fmt: "$" },
+            { label: mob ? "Cobrado" : "Total cobrado",      value: totalPaid,                fmt: "$" },
+            { label: "Por cobrar",      value: outstanding,                                   fmt: "$" },
           ].map(s => (
-            <div key={s.label} style={{ background: "#fff", borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: "1px solid #e2e8f0" }}>
+            <div key={s.label} style={{ background: PANEL, borderRadius: 10, padding: mob ? "12px 14px" : "16px 20px", border: `1px solid ${LINE}` }}>
               <p style={{ ...lbl, margin: "0 0 4px", fontSize: mob ? 14 : 11 }}>{s.label}</p>
-              <p style={{ margin: 0, fontSize: mob ? 20 : 20, fontWeight: 800, color: s.color }}>
+              <p style={{ margin: 0, fontSize: mob ? 20 : 20, fontWeight: 700, color: TEXT }}>
                 {s.fmt === "$" ? `$${Number(s.value).toLocaleString("en-CA", { minimumFractionDigits: 0 })}` : s.value}
               </p>
             </div>
@@ -377,51 +386,51 @@ export default function ClientsPage() {
         {!mob && (
           <div style={{ display: "grid", gridTemplateColumns: selected ? "1fr 420px" : "1fr", gap: 16 }}>
             {/* Client list */}
-            <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-              <div style={{ padding: "14px 20px", borderBottom: "1px solid #e2e8f0" }}>
+            <div style={{ background: PANEL, borderRadius: 12, border: `1px solid ${LINE}`, overflow: "hidden" }}>
+              <div style={{ padding: "14px 20px", borderBottom: `1px solid ${LINE}` }}>
                 <input value={search} onChange={e => setSearch(e.target.value)}
                   placeholder="Buscar por nombre, email o teléfono..."
                   style={inp} />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: tableCols, padding: "10px 20px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+              <div style={{ display: "grid", gridTemplateColumns: tableCols, padding: "10px 20px", background: SOFT, borderBottom: `1px solid ${LINE}` }}>
                 {["Cliente", "Última actividad", "Facturado", "Cobrado", "Docs"].map((h, i) => (
                   <span key={i} style={{ ...lbl, textAlign: i > 0 ? "right" : "left" }}>{h}</span>
                 ))}
               </div>
               {loading ? (
-                <div style={{ padding: 48, textAlign: "center", color: "#94a3b8" }}>Cargando clientes...</div>
+                <div style={{ padding: 48, textAlign: "center", color: MUTED }}>Cargando clientes...</div>
               ) : filtered.length === 0 ? (
                 <div style={{ padding: 48, textAlign: "center" }}>
                   <p style={{ fontSize: 32, margin: 0 }}>👥</p>
-                  <p style={{ color: "#94a3b8", margin: "12px 0 0" }}>
+                  <p style={{ color: MUTED, margin: "12px 0 0" }}>
                     {clients.length === 0 ? "Catálogo vacío — importa facturas o estimados para comenzar" : "No se encontraron clientes"}
                   </p>
                 </div>
               ) : filtered.map((c, i) => (
                 <div key={c.id} onClick={() => select(c)}
                   style={{ display: "grid", gridTemplateColumns: tableCols, padding: "14px 20px",
-                    borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                    cursor: "pointer", background: selected?.id === c.id ? "#fef2f2" : i % 2 === 0 ? "#fff" : "#fafafa",
+                    borderBottom: i < filtered.length - 1 ? `1px solid ${LINE}` : "none",
+                    cursor: "pointer", background: selected?.id === c.id ? RED_SOFT : i % 2 === 0 ? PANEL : ROW_ALT,
                     transition: "background 0.1s" }}
-                  onMouseEnter={e => { if (selected?.id !== c.id) e.currentTarget.style.background = "#f8fafc"; }}
-                  onMouseLeave={e => { if (selected?.id !== c.id) e.currentTarget.style.background = i % 2 === 0 ? "#fff" : "#fafafa"; }}>
+                  onMouseEnter={e => { if (selected?.id !== c.id) e.currentTarget.style.background = HOVER; }}
+                  onMouseLeave={e => { if (selected?.id !== c.id) e.currentTarget.style.background = i % 2 === 0 ? PANEL : ROW_ALT; }}>
                   <div>
-                    <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{c.name}</p>
-                    <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+                    <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: TEXT }}>{c.name}</p>
+                    <p style={{ margin: "2px 0 0", fontSize: 11, color: MUTED }}>
                       {[c.email, c.phone].filter(Boolean).join(" · ")}
                     </p>
                   </div>
-                  <span style={{ fontSize: 12, color: "#64748b", textAlign: "right" }}>
+                  <span style={{ fontSize: 12, color: MUTED, textAlign: "right" }}>
                     {c.lastActivity ? new Date(c.lastActivity).toLocaleDateString("en-CA", { month: "short", day: "numeric", year: "numeric" }) : "—"}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0a0f1e", textAlign: "right" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: TEXT, textAlign: "right" }}>
                     ${c.totalInvoiced.toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                   </span>
-                  <span style={{ fontSize: 13, fontWeight: 700, color: "#0a0f1e", textAlign: "right" }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: TEXT, textAlign: "right" }}>
                     ${c.totalPaid.toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                   </span>
                   <div style={{ textAlign: "right" }}>
-                    <span style={{ fontSize: 11, color: "#64748b" }}>
+                    <span style={{ fontSize: 11, color: MUTED }}>
                       {c.invoiceCount > 0 && `${c.invoiceCount} inv`}
                       {c.invoiceCount > 0 && c.estimateCount > 0 && " · "}
                       {c.estimateCount > 0 && `${c.estimateCount} est`}
@@ -437,37 +446,37 @@ export default function ClientsPage() {
 
         {/* Mobile: list only (detail is fullscreen overlay) */}
         {mob && (
-          <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-            <div style={{ padding: "12px 12px", borderBottom: "1px solid #e2e8f0" }}>
+          <div style={{ background: PANEL, borderRadius: 12, border: `1px solid ${LINE}`, overflow: "hidden" }}>
+            <div style={{ padding: "12px 12px", borderBottom: `1px solid ${LINE}` }}>
               <input value={search} onChange={e => setSearch(e.target.value)}
                 placeholder="Buscar cliente..."
                 style={inp} />
             </div>
-            <div style={{ display: "grid", gridTemplateColumns: tableCols, padding: "8px 12px", background: "#f8fafc", borderBottom: "1px solid #e2e8f0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: tableCols, padding: "8px 12px", background: SOFT, borderBottom: `1px solid ${LINE}` }}>
               <span style={{ ...lbl }}>Cliente</span>
               <span style={{ ...lbl, textAlign: "right" }}>Facturado</span>
             </div>
             {loading ? (
-              <div style={{ padding: 48, textAlign: "center", color: "#94a3b8" }}>Cargando clientes...</div>
+              <div style={{ padding: 48, textAlign: "center", color: MUTED }}>Cargando clientes...</div>
             ) : filtered.length === 0 ? (
               <div style={{ padding: 48, textAlign: "center" }}>
                 <p style={{ fontSize: 32, margin: 0 }}>👥</p>
-                <p style={{ color: "#94a3b8", margin: "12px 0 0" }}>
+                <p style={{ color: MUTED, margin: "12px 0 0" }}>
                   {clients.length === 0 ? "Catálogo vacío" : "No se encontraron clientes"}
                 </p>
               </div>
             ) : filtered.map((c, i) => (
               <div key={c.id} onClick={() => select(c)}
                 style={{ display: "grid", gridTemplateColumns: tableCols, padding: "12px 12px",
-                  borderBottom: i < filtered.length - 1 ? "1px solid #f1f5f9" : "none",
-                  cursor: "pointer", background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                  borderBottom: i < filtered.length - 1 ? `1px solid ${LINE}` : "none",
+                  cursor: "pointer", background: i % 2 === 0 ? PANEL : ROW_ALT }}>
                 <div style={{ minWidth: 0 }}>
-                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</p>
-                  <p style={{ margin: "2px 0 0", fontSize: 11, color: "#94a3b8" }}>
+                  <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.name}</p>
+                  <p style={{ margin: "2px 0 0", fontSize: 11, color: MUTED }}>
                     {c.invoiceCount > 0 && `${c.invoiceCount} inv`}{c.invoiceCount > 0 && c.estimateCount > 0 && " · "}{c.estimateCount > 0 && `${c.estimateCount} est`}
                   </p>
                 </div>
-                <span style={{ fontSize: 13, fontWeight: 700, color: "#0a0f1e", textAlign: "right", alignSelf: "center" }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: TEXT, textAlign: "right", alignSelf: "center" }}>
                   ${c.totalInvoiced.toLocaleString("en-CA", { minimumFractionDigits: 0 })}
                 </span>
               </div>
