@@ -220,55 +220,72 @@ export default function SchedulePage() {
               {b} · {buckets[b].length}
             </p>
             <div style={{ background: "#fff", borderRadius: 12, border: "1px solid #e2e8f0", overflow: "hidden" }}>
-              {buckets[b].map((j, i) => (
+              {buckets[b].map((j, i) => {
+                const d = new Date(j.scheduledDate);
+                const TYPE_STYLE: Record<string, { bg: string; color: string; label: string }> = {
+                  task:     { bg: "#f1f5f9", color: "#64748b", label: "Tarea" },
+                  estimate: { bg: "#fef2f2", color: "#e63946", label: "Estimado" },
+                  invoice:  { bg: "#eef1f5", color: "#0a0f1e", label: "Factura" },
+                };
+                const ts = TYPE_STYLE[j.type] || TYPE_STYLE.invoice;
+                return (
                 <div key={j.id} onClick={() => j.type === "task" ? openEditTask(j) : router.push(`/invoices/${j.id}`)}
-                  style={{ display: "flex", alignItems: "center", gap: 12, padding: mob ? "12px" : "14px 18px",
+                  style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: mob ? "12px" : "14px 18px",
                     borderBottom: i < buckets[b].length - 1 ? "1px solid #f1f5f9" : "none", cursor: "pointer",
                     background: "#fff" }}
                   onMouseEnter={e => (e.currentTarget.style.background = "#f8fafc")}
                   onMouseLeave={e => (e.currentTarget.style.background = "#fff")}>
-                  <div style={{ minWidth: mob ? 60 : 76, textAlign: "center" }}>
-                    <p style={{ margin: 0, fontSize: mob ? 15 : 13, fontWeight: 800, color: "#0f172a" }}>
-                      {new Date(j.scheduledDate).toLocaleDateString("es-CA", { month: "short", day: "numeric" })}
+                  <div style={{ minWidth: mob ? 54 : 60, flexShrink: 0, textAlign: "center", background: "#f8fafc", border: "1px solid #e2e8f0", borderRadius: 10, padding: "7px 4px" }}>
+                    <p style={{ margin: 0, fontSize: 9, fontWeight: 800, color: "#94a3b8", textTransform: "uppercase", letterSpacing: ".04em" }}>
+                      {d.toLocaleDateString("es-CA", { weekday: "short" })}
                     </p>
-                    <p style={{ margin: 0, fontSize: 11, color: "#94a3b8" }}>
-                      {new Date(j.scheduledDate).toLocaleTimeString("es-CA", { hour: "numeric", minute: "2-digit" })}
+                    <p style={{ margin: "2px 0", fontSize: mob ? 18 : 16, fontWeight: 800, color: "#0f172a", lineHeight: 1 }}>
+                      {d.toLocaleDateString("es-CA", { month: "short", day: "numeric" })}
+                    </p>
+                    <p style={{ margin: 0, fontSize: 10, color: "#64748b", fontWeight: 700 }}>
+                      {d.toLocaleTimeString("es-CA", { hour: "numeric", minute: "2-digit" })}
                     </p>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                      <span style={{ fontSize: mob ? 15 : 13, fontWeight: 700, color: "#e63946" }}>{j.invoiceNumber}</span>
-                      <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20,
-                        background: j.type === "task" ? "#f1f5f9" : j.type === "estimate" ? "#fef2f2" : "#f0fdf4",
-                        color: j.type === "task" ? "#64748b" : j.type === "estimate" ? "#e63946" : "#16a34a" }}>
-                        {j.type === "task" ? "Tarea" : j.type === "estimate" ? "Estimado" : "Factura"}
-                      </span>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 }}>
+                      <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 800, color: "#0f172a", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {j.clientName}
+                      </p>
                       {j.type !== "task" && (
-                        <span style={{ fontSize: 10, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "#f1f5f9", color: "#64748b" }}>
-                          {STATUS_LABELS[j.status] || j.status}
+                        <span style={{ fontSize: mob ? 15 : 13, fontWeight: 800, color: "#0f172a", flexShrink: 0 }}>
+                          ${j.total.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
                         </span>
                       )}
                     </div>
-                    <p style={{ margin: "3px 0 0", fontSize: mob ? 15 : 13, color: "#0f172a", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                      {j.clientName}{j.companyName && <span style={{ color: "#94a3b8", fontWeight: 500 }}> · {j.companyName}</span>}
-                    </p>
+                    {j.companyName && (
+                      <p style={{ margin: "1px 0 0", fontSize: 12, color: "#64748b", fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {j.companyName}
+                      </p>
+                    )}
                     {(j.clientAddress || j.clientPhone) && (
                       <p style={{ margin: "2px 0 0", fontSize: 12, color: "#94a3b8", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {[j.clientAddress, j.clientPhone].filter(Boolean).join(" · ")}
                       </p>
                     )}
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: "#94a3b8" }}>{j.invoiceNumber}</span>
+                      <span style={{ fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 20, background: ts.bg, color: ts.color }}>
+                        {ts.label}
+                      </span>
+                      {j.type !== "task" && (
+                        <span style={{ fontSize: 9, fontWeight: 700, padding: "2px 7px", borderRadius: 20, background: "#f1f5f9", color: "#64748b" }}>
+                          {STATUS_LABELS[j.status] || j.status}
+                        </span>
+                      )}
+                    </div>
                   </div>
-                  {j.type !== "task" && (
-                    <span style={{ fontSize: mob ? 15 : 13, fontWeight: 700, color: "#0f172a", flexShrink: 0 }}>
-                      ${j.total.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
-                    </span>
-                  )}
                   <button onClick={e => { e.stopPropagation(); openReminder(j); }} title="Enviar recordatorio"
-                    style={{ flexShrink: 0, background: "#e0f2fe", border: "none", borderRadius: 8, color: "#0369a1", padding: mob ? "7px 9px" : "7px 10px", cursor: "pointer", fontSize: mob ? 15 : 13 }}>
+                    style={{ flexShrink: 0, background: "#f1f5f9", border: "none", borderRadius: 8, color: "#0a0f1e", padding: mob ? "7px 9px" : "7px 10px", cursor: "pointer", fontSize: mob ? 15 : 13 }}>
                     🔔
                   </button>
                 </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         ))}
