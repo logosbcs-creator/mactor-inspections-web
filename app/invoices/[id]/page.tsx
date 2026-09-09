@@ -731,7 +731,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                   <div style={{ marginBottom:10 }}>
                     <label style={labelSt}>Notes / Detail</label>
-                    <textarea ref={autoGrow} value={item.notes||""} onChange={e => updateItem(i,"notes",e.target.value)} rows={3}
+                    <textarea ref={autoGrow} value={item.notes||""} onChange={e => updateItem(i,"notes",e.target.value)} onInput={e => autoGrow(e.currentTarget)} rows={3}
                       placeholder="Notes (optional)" style={{ ...inputSt, resize:"none", overflow:"hidden" } as React.CSSProperties} />
                   </div>
                   <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 1fr" : "1fr 1fr 1fr", gap:10 }}>
@@ -812,7 +812,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             {/* Notes */}
             <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
               <label style={{ ...labelSt, display:"block", marginBottom:8 }}>Notes (shown on invoice)</label>
-              <textarea ref={autoGrow} value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={3}
+              <textarea ref={autoGrow} value={editNotes} onChange={e => setEditNotes(e.target.value)} onInput={e => autoGrow(e.currentTarget)} rows={3}
                 placeholder="Additional notes for the client..."
                 style={{ ...inputSt, width:"100%", resize:"none", overflow:"hidden", margin:0, boxSizing:"border-box" }} />
             </div>

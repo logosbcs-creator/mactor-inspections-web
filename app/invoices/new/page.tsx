@@ -315,7 +315,8 @@ function NewInvoiceContent() {
               <div style={{ marginBottom: 10 }}>
                 <label style={lbl}>Notas / Detalle</label>
                 <textarea ref={autoGrow} style={{ ...inp, minHeight: 56, resize: "none", overflow: "hidden" } as React.CSSProperties}
-                  value={item.notes} onChange={e => updateItem(i, "notes", e.target.value)} placeholder="Labor: $xx · Materials: $xx" />
+                  value={item.notes} onChange={e => updateItem(i, "notes", e.target.value)} onInput={e => autoGrow(e.currentTarget)}
+                  placeholder="Labor: $xx · Materials: $xx" />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
                 <div>
@@ -393,7 +394,7 @@ function NewInvoiceContent() {
         <div style={card}>
           <label style={lbl}>Notas</label>
           <textarea ref={autoGrow} style={{ ...inp, minHeight: 80, resize: "none", overflow: "hidden" } as React.CSSProperties}
-            value={notes} onChange={e => setNotes(e.target.value)}
+            value={notes} onChange={e => setNotes(e.target.value)} onInput={e => autoGrow(e.currentTarget)}
             placeholder="Ej: Trabajo completado el viernes 13 de junio..." />
         </div>
 

@@ -430,7 +430,7 @@ function ScheduleContent() {
 
             <div style={{ marginBottom: 12 }}>
               <label style={labelSt}>Descripción del trabajo</label>
-              <textarea ref={autoGrow} value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
+              <textarea ref={autoGrow} value={taskDescription} onChange={e => setTaskDescription(e.target.value)} onInput={e => autoGrow(e.currentTarget)} rows={3}
                 placeholder="Qué se va a hacer..."
                 style={{ ...inputSt, resize: "none", overflow: "hidden" }} />
             </div>
