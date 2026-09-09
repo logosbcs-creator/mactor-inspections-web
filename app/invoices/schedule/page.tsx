@@ -4,6 +4,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
 import { Bell, ClipboardList, Trash2, X } from "lucide-react";
 
+function autoGrow(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
 const BG       = "#10131a";
@@ -424,9 +430,9 @@ function ScheduleContent() {
 
             <div style={{ marginBottom: 12 }}>
               <label style={labelSt}>Descripción del trabajo</label>
-              <textarea value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
+              <textarea ref={autoGrow} value={taskDescription} onChange={e => setTaskDescription(e.target.value)} rows={3}
                 placeholder="Qué se va a hacer..."
-                style={{ ...inputSt, resize: "vertical" }} />
+                style={{ ...inputSt, resize: "none", overflow: "hidden" }} />
             </div>
 
             <div style={{ marginBottom: 4 }}>

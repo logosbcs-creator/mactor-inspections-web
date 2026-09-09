@@ -24,6 +24,12 @@ const MUTED    = "#aeb8ca";
 const RED      = "#ff5964";
 const RED_SOFT = "#321a1e";
 
+function autoGrow(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
+
 const STATUS_COLORS: Record<string, string> = {
   draft: MUTED, sent: TEXT, paid: TEXT, overdue: RED, approved: TEXT,
 };
@@ -725,8 +731,8 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                   <div style={{ marginBottom:10 }}>
                     <label style={labelSt}>Notes / Detail</label>
-                    <textarea value={item.notes||""} onChange={e => updateItem(i,"notes",e.target.value)} rows={3}
-                      placeholder="Notes (optional)" style={{ ...inputSt, resize:"vertical" } as React.CSSProperties} />
+                    <textarea ref={autoGrow} value={item.notes||""} onChange={e => updateItem(i,"notes",e.target.value)} rows={3}
+                      placeholder="Notes (optional)" style={{ ...inputSt, resize:"none", overflow:"hidden" } as React.CSSProperties} />
                   </div>
                   <div style={{ display:"grid", gridTemplateColumns: mob ? "1fr 1fr" : "1fr 1fr 1fr", gap:10 }}>
                     <div>
@@ -806,9 +812,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             {/* Notes */}
             <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
               <label style={{ ...labelSt, display:"block", marginBottom:8 }}>Notes (shown on invoice)</label>
-              <textarea value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={3}
+              <textarea ref={autoGrow} value={editNotes} onChange={e => setEditNotes(e.target.value)} rows={3}
                 placeholder="Additional notes for the client..."
-                style={{ ...inputSt, width:"100%", resize:"vertical", margin:0, boxSizing:"border-box" }} />
+                style={{ ...inputSt, width:"100%", resize:"none", overflow:"hidden", margin:0, boxSizing:"border-box" }} />
             </div>
 
             {/* Photos */}

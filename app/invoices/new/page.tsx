@@ -18,6 +18,12 @@ const RED      = "#ff5964";
 const RED_SOFT = "#321a1e";
 
 interface LineItem { description: string; notes: string; rate: number; qty: number; amount: number; }
+
+function autoGrow(el: HTMLTextAreaElement | null) {
+  if (!el) return;
+  el.style.height = "auto";
+  el.style.height = el.scrollHeight + "px";
+}
 interface ClientSuggestion { id: string; name: string; email: string | null; phone: string | null; address: string | null; invoiceCount: number; totalInvoiced: number; }
 const emptyItem = (): LineItem => ({ description: "", notes: "", rate: 0, qty: 1, amount: 0 });
 function token() { return localStorage.getItem("mactor_token") || ""; }
@@ -308,7 +314,7 @@ function NewInvoiceContent() {
               </div>
               <div style={{ marginBottom: 10 }}>
                 <label style={lbl}>Notas / Detalle</label>
-                <textarea style={{ ...inp, minHeight: 56, resize: "vertical" } as React.CSSProperties}
+                <textarea ref={autoGrow} style={{ ...inp, minHeight: 56, resize: "none", overflow: "hidden" } as React.CSSProperties}
                   value={item.notes} onChange={e => updateItem(i, "notes", e.target.value)} placeholder="Labor: $xx · Materials: $xx" />
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 }}>
@@ -386,7 +392,7 @@ function NewInvoiceContent() {
         {/* Notes */}
         <div style={card}>
           <label style={lbl}>Notas</label>
-          <textarea style={{ ...inp, minHeight: 80, resize: "vertical" } as React.CSSProperties}
+          <textarea ref={autoGrow} style={{ ...inp, minHeight: 80, resize: "none", overflow: "hidden" } as React.CSSProperties}
             value={notes} onChange={e => setNotes(e.target.value)}
             placeholder="Ej: Trabajo completado el viernes 13 de junio..." />
         </div>
