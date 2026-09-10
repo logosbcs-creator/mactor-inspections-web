@@ -91,6 +91,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const autoSendChecked = useRef(false);
 
   // Edit form state
+  const [editNickname, setEditNickname] = useState("");
   const [editClient,  setEditClient]  = useState({ name:"", company:"", email:"", phone:"", address:"" });
   const [editItems,   setEditItems]   = useState<LineItem[]>([]);
   const [editCardSurcharge, setEditCardSurcharge] = useState(false);
@@ -119,6 +120,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     const d = await r.json();
     setInv(d);
     // Populate edit form
+    setEditNickname(d.nickname || "");
     setEditClient({ name: d.clientName||"", company: d.companyName||"", email: d.clientEmail||"", phone: d.clientPhone||"", address: d.clientAddress||"" });
     setEditItems(d.lineItems || []);
     setEditNotes(d.notes || "");
@@ -186,6 +188,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       method: "PUT",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
       body: JSON.stringify({
+        nickname:      editNickname || null,
         clientName:    editClient.name,
         companyName:   editClient.company,
         clientEmail:   editClient.email,
@@ -370,7 +373,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         {/* Row 1: invoice # + status + action buttons */}
         <div style={{ padding: mob ? "10px 12px" : "12px 24px", display:"flex", alignItems:"center", gap: mob ? 8 : 12, flexWrap: mob ? "wrap" : "nowrap" }}>
           <div style={{ display:"flex", alignItems:"center", gap: mob ? 6 : 10, flex:1, minWidth:0 }}>
-            <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:TEXT }}>{inv.invoiceNumber}</span>
+            <span style={{ fontWeight:800, fontSize: mob ? 19 : 17, color:TEXT, flexShrink:0 }}>{inv.invoiceNumber}</span>
+            {inv.nickname && (
+              <span style={{ fontSize: mob ? 13 : 13, color:MUTED, fontStyle:"italic", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", minWidth:0 }}>
+                {inv.nickname}
+              </span>
+            )}
             <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0,
               background: inv.status === "overdue" ? RED_SOFT : SOFT, color:STATUS_COLORS[inv.status]||MUTED }}>
               {STATUS_LABELS[inv.status]||inv.status}
@@ -649,6 +657,14 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         {/* ═══════════════ EDIT TAB ═══════════════ */}
         {tab === "edit" && (
           <div style={{ display:"flex", flexDirection:"column", gap:16 }}>
+
+            {/* Nickname — internal-only label, never shown to the client */}
+            <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>
+              <p style={{ margin:"0 0 12px", fontSize:11, color:MUTED, fontWeight:700, textTransform:"uppercase", letterSpacing:".05em" }}>Nickname (interno)</p>
+              <input value={editNickname} onChange={e => setEditNickname(e.target.value)} style={inputSt}
+                placeholder="Ej: Reparación techo, Depto 3B..." />
+              <p style={{ margin:"6px 0 0", fontSize:11, color:MUTED }}>Solo para identificarlo aquí — nunca aparece en el PDF ni en los correos al cliente.</p>
+            </div>
 
             {/* Status */}
             <div style={{ background:PANEL, borderRadius:12, border:`1px solid ${LINE}`, padding:"20px 24px" }}>

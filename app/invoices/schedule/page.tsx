@@ -30,7 +30,7 @@ const RED      = "#ff5964";
 const RED_SOFT = "#321a1e";
 
 interface Job {
-  id: string; invoiceNumber: string; type: string; status: string;
+  id: string; invoiceNumber: string; nickname?: string; type: string; status: string;
   clientName: string; companyName?: string; clientEmail?: string; clientPhone?: string; clientAddress?: string;
   total: number; scheduledDate: string; lineItems?: { description?: string }[]; agendaDone?: boolean;
 }
@@ -368,6 +368,11 @@ function ScheduleContent() {
                     {j.companyName && (
                       <p style={{ margin: "1px 0 0", fontSize: 12, color: MUTED, fontWeight: 600, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                         {j.companyName}
+                      </p>
+                    )}
+                    {j.nickname && (
+                      <p style={{ margin: "1px 0 0", fontSize: 12, color: MUTED, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                        {j.nickname}
                       </p>
                     )}
                     {shortDescription(j) && (

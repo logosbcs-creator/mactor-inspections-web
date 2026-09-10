@@ -18,7 +18,7 @@ const RED      = "#ff5964";
 const RED_SOFT = "#321a1e";
 
 interface Invoice {
-  id: string; invoiceNumber: string; type: string; status: string;
+  id: string; invoiceNumber: string; nickname?: string; type: string; status: string;
   clientName: string; clientEmail?: string;
   total: number; invoiceDate: string; sentAt?: string; paidAt?: string;
 }
@@ -73,7 +73,8 @@ function InvoicesContent() {
       if (isEst ? inv.status !== "draft" : inv.status !== "paid") return false;
     }
     if (search && !inv.clientName.toLowerCase().includes(search.toLowerCase()) &&
-        !inv.invoiceNumber.toLowerCase().includes(search.toLowerCase())) return false;
+        !inv.invoiceNumber.toLowerCase().includes(search.toLowerCase()) &&
+        !(inv.nickname || "").toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   }).slice(0, perPage);
 
@@ -227,7 +228,12 @@ function InvoicesContent() {
                         </span>
                       )}
                     </span>
-                    <span style={{ fontSize: mob ? 16 : 13, color: TEXT, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</span>
+                    <div style={{ minWidth: 0, overflow: "hidden" }}>
+                      <div style={{ fontSize: mob ? 16 : 13, color: TEXT, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</div>
+                      {inv.nickname && (
+                        <div style={{ fontSize: mob ? 12 : 11, color: MUTED, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.nickname}</div>
+                      )}
+                    </div>
                     {!mob && <span style={{ fontSize: 13, color: MUTED }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>}
                     <div style={{ textAlign: "right" }}>
                       {!isEst && inv.status === "paid"
