@@ -1,13 +1,20 @@
 "use client";
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, useRef, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Image from "next/image";
 import AppHeader from "../../components/AppHeader";
-import { Bell, ClipboardList, Trash2, X, CheckCircle2, Circle } from "lucide-react";
+import { Bell, ClipboardList, Trash2, X, CheckCircle2, Circle, Camera } from "lucide-react";
 
 function autoGrow(el: HTMLTextAreaElement | null) {
   if (!el) return;
   el.style.height = "auto";
   el.style.height = el.scrollHeight + "px";
+}
+
+// Photos used to be stored as plain URL strings, before captions existed —
+// normalize older records so they still load fine here.
+function normalizePhotos(photos: any): { url: string; caption: string }[] {
+  return (photos || []).map((p: any) => typeof p === "string" ? { url: p, caption: "" } : p);
 }
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
@@ -74,10 +81,13 @@ function ScheduleContent() {
   const [taskAddress,     setTaskAddress]     = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [taskDate,        setTaskDate]        = useState("");
+  const [taskPhotos,      setTaskPhotos]      = useState<{ url: string; caption: string }[]>([]);
+  const [taskUploading,   setTaskUploading]   = useState(false);
   const [taskSaving,      setTaskSaving]      = useState(false);
   const [taskLoading,     setTaskLoading]     = useState(false);
   const [taskConverting,  setTaskConverting]  = useState(false);
   const [taskMsg,         setTaskMsg]         = useState("");
+  const taskFileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -151,7 +161,7 @@ function ScheduleContent() {
 
   function openNewTask() {
     setTaskId(null);
-    setTaskName(""); setTaskCompany(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
+    setTaskName(""); setTaskCompany(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate(""); setTaskPhotos([]);
     setTaskMsg("");
     setTaskModalOpen(true);
   }
@@ -163,7 +173,7 @@ function ScheduleContent() {
     // click while this fetch is still in flight could save leftover
     // data (including an empty date) over the real task.
     setTaskId(null);
-    setTaskName(""); setTaskCompany(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate("");
+    setTaskName(""); setTaskCompany(""); setTaskEmail(""); setTaskPhone(""); setTaskAddress(""); setTaskDescription(""); setTaskDate(""); setTaskPhotos([]);
     setTaskLoading(true);
     setTaskModalOpen(true);
     setTaskMsg("");
@@ -177,7 +187,33 @@ function ScheduleContent() {
     setTaskAddress(d.clientAddress || "");
     setTaskDescription((d.lineItems || [])[0]?.description || "");
     setTaskDate(d.scheduledDate ? d.scheduledDate.slice(0, 16) : "");
+    setTaskPhotos(normalizePhotos(d.photos));
     setTaskLoading(false);
+  }
+
+  async function handleTaskPhotoUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+    setTaskUploading(true);
+    try {
+      const urls = await Promise.all(files.map(async file => {
+        const fd = new FormData();
+        fd.append("photo", file);
+        const r = await fetch(`${API}/api/invoices/upload-photo`, { method: "POST", headers: { Authorization: `Bearer ${token()}` }, body: fd });
+        const d = await r.json();
+        return d.url as string;
+      }));
+      setTaskPhotos(prev => [...prev, ...urls.filter(Boolean).map(url => ({ url, caption: "" }))]);
+    } catch { setTaskMsg("❌ Error subiendo fotos"); }
+    finally { setTaskUploading(false); if (taskFileRef.current) taskFileRef.current.value = ""; }
+  }
+
+  function removeTaskPhoto(url: string) {
+    setTaskPhotos(prev => prev.filter(p => p.url !== url));
+  }
+
+  function setTaskPhotoCaption(url: string, caption: string) {
+    setTaskPhotos(prev => prev.map(p => p.url === url ? { ...p, caption } : p));
   }
 
   async function saveTask() {
@@ -187,7 +223,7 @@ function ScheduleContent() {
       type: "task",
       clientName: taskName, companyName: taskCompany, clientEmail: taskEmail, clientPhone: taskPhone, clientAddress: taskAddress,
       lineItems: taskDescription.trim() ? [{ description: taskDescription, rate: 0, qty: 1, amount: 0 }] : [],
-      scheduledDate: taskDate,
+      scheduledDate: taskDate, photos: taskPhotos,
     };
     const r = taskId
       ? await fetch(`${API}/api/invoices/${taskId}`, { method: "PUT", headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` }, body: JSON.stringify(payload) })
@@ -449,6 +485,37 @@ function ScheduleContent() {
               <textarea ref={autoGrow} value={taskDescription} onChange={e => setTaskDescription(e.target.value)} onInput={e => autoGrow(e.currentTarget)} rows={3}
                 placeholder="Qué se va a hacer..."
                 style={{ ...inputSt, resize: "none", overflow: "hidden" }} />
+            </div>
+
+            <div style={{ marginBottom: 12 }}>
+              <input ref={taskFileRef} type="file" accept="image/*" multiple style={{ display: "none" }} onChange={handleTaskPhotoUpload} />
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                <label style={{ ...labelSt, margin: 0 }}>Fotos ({taskPhotos.length})</label>
+                <button onClick={() => taskFileRef.current?.click()} disabled={taskUploading}
+                  style={{ background: taskUploading ? SOFT : RED_SOFT, color: taskUploading ? MUTED : RED,
+                    border: "none", borderRadius: 8, padding: "5px 12px", fontSize: 12, fontWeight: 700, cursor: taskUploading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", gap: 6 }}>
+                  <Camera size={13} /> {taskUploading ? "Subiendo..." : "Agregar fotos"}
+                </button>
+              </div>
+              {taskPhotos.length > 0 && (
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 8 }}>
+                  {taskPhotos.map((p, i) => (
+                    <div key={p.url}>
+                      <div style={{ position: "relative", borderRadius: 8, overflow: "hidden", aspectRatio: "4/3", background: SOFT }}>
+                        <Image src={p.url} alt={`foto ${i + 1}`} fill style={{ objectFit: "cover" }} />
+                        <button onClick={() => removeTaskPhoto(p.url)}
+                          style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,.6)", border: "none",
+                            color: "#fff", borderRadius: "50%", width: 20, height: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                          <X size={12} />
+                        </button>
+                      </div>
+                      <input value={p.caption} onChange={e => setTaskPhotoCaption(p.url, e.target.value)}
+                        placeholder="Título (opcional)"
+                        style={{ ...inputSt, marginTop: 4, padding: "5px 7px", fontSize: 11 }} />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
 
             <div style={{ marginBottom: 4 }}>

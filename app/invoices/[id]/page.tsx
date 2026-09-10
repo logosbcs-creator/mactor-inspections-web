@@ -30,6 +30,12 @@ function autoGrow(el: HTMLTextAreaElement | null) {
   el.style.height = el.scrollHeight + "px";
 }
 
+// Photos used to be stored as plain URL strings, before captions existed —
+// normalize older records so they still load fine here.
+function normalizePhotos(photos: any): { url: string; caption: string }[] {
+  return (photos || []).map((p: any) => typeof p === "string" ? { url: p, caption: "" } : p);
+}
+
 const STATUS_COLORS: Record<string, string> = {
   draft: MUTED, sent: TEXT, paid: TEXT, overdue: RED, approved: TEXT,
 };
@@ -88,7 +94,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [editHstEnabled, setEditHstEnabled] = useState(true);
   const [editDiscount,   setEditDiscount]   = useState(0);
   const [editNotes,   setEditNotes]   = useState("");
-  const [editPhotos,  setEditPhotos]  = useState<string[]>([]);
+  const [editPhotos,  setEditPhotos]  = useState<{ url: string; caption: string }[]>([]);
   const [editDate,    setEditDate]    = useState("");
   const [editDue,     setEditDue]     = useState("");
   const [editStatus,  setEditStatus]  = useState("");
@@ -113,7 +119,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     setEditClient({ name: d.clientName||"", company: d.companyName||"", email: d.clientEmail||"", phone: d.clientPhone||"", address: d.clientAddress||"" });
     setEditItems(d.lineItems || []);
     setEditNotes(d.notes || "");
-    setEditPhotos(d.photos || []);
+    setEditPhotos(normalizePhotos(d.photos));
     setEditDate(d.invoiceDate ? d.invoiceDate.split("T")[0] : "");
     setEditDue(d.dueDate || "On Receipt");
     setEditStatus(d.status || "draft");
@@ -217,9 +223,13 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
         const d = await r.json();
         return d.url as string;
       }));
-      setEditPhotos(prev => [...prev, ...urls.filter(Boolean)]);
+      setEditPhotos(prev => [...prev, ...urls.filter(Boolean).map(url => ({ url, caption: "" }))]);
     } catch { setMsg("❌ Error subiendo fotos"); }
     finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
+  }
+
+  function setEditPhotoCaption(url: string, caption: string) {
+    setEditPhotos(prev => prev.map(p => p.url === url ? { ...p, caption } : p));
   }
 
   // ── Actions ───────────────────────────────────────────────────
@@ -605,9 +615,12 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                     Photos ({inv.photos.length})
                   </p>
                   <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
-                    {inv.photos.map((url: string, i: number) => (
-                      <div key={i} style={{ position:"relative", borderRadius:6, overflow:"hidden", aspectRatio:"4/3", background:"#f1f5f9" }}>
-                        <Image src={url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
+                    {normalizePhotos(inv.photos).map((p, i: number) => (
+                      <div key={i}>
+                        <div style={{ position:"relative", borderRadius:6, overflow:"hidden", aspectRatio:"4/3", background:"#f1f5f9" }}>
+                          <Image src={p.url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
+                        </div>
+                        {p.caption && <p style={{ margin:"4px 0 0", fontSize:10, color:"#666" }}>{p.caption}</p>}
                       </div>
                     ))}
                   </div>
@@ -830,14 +843,19 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               </div>
               {editPhotos.length > 0 ? (
                 <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:10 }}>
-                  {editPhotos.map((url, i) => (
-                    <div key={i} style={{ position:"relative", borderRadius:8, overflow:"hidden", aspectRatio:"4/3", background:SOFT }}>
-                      <Image src={url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
-                      <button onClick={() => setEditPhotos(p => p.filter((_, j) => j !== i))}
-                        style={{ position:"absolute", top:4, right:4, background:"rgba(0,0,0,.65)", border:"none",
-                          color:"#fff", borderRadius:"50%", width:22, height:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                        <X size={13} />
-                      </button>
+                  {editPhotos.map((p, i) => (
+                    <div key={p.url}>
+                      <div style={{ position:"relative", borderRadius:8, overflow:"hidden", aspectRatio:"4/3", background:SOFT }}>
+                        <Image src={p.url} alt={`photo ${i+1}`} fill style={{ objectFit:"cover" }} />
+                        <button onClick={() => setEditPhotos(prev => prev.filter((_, j) => j !== i))}
+                          style={{ position:"absolute", top:4, right:4, background:"rgba(0,0,0,.65)", border:"none",
+                            color:"#fff", borderRadius:"50%", width:22, height:22, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                          <X size={13} />
+                        </button>
+                      </div>
+                      <input value={p.caption} onChange={e => setEditPhotoCaption(p.url, e.target.value)}
+                        placeholder="Title or description (optional)"
+                        style={{ ...inputSt, marginTop:6, padding:"6px 8px", fontSize:12 }} />
                     </div>
                   ))}
                 </div>

@@ -67,7 +67,7 @@ function NewInvoiceContent() {
   const [hstEnabled, setHstEnabled] = useState(true);
   const [discount,   setDiscount]   = useState(0);
   const [notes,  setNotes]  = useState("");
-  const [photos, setPhotos] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<{ url: string; caption: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -163,13 +163,17 @@ function NewInvoiceContent() {
         const d = await r.json();
         return d.url as string;
       }));
-      setPhotos(prev => [...prev, ...urls.filter(Boolean)]);
+      setPhotos(prev => [...prev, ...urls.filter(Boolean).map(url => ({ url, caption: "" }))]);
     } catch { alert("Error subiendo fotos"); }
     finally { setUploading(false); if (fileRef.current) fileRef.current.value = ""; }
   }
 
   function removePhoto(url: string) {
-    setPhotos(prev => prev.filter(p => p !== url));
+    setPhotos(prev => prev.filter(p => p.url !== url));
+  }
+
+  function setPhotoCaption(url: string, caption: string) {
+    setPhotos(prev => prev.map(p => p.url === url ? { ...p, caption } : p));
   }
 
   async function save(andSend = false) {
@@ -412,14 +416,19 @@ function NewInvoiceContent() {
 
           {photos.length > 0 ? (
             <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 10 }}>
-              {photos.map((url, i) => (
-                <div key={i} style={{ position: "relative", borderRadius: 8, overflow: "hidden", aspectRatio: "4/3", background: SOFT }}>
-                  <Image src={url} alt={`foto ${i+1}`} fill style={{ objectFit: "cover" }} />
-                  <button onClick={() => removePhoto(url)}
-                    style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,.6)", border: "none",
-                      color: "#fff", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <X size={13} />
-                  </button>
+              {photos.map((p, i) => (
+                <div key={p.url}>
+                  <div style={{ position: "relative", borderRadius: 8, overflow: "hidden", aspectRatio: "4/3", background: SOFT }}>
+                    <Image src={p.url} alt={`foto ${i+1}`} fill style={{ objectFit: "cover" }} />
+                    <button onClick={() => removePhoto(p.url)}
+                      style={{ position: "absolute", top: 4, right: 4, background: "rgba(0,0,0,.6)", border: "none",
+                        color: "#fff", borderRadius: "50%", width: 22, height: 22, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <X size={13} />
+                    </button>
+                  </div>
+                  <input value={p.caption} onChange={e => setPhotoCaption(p.url, e.target.value)}
+                    placeholder="Título o descripción (opcional)"
+                    style={{ ...inp, marginTop: 6, padding: "6px 8px", fontSize: 12 }} />
                 </div>
               ))}
             </div>
