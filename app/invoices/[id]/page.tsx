@@ -6,6 +6,7 @@ import AppHeader from "../../components/AppHeader";
 import {
   Search, FileText, ClipboardList, Check, Undo2, Calendar, File, Mail, Trash2,
   Eye, Pencil, CreditCard, Camera, Save, X, AlertTriangle, ChevronUp, ChevronDown, Plus,
+  History, MessageSquare,
 } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
@@ -69,6 +70,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [tab,     setTab]     = useState<"preview"|"edit">("preview");
   const [sending,    setSending]    = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showHistory,   setShowHistory]   = useState(false);
   const [sendEmail,     setSendEmail]     = useState("");
   const [sendBcc,       setSendBcc]       = useState(true);
   const [sendSms,       setSendSms]       = useState(false);
@@ -86,6 +88,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const [uploading, setUploading] = useState(false);
   const [mob,       setMob]       = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
+  const autoSendChecked = useRef(false);
 
   // Edit form state
   const [editClient,  setEditClient]  = useState({ name:"", company:"", email:"", phone:"", address:"" });
@@ -128,12 +131,15 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     // datetime-local wants "YYYY-MM-DDTHH:mm" — trim the seconds/Z off the ISO string
     setEditScheduledDate(d.scheduledDate ? d.scheduledDate.slice(0, 16) : "");
     // Coming straight from "Guardar y enviar" on the new-invoice form —
-    // open the send confirmation instead of firing the email blind.
-    if (searchParams.get("send") === "1") {
+    // open the send confirmation instead of firing the email blind. Only
+    // on the first load, so a later refresh (e.g. right after sending)
+    // doesn't reopen the modal.
+    if (!autoSendChecked.current && searchParams.get("send") === "1") {
       setSendEmail(d.clientEmail || "");
       setSendPhone(d.clientPhone || "");
       setShowSendModal(true);
     }
+    autoSendChecked.current = true;
   }
 
   // ── Edit helpers ──────────────────────────────────────────────
@@ -243,11 +249,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     if (r.ok) {
       const d = await r.json().catch(() => ({}));
       setMsg(sendSms && d.smsError ? `⚠️ Email sent, but SMS failed: ${d.smsError}` : "✅ Email sent!");
-      // Mirrors the backend: only a draft flips to "sent" — a resend on an
-      // already sent/paid invoice keeps its current status.
-      const newStatus = inv.status === "draft" ? "sent" : inv.status;
-      setInv((p: any) => ({ ...p, status: newStatus, sentAt: new Date().toISOString() }));
-      setEditStatus(newStatus);
+      await load();
     } else {
       const d = await r.json().catch(() => ({}));
       setMsg(`❌ ${d.error || "Error sending email"}`);
@@ -373,7 +375,13 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               background: inv.status === "overdue" ? RED_SOFT : SOFT, color:STATUS_COLORS[inv.status]||MUTED }}>
               {STATUS_LABELS[inv.status]||inv.status}
             </span>
-            {inv.sentAt && !mob && <span style={{ fontSize:11, color:MUTED }}>Sent {new Date(inv.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+            {(inv.sendLogs?.length > 0) && (
+              <button onClick={() => setShowHistory(true)} title="Ver historial de envíos"
+                style={{ display:"flex", alignItems:"center", gap:4, background:"none", border:"none", cursor:"pointer", padding:0, fontSize:11, color:MUTED, flexShrink:0 }}>
+                <History size={12} />
+                {!mob && <span>Enviado {new Date(inv.sendLogs[0].sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+              </button>
+            )}
             {inv.scheduledDate && (
               <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:20, flexShrink:0, background:SOFT, color:TEXT, display:"flex", alignItems:"center", gap:4 }}>
                 <Calendar size={11} /> {new Date(inv.scheduledDate).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}
@@ -920,6 +928,40 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                 style={{ padding:"11px 18px", background:SOFT, border:"none", borderRadius:10, fontSize:14, cursor:"pointer", color:MUTED }}>
                 Cancelar
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Send/reminder history — who it went to and when, across email and SMS */}
+      {showHistory && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(0,0,0,.6)", zIndex:200, display:"flex", alignItems:"center", justifyContent:"center", padding:20 }}
+          onClick={e => e.target === e.currentTarget && setShowHistory(false)}>
+          <div style={{ background:PANEL, border:`1px solid ${LINE}`, borderRadius:16, width:"100%", maxWidth:420, maxHeight:"80vh", overflowY:"auto", padding: mob ? 20 : 28, boxShadow:"0 20px 60px rgba(0,0,0,.5)" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16 }}>
+              <h2 style={{ margin:0, fontSize:16, fontWeight:800, color:TEXT, display:"flex", alignItems:"center", gap:8 }}><History size={16} /> Historial de envíos</h2>
+              <button onClick={() => setShowHistory(false)} style={{ background:"none", border:"none", cursor:"pointer", color:MUTED, display:"flex" }}><X size={20} /></button>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
+              {(inv.sendLogs || []).map((log: any) => (
+                <div key={log.id} style={{ display:"flex", alignItems:"flex-start", gap:10, padding:"10px 12px", background:SOFT, borderRadius:10 }}>
+                  <div style={{ color:MUTED, marginTop:2 }}>
+                    {log.channel === "sms" ? <MessageSquare size={15} /> : <Mail size={15} />}
+                  </div>
+                  <div style={{ flex:1, minWidth:0 }}>
+                    <p style={{ margin:0, fontSize:13, fontWeight:600, color:TEXT }}>
+                      {log.kind === "remind" ? "Recordatorio" : (isEst ? "Estimado enviado" : "Factura enviada")}
+                      {log.channel === "sms" ? " · SMS" : " · Email"}
+                    </p>
+                    <p style={{ margin:"2px 0 0", fontSize:12, color:MUTED, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{log.recipient}</p>
+                  </div>
+                  <span style={{ fontSize:11, color:MUTED, whiteSpace:"nowrap" }}>
+                    {new Date(log.sentAt).toLocaleDateString("es-CA",{month:"short",day:"numeric",year:"numeric"})}
+                    {" · "}
+                    {new Date(log.sentAt).toLocaleTimeString("es-CA",{hour:"numeric",minute:"2-digit"})}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

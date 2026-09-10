@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "../components/AppHeader";
-import { ClipboardList, Receipt, BarChart3 } from "lucide-react";
+import { ClipboardList, Receipt, BarChart3, Mail } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -219,7 +219,14 @@ function InvoicesContent() {
                       transition: "background 0.1s", alignItems: "center" }}
                     onMouseEnter={e => (e.currentTarget.style.background=HOVER)}
                     onMouseLeave={e => (e.currentTarget.style.background=i%2===0?PANEL:ROW_ALT)}>
-                    <span style={{ fontSize: mob ? 16 : 13, fontWeight: 700, color: RED }}>{inv.invoiceNumber}</span>
+                    <span style={{ fontSize: mob ? 16 : 13, fontWeight: 700, color: RED, display: "flex", alignItems: "center", gap: 5 }}>
+                      {inv.invoiceNumber}
+                      {inv.sentAt && (
+                        <span title={`Enviado el ${new Date(inv.sentAt).toLocaleDateString("es-CA",{month:"short",day:"numeric",year:"numeric"})}`} style={{ display:"flex" }}>
+                          <Mail size={mob ? 12 : 11} color={MUTED} />
+                        </span>
+                      )}
+                    </span>
                     <span style={{ fontSize: mob ? 16 : 13, color: TEXT, fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.clientName}</span>
                     {!mob && <span style={{ fontSize: 13, color: MUTED }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>}
                     <div style={{ textAlign: "right" }}>
