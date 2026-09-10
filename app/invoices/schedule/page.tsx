@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
-import { Bell, ClipboardList, Trash2, X } from "lucide-react";
+import { Bell, ClipboardList, Trash2, X, CheckCircle2, Circle } from "lucide-react";
 
 function autoGrow(el: HTMLTextAreaElement | null) {
   if (!el) return;
@@ -25,7 +25,7 @@ const RED_SOFT = "#321a1e";
 interface Job {
   id: string; invoiceNumber: string; type: string; status: string;
   clientName: string; companyName?: string; clientEmail?: string; clientPhone?: string; clientAddress?: string;
-  total: number; scheduledDate: string; lineItems?: { description?: string }[];
+  total: number; scheduledDate: string; lineItems?: { description?: string }[]; agendaDone?: boolean;
 }
 
 function shortDescription(j: Job): string {
@@ -102,6 +102,17 @@ function ScheduleContent() {
     const all: Job[] = await r.json();
     setJobs(all.filter(j => j.scheduledDate).sort((a, b) => new Date(a.scheduledDate).getTime() - new Date(b.scheduledDate).getTime()));
     setLoading(false);
+  }
+
+  async function toggleDone(j: Job, e: React.MouseEvent) {
+    e.stopPropagation();
+    const next = !j.agendaDone;
+    setJobs(prev => prev.map(x => x.id === j.id ? { ...x, agendaDone: next } : x));
+    await fetch(`${API}/api/invoices/${j.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+      body: JSON.stringify({ agendaDone: next }),
+    });
   }
 
   function openReminder(j: Job) {
@@ -291,6 +302,7 @@ function ScheduleContent() {
                   invoice:  { bg: SOFT,     color: TEXT,  label: "Factura" },
                 };
                 const ts = TYPE_STYLE[j.type] || TYPE_STYLE.invoice;
+                const done = !!j.agendaDone;
                 return (
                 <div key={j.id} onClick={() => j.type === "task" ? openEditTask(j) : router.push(`/invoices/${j.id}`)}
                   style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: mob ? "12px" : "14px 18px",
@@ -298,7 +310,11 @@ function ScheduleContent() {
                     background: PANEL }}
                   onMouseEnter={e => (e.currentTarget.style.background = HOVER)}
                   onMouseLeave={e => (e.currentTarget.style.background = PANEL)}>
-                  <div style={{ minWidth: mob ? 54 : 60, flexShrink: 0, textAlign: "center", background: BG, border: `1px solid ${LINE}`, borderRadius: 10, padding: "7px 4px" }}>
+                  <button onClick={e => toggleDone(j, e)} title={done ? "Marcar como pendiente" : "Marcar como hecho"}
+                    style={{ flexShrink: 0, background: "none", border: "none", color: done ? TEXT : MUTED, cursor: "pointer", display: "flex", padding: 2, marginTop: 2 }}>
+                    {done ? <CheckCircle2 size={20} fill={TEXT} color={PANEL} /> : <Circle size={20} />}
+                  </button>
+                  <div style={{ minWidth: mob ? 54 : 60, flexShrink: 0, textAlign: "center", background: BG, border: `1px solid ${LINE}`, borderRadius: 10, padding: "7px 4px", opacity: done ? 0.5 : 1 }}>
                     <p style={{ margin: 0, fontSize: 9, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: ".04em" }}>
                       {d.toLocaleDateString("es-CA", { weekday: "short" })}
                     </p>
@@ -309,8 +325,8 @@ function ScheduleContent() {
                       {d.toLocaleTimeString("es-CA", { hour: "numeric", minute: "2-digit" })}
                     </p>
                   </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <div style={{ flex: 1, minWidth: 0, opacity: done ? 0.5 : 1 }}>
+                    <p style={{ margin: 0, fontSize: mob ? 16 : 14, fontWeight: 600, color: TEXT, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", textDecoration: done ? "line-through" : "none" }}>
                       {j.clientName}
                     </p>
                     {j.companyName && (
