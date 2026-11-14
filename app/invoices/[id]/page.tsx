@@ -182,7 +182,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   const total    = Math.round((subtotal + hst) * 100) / 100;
 
   // ── Save edits ────────────────────────────────────────────────
-  async function saveEdit() {
+  async function saveEdit(opts?: { stay?: boolean }): Promise<boolean> {
     setSaving(true); setMsg("");
     const r = await fetch(`${API}/api/invoices/${id}`, {
       method: "PUT",
@@ -209,12 +209,43 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
       const updated = await r.json();
       setInv(updated);
       setMsg("✅ Changes saved");
-      setTab("preview");
+      if (!opts?.stay) setTab("preview");
     } else {
       setMsg("❌ Error saving");
     }
     setSaving(false);
     setTimeout(() => setMsg(""), 3000);
+    return r.ok;
+  }
+
+  // True when the Edit form differs from what's saved. The PDF, the email
+  // and "convert" all work from the saved record, so without this a change
+  // like turning HST on is visible in the form but missing from the PDF.
+  const norm = (items: any[]) => (items || []).map(i => [
+    i.description || "", i.notes || "", Number(i.rate) || 0, Number(i.qty) || 0, Number(i.amount) || 0,
+  ]);
+  const hasUnsavedEdits = !!inv && (
+    (editNickname || "") !== (inv.nickname || "") ||
+    editClient.name    !== (inv.clientName    || "") ||
+    editClient.company !== (inv.companyName   || "") ||
+    editClient.email   !== (inv.clientEmail   || "") ||
+    editClient.phone   !== (inv.clientPhone   || "") ||
+    editClient.address !== (inv.clientAddress || "") ||
+    editHstEnabled !== (inv.hstEnabled !== false) ||
+    Number(editDiscount || 0) !== Number(inv.discount || 0) ||
+    editStatus !== (inv.status || "draft") ||
+    editDue    !== (inv.dueDate || "On Receipt") ||
+    editDate   !== (inv.invoiceDate ? String(inv.invoiceDate).split("T")[0] : "") ||
+    (editScheduledDate || "") !== (inv.scheduledDate ? String(inv.scheduledDate).slice(0, 16) : "") ||
+    (editNotes || "") !== (inv.notes || "") ||
+    JSON.stringify(editPhotos.map(p => [p.url, p.caption || ""])) !== JSON.stringify(normalizePhotos(inv.photos).map(p => [p.url, p.caption || ""])) ||
+    JSON.stringify(norm(editDisplayItems)) !== JSON.stringify(norm(inv.lineItems))
+  );
+
+  // Save pending edits before anything that reads the saved record.
+  async function ensureSaved(): Promise<boolean> {
+    if (!hasUnsavedEdits) return true;
+    return saveEdit({ stay: true });
   }
 
   // ── Photo upload ─────────────────────────────────────────────
@@ -293,7 +324,22 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     if (r.ok) { setInv((p: any) => ({ ...p, status: "sent", paidAt: null })); setEditStatus("sent"); }
   }
 
-  function openPDF() { window.open(`${API}/api/invoices/${id}/pdf?token=${token()}`, "_blank"); }
+  // The PDF is built from the saved record, so pending edits (e.g. HST just
+  // switched on) are saved first. The tab is opened synchronously, inside the
+  // click, so the popup blocker doesn't swallow it after the await.
+  async function openPDF() {
+    const w = window.open("", "_blank");
+    const ok = await ensureSaved();
+    if (!ok) { w?.close(); return; }
+    const url = `${API}/api/invoices/${id}/pdf?token=${token()}`;
+    if (w) w.location.href = url; else window.open(url, "_blank");
+  }
+
+  async function openSendModal() {
+    if (!(await ensureSaved())) return;
+    setSendEmail(editClient.email || inv.clientEmail || ""); setSendBcc(true); setSendSms(false);
+    setSendPhone(editClient.phone || inv.clientPhone || ""); setShowSendModal(true);
+  }
 
   async function confirmDelete() {
     if (!deletePassword) return;
@@ -323,6 +369,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
   async function convert() {
     const toEst = !isEst;
     if (!confirm(toEst ? "¿Crear un estimado a partir de esta factura?" : "¿Crear una factura a partir de este estimado?")) return;
+    if (!(await ensureSaved())) return;
     setConverting(true);
     const r = await fetch(`${API}/api/invoices/${id}/convert`, {
       method: "POST", headers: { Authorization: `Bearer ${token()}` },
@@ -425,7 +472,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <File size={14} /> PDF
             </button>
             {inv.clientEmail ? (
-              <button onClick={() => { setSendEmail(inv.clientEmail || ""); setSendBcc(true); setSendSms(false); setSendPhone(inv.clientPhone || ""); setShowSendModal(true); }} disabled={sending}
+              <button onClick={openSendModal} disabled={sending || saving}
                 style={{ padding: mob ? "7px 10px" : "8px 18px", borderRadius:8, border:"none", background:RED, color:"#fff", fontSize: mob ? 16 : 13, fontWeight:700, cursor:sending?"not-allowed":"pointer", opacity:sending?0.7:1, whiteSpace:"nowrap", display:"flex", alignItems:"center", gap:6 }}>
                 <Mail size={14} /> {sending ? "Sending..." : (mob ? "Email" : isEst ? "Email Estimate" : "Email Invoice")}
               </button>
@@ -452,6 +499,11 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               {t === "preview" ? <><Eye size={14} /> Preview</> : <><Pencil size={14} /> Edit</>}
             </button>
           ))}
+          {hasUnsavedEdits && (
+            <span style={{ marginLeft:"auto", alignSelf:"center", fontSize:11, fontWeight:700, color:RED, display:"flex", alignItems:"center", gap:6 }}>
+              <span style={{ width:7, height:7, borderRadius:"50%", background:RED }} /> Cambios sin guardar
+            </span>
+          )}
         </div>
       </div>
 
@@ -895,7 +947,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
             </div>
 
             {/* Save */}
-            <button onClick={saveEdit} disabled={saving || !editClient.name}
+            <button onClick={() => saveEdit()} disabled={saving || !editClient.name}
               style={{ padding:"16px", borderRadius:12, background: saving ? MUTED : RED, border:"none", color:"#fff", fontSize:15, fontWeight:700, cursor: (saving||!editClient.name)?"not-allowed":"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:8 }}>
               <Save size={16} /> {saving ? "Saving..." : "Save Changes"}
             </button>
