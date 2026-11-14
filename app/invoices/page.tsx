@@ -2,7 +2,7 @@
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AppHeader from "../components/AppHeader";
-import { ClipboardList, Receipt, BarChart3, Mail } from "lucide-react";
+import { ClipboardList, Receipt, BarChart3, Mail, Bell, X } from "lucide-react";
 
 const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3002";
 
@@ -19,8 +19,9 @@ const RED_SOFT = "#321a1e";
 
 interface Invoice {
   id: string; invoiceNumber: string; nickname?: string; type: string; status: string;
-  clientName: string; clientEmail?: string;
+  clientName: string; clientEmail?: string; clientPhone?: string;
   total: number; invoiceDate: string; sentAt?: string; paidAt?: string;
+  sendLogs?: { sentAt: string }[];   // latest payment reminder only (see GET /api/invoices)
 }
 
 type Tab = "all" | "outstanding" | "paid";
@@ -38,6 +39,16 @@ function InvoicesContent() {
   const [perPage,  setPerPage]  = useState(50);
   const [mob,      setMob]      = useState(false);
   const [convertingId, setConvertingId] = useState<string | null>(null);
+
+  // Payment reminder modal
+  const [remInv,     setRemInv]     = useState<Invoice | null>(null);
+  const [remPhone,   setRemPhone]   = useState("");
+  const [remText,    setRemText]    = useState("");
+  const [remLast,    setRemLast]    = useState<string | null>(null);
+  const [remLoading, setRemLoading] = useState(false);
+  const [remSending, setRemSending] = useState(false);
+  const [remError,   setRemError]   = useState("");
+  const [toast,      setToast]      = useState("");
 
   useEffect(() => {
     if (!localStorage.getItem("mactor_token")) { router.push("/invoices/login"); return; }
@@ -99,6 +110,42 @@ function InvoicesContent() {
     if (inv.status === "overdue")  return { label: "Cobrar", urgent: true };
     if (inv.status === "approved") return { label: "Convertir a factura", convert: true };
     return null;
+  }
+
+  // Only invoices that went out and are still unpaid can be nudged.
+  const canRemind = (inv: Invoice) => inv.type === "invoice" && (inv.status === "sent" || inv.status === "overdue");
+  const lastReminder = (inv: Invoice) => inv.sendLogs?.[0]?.sentAt || null;
+  const fmtDay = (iso: string) => new Date(iso).toLocaleDateString("es-CA", { month: "short", day: "numeric" });
+
+  async function openReminder(e: React.MouseEvent, inv: Invoice) {
+    e.stopPropagation();
+    setRemInv(inv); setRemPhone(inv.clientPhone || ""); setRemText(""); setRemLast(null); setRemError(""); setRemLoading(true);
+    try {
+      const r = await fetch(`${API}/api/invoices/${inv.id}/payment-reminder`, { headers: { Authorization: `Bearer ${token()}` } });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { setRemError(d.error || "No se pudo preparar el recordatorio"); return; }
+      setRemText(d.message || ""); setRemPhone(d.phone || inv.clientPhone || ""); setRemLast(d.lastReminderAt || null);
+    } catch { setRemError("No se pudo preparar el recordatorio"); }
+    finally { setRemLoading(false); }
+  }
+
+  async function sendReminder() {
+    if (!remInv) return;
+    setRemSending(true); setRemError("");
+    try {
+      const r = await fetch(`${API}/api/invoices/${remInv.id}/payment-reminder`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
+        body: JSON.stringify({ phone: remPhone.trim(), message: remText }),
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) { setRemError(d.error || "No se pudo enviar el SMS"); return; }
+      setInvoices(prev => prev.map(i => i.id === remInv.id ? { ...i, sendLogs: [{ sentAt: d.sentAt }] } : i));
+      setToast(`Recordatorio enviado — ${remInv.invoiceNumber}`);
+      setTimeout(() => setToast(""), 4000);
+      setRemInv(null);
+    } catch { setRemError("No se pudo enviar el SMS"); }
+    finally { setRemSending(false); }
   }
 
   async function convertRow(e: React.MouseEvent, inv: Invoice) {
@@ -172,7 +219,7 @@ function InvoicesContent() {
 
           {/* Table header */}
           {(() => {
-            const cols = mob ? "72px 1fr 96px" : "130px 1fr 120px 130px 170px";
+            const cols = mob ? "98px 1fr 100px" : "130px 1fr 120px 130px 170px";
             const hdr: React.CSSProperties = { fontSize: 11, fontWeight: 700, color: MUTED, textTransform: "uppercase" as const, letterSpacing: ".05em" };
             return (
               <div style={{ display: "grid", gridTemplateColumns: cols, padding: mob ? "8px 10px" : "10px 20px", background: SOFT, borderBottom: `1px solid ${LINE}` }}>
@@ -198,7 +245,7 @@ function InvoicesContent() {
               </button>
             </div>
           ) : years.map(yr => {
-            const cols = mob ? "72px 1fr 96px" : "130px 1fr 120px 130px 170px";
+            const cols = mob ? "98px 1fr 100px" : "130px 1fr 120px 130px 170px";
             return (
               <div key={yr}>
                 {/* Year header */}
@@ -233,16 +280,35 @@ function InvoicesContent() {
                       {inv.nickname && (
                         <div style={{ fontSize: mob ? 12 : 11, color: MUTED, fontStyle: "italic", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{inv.nickname}</div>
                       )}
+                      {canRemind(inv) && lastReminder(inv) && (
+                        <div style={{ fontSize: 11, color: MUTED, display: "flex", alignItems: "center", gap: 4, whiteSpace: "nowrap" }}>
+                          <Bell size={10} /> {mob ? "Recordado" : "Recordatorio enviado"} {fmtDay(lastReminder(inv)!)}
+                        </div>
+                      )}
                     </div>
                     {!mob && <span style={{ fontSize: 13, color: MUTED }}>{new Date(inv.invoiceDate).toLocaleDateString("en-CA",{month:"short",day:"numeric",year:"numeric"})}</span>}
-                    <div style={{ textAlign: "right" }}>
+                    <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 5 }}>
                       {!isEst && inv.status === "paid"
                         ? <span style={{ ...badge(SOFT, TEXT), fontSize: mob ? 14 : 12 }}>Pagado</span>
                         : <span style={{ fontSize: mob ? 16 : 13, fontWeight: 700, color: TEXT }}>${inv.total.toLocaleString("en-CA",{minimumFractionDigits:2})}</span>
                       }
+                      {mob && canRemind(inv) && (
+                        <button onClick={e => openReminder(e, inv)}
+                          style={{ display: "inline-flex", alignItems: "center", gap: 5, padding: "4px 9px", borderRadius: 8, border: `1px solid ${inv.status === "overdue" ? RED_SOFT : LINE}`,
+                            background: inv.status === "overdue" ? RED_SOFT : "none", color: inv.status === "overdue" ? RED : MUTED, fontSize: 11, fontWeight: 700, cursor: "pointer", whiteSpace: "nowrap" }}>
+                          <Bell size={11} /> Recordar
+                        </button>
+                      )}
                     </div>
                     {!mob && (
-                      <div style={{ textAlign: "right" }}>
+                      <div style={{ textAlign: "right", display: "flex", justifyContent: "flex-end", alignItems: "center", gap: 6 }}>
+                        {canRemind(inv) && (
+                          <button onClick={e => openReminder(e, inv)} title="Enviar recordatorio de pago por SMS"
+                            style={{ padding: "6px 9px", borderRadius: 8, border: `1px solid ${inv.status === "overdue" ? RED_SOFT : LINE}`, display: "flex", alignItems: "center",
+                              background: inv.status === "overdue" ? RED_SOFT : "none", color: inv.status === "overdue" ? RED : MUTED, cursor: "pointer" }}>
+                            <Bell size={14} />
+                          </button>
+                        )}
                         {(() => {
                           const action = nextAction(inv);
                           if (!action) return null;
@@ -287,6 +353,60 @@ function InvoicesContent() {
           </div>
         </div>
       </div>
+
+      {/* Payment reminder — preview of the exact SMS, editable before it goes out */}
+      {remInv && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.6)", zIndex: 200, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }}
+          onClick={e => e.target === e.currentTarget && !remSending && setRemInv(null)}>
+          <div style={{ background: PANEL, border: `1px solid ${LINE}`, borderRadius: 16, width: "100%", maxWidth: 440, maxHeight: "90vh", overflowY: "auto", padding: mob ? 20 : 28, boxShadow: "0 20px 60px rgba(0,0,0,.5)" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+              <h2 style={{ margin: 0, fontSize: 16, fontWeight: 800, color: TEXT, display: "flex", alignItems: "center", gap: 8 }}><Bell size={16} /> Recordatorio de pago</h2>
+              <button onClick={() => !remSending && setRemInv(null)} style={{ background: "none", border: "none", cursor: "pointer", color: MUTED, display: "flex" }}><X size={20} /></button>
+            </div>
+            <p style={{ margin: "0 0 14px", fontSize: 12, color: MUTED }}>
+              {remInv.invoiceNumber} · {remInv.clientName} · ${remInv.total.toLocaleString("en-CA", { minimumFractionDigits: 2 })}
+            </p>
+            {remLast && (
+              <p style={{ margin: "0 0 14px", fontSize: 12, color: MUTED, fontStyle: "italic", display: "flex", alignItems: "center", gap: 6 }}>
+                <Bell size={12} /> Último recordatorio: {new Date(remLast).toLocaleString("es-CA", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}
+              </p>
+            )}
+
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 6 }}>Enviar por SMS a</label>
+            <input type="tel" value={remPhone} onChange={e => setRemPhone(e.target.value)} placeholder="416-000-0000"
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${LINE}`, background: BG, color: TEXT, fontSize: 14 }} />
+            <p style={{ margin: "6px 0 14px", fontSize: 11, color: MUTED }}>Solo para este envío — no cambia el teléfono guardado del cliente.</p>
+
+            <label style={{ display: "block", fontSize: 11, fontWeight: 700, color: MUTED, textTransform: "uppercase", letterSpacing: ".04em", marginBottom: 6 }}>Mensaje</label>
+            <textarea value={remLoading ? "Preparando mensaje..." : remText} onChange={e => setRemText(e.target.value)} disabled={remLoading} rows={9}
+              style={{ width: "100%", boxSizing: "border-box", padding: "10px 12px", borderRadius: 8, border: `1px solid ${LINE}`, background: BG, color: TEXT, fontSize: 13, lineHeight: 1.45, resize: "vertical", fontFamily: "inherit" }} />
+            <p style={{ margin: "6px 0 0", fontSize: 11, color: MUTED }}>
+              Puedes editarlo antes de enviar. {remText.length > 0 && `${remText.length} caracteres · ${Math.ceil(remText.length / 153)} SMS`}
+            </p>
+
+            {remError && <p style={{ margin: "12px 0 0", fontSize: 13, color: RED, fontWeight: 600 }}>{remError}</p>}
+
+            <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+              <button onClick={sendReminder} disabled={remSending || remLoading || !remPhone.trim() || !remText.trim()}
+                style={{ flex: 1, padding: "11px", background: (remSending || remLoading || !remPhone.trim() || !remText.trim()) ? MUTED : RED, color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700,
+                  cursor: (remSending || remLoading || !remPhone.trim() || !remText.trim()) ? "not-allowed" : "pointer" }}>
+                {remSending ? "Enviando..." : "Enviar recordatorio"}
+              </button>
+              <button onClick={() => setRemInv(null)} disabled={remSending}
+                style={{ padding: "11px 18px", background: SOFT, border: "none", borderRadius: 10, fontSize: 14, cursor: "pointer", color: MUTED }}>
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {toast && (
+        <div style={{ position: "fixed", bottom: 24, left: "50%", transform: "translateX(-50%)", zIndex: 300, background: PANEL, border: `1px solid ${LINE}`, color: TEXT,
+          padding: "11px 18px", borderRadius: 10, fontSize: 13, fontWeight: 600, boxShadow: "0 10px 30px rgba(0,0,0,.5)", display: "flex", alignItems: "center", gap: 8 }}>
+          <Bell size={14} /> {toast}
+        </div>
+      )}
     </div>
   );
 }

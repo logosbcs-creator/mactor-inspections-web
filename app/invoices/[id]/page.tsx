@@ -438,7 +438,10 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
               <button onClick={() => setShowHistory(true)} title="Ver historial de envíos"
                 style={{ display:"flex", alignItems:"center", gap:4, background:"none", border:"none", cursor:"pointer", padding:0, fontSize:11, color:MUTED, flexShrink:0 }}>
                 <History size={12} />
-                {!mob && <span>Enviado {new Date(inv.sendLogs[0].sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}</span>}
+                {!mob && (() => {
+                  const sentLog = inv.sendLogs.find((l: any) => l.kind === "send");
+                  return <span>{sentLog ? `Enviado ${new Date(sentLog.sentAt).toLocaleDateString("en-CA",{month:"short",day:"numeric"})}` : "Historial"}</span>;
+                })()}
               </button>
             )}
             {inv.scheduledDate && (
@@ -1031,7 +1034,7 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
                   </div>
                   <div style={{ flex:1, minWidth:0 }}>
                     <p style={{ margin:0, fontSize:13, fontWeight:600, color:TEXT }}>
-                      {log.kind === "remind" ? "Recordatorio" : (isEst ? "Estimado enviado" : "Factura enviada")}
+                      {log.kind === "payment" ? "Recordatorio de pago" : log.kind === "remind" ? "Recordatorio de trabajo" : (isEst ? "Estimado enviado" : "Factura enviada")}
                       {log.channel === "sms" ? " · SMS" : " · Email"}
                     </p>
                     <p style={{ margin:"2px 0 0", fontSize:12, color:MUTED, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{log.recipient}</p>
