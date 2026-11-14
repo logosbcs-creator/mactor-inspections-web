@@ -331,7 +331,9 @@ export default function InvoiceDetailPage({ params }: { params: Promise<{ id: st
     const w = window.open("", "_blank");
     const ok = await ensureSaved();
     if (!ok) { w?.close(); return; }
-    const url = `${API}/api/invoices/${id}/pdf?token=${token()}`;
+    // Unique URL per open: phones key their downloaded/cached PDFs by URL, and
+    // reopening the same one shows the first copy (made before edits like HST).
+    const url = `${API}/api/invoices/${id}/pdf?token=${token()}&t=${Date.now()}`;
     if (w) w.location.href = url; else window.open(url, "_blank");
   }
 
