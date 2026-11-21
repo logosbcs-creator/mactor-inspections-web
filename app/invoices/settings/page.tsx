@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 import AppHeader from "../../components/AppHeader";
-import { Settings, Upload, UserCog, ChevronRight, type LucideIcon } from "lucide-react";
+import { Settings, Upload, UserCog, Bot, ChevronRight, type LucideIcon } from "lucide-react";
 
 const BG    = "#10131a";
 const PANEL = "#191e28";
@@ -10,6 +10,7 @@ const TEXT  = "#f3f6fc";
 const MUTED = "#aeb8ca";
 
 const ITEMS: { href: string; icon: LucideIcon; label: string; desc: string }[] = [
+  { href: "/invoices/asistente", icon: Bot, label: "Asistente Mac (WhatsApp)", desc: "Conectar correos, acciones pendientes y actividad" },
   { href: "/invoices/import", icon: Upload,  label: "Importar historial", desc: "Sube facturas y estimados generados con ChatGPT" },
   { href: "/invoices/users",  icon: UserCog, label: "Usuarios",           desc: "Cuentas con acceso al sistema" },
 ];
